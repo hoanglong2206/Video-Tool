@@ -102,6 +102,7 @@ To maintain architectural integrity, this document explicitly distinguishes betw
 *   **NFR-02: Zero Server Complexity:** No mandatory external database or object storage services required to run the studio. Runs natively with local filesystem storage.
 *   **NFR-03: Ultra-Fast Startup & Local Latency:** Bun-powered client dev server startup in $< 1\text{s}$, backend startup in $< 2\text{s}$.
 *   **NFR-04: GPU Resource Efficiency:** Dedicated GPU memory guardrails and semaphore queuing to eliminate CUDA Out-Of-Memory exceptions during concurrent renders.
+*   **NFR-05: Modularity & File Length Budget:** Strict maximum 300 - 500 lines per source code file (`.tsx`, `.ts`, `.py`). Monolithic files are strictly forbidden; UI components and business use cases must be decomposed into focused sub-components and pure utilities.
 
 ---
 

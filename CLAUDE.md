@@ -33,6 +33,11 @@
     ```
 5.  **Declarative Scene DSL Primacy:** Video compositions are modeled strictly via `@video-ai/scene-dsl`. Never write ad-hoc imperative rendering scripts.
 6.  **Toolchain Standard:** Always use **Bun** for all TypeScript/Node workspaces (`bun install`, `bun run dev`, `bun test`).
+7.  **Strict File Length Budget (Max 300 - 500 Lines):** Never generate monolithic files. All source code files must adhere to strict line count budgets:
+    *   Container components (`<FeatureName>.tsx`): $\le 500$ lines.
+    *   Presentational UI components & custom hooks: $\le 300$ lines.
+    *   Client services & Python use cases / routers: $\le 300$ lines.
+    *   **Absolute Hard Ceiling: 300 lines.** Whenever a file approaches 300 lines, decompose it immediately into focused sub-components, composed hooks, or helper modules.
 
 ---
 
@@ -131,6 +136,7 @@ All commit messages must strictly follow **Conventional Commits**:
 
 Before submitting code:
 *   [ ] Commit messages adhere to Conventional Commits format with appropriate monorepo scope.
+*   [ ] No created or modified source code file exceeds the 300 - 500 line budget.
 *   [ ] No references to deleted `IMPLEMENTATION_ROADMAP.md`.
 *   [ ] No unnecessary database dependencies (PostgreSQL/pgvector) or auth middleware added.
 *   [ ] All web UI components live within `app/features/<feature-name>/` or `app/services/`.
