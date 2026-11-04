@@ -45,8 +45,8 @@ flowchart TD
     subgraph ChunkPhase ["2. Parallel Chunk Processing"]
         Compiler --> Chunks["Divide into 180-frame Chunks"]
         Chunks --> CheckCache{"Chunk Hash Exists in renders/chunks/?"}
-        CheckCache -- Yes --> Skip["Re-use Cached Chunk MP4"]
-        CheckCache -- No --> ExecChrome["Spawn Headless Chromium (WebGL Enabled)"]
+        CheckCache -->|Yes| Skip["Re-use Cached Chunk MP4"]
+        CheckCache -->|No| ExecChrome["Spawn Headless Chromium (WebGL Enabled)"]
         ExecChrome --> FrameStep["Step Frame(t) & Extract RGBA Pixels"]
     end
 
@@ -57,7 +57,8 @@ flowchart TD
     end
 
     subgraph AssemblyPhase ["4. Final Assembly"]
-        Skip & SaveChunk --> Concat["FFmpeg Concat Demuxer (-c copy)"]
+        Skip --> Concat["FFmpeg Concat Demuxer (-c copy)"]
+        SaveChunk --> Concat
         Concat --> AudioMux["Mux Master Audio (AAC 320kbps)"]
         AudioMux --> Master["Save projects/[project-id]/renders/master_4k60.mp4"]
     end

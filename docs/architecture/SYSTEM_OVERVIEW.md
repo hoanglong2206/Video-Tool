@@ -50,10 +50,10 @@ graph TD
     end
 
     User -->|Local HTTP / Browser| Web
-    Services <-->|REST & WebSocket| Server
-    Server <--> ProjectsDir
+    Services -->|REST & WebSocket| Server
+    Server -->|Read / Write| ProjectsDir
     Server -->|Dispatch Render Job| Worker
-    Worker <--> ProjectsDir
+    Worker -->|Read Assets & Write MP4| ProjectsDir
 ```
 
 ---

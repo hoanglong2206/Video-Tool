@@ -142,11 +142,11 @@ graph TD
     RenderWorker --> Animation
     RenderWorker --> Presets
 
-    Web <-->|REST & WebSocket| Server
-    Server <--> ProjectsDir
+    Web -->|REST & WebSocket| Server
+    Server -->|Read / Write| ProjectsDir
     Server --> AI_Bridge
     Server --> RenderWorker
-    RenderWorker <--> ProjectsDir
+    RenderWorker -->|Read Assets & Write MP4| ProjectsDir
 ```
 
 ### 4.1 Monorepo Structure

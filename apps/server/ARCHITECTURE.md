@@ -128,10 +128,11 @@ flowchart TD
     
     SaveRaw --> ModeSelect{"Generation Mode"}
     
-    ModeSelect -- "Mode A: Restyle Customer Photo" --> Img2Img["Image-to-Image Pipeline (Flux/SDXL Depth/ControlNet)"]
-    ModeSelect -- "Mode B: From Scratch" --> Txt2Img["Text-to-Image Pipeline (Apple Studio Lighting Prompt)"]
+    ModeSelect -->|"Mode A: Restyle Customer Photo"| Img2Img["Image-to-Image Pipeline (Flux/SDXL Depth/ControlNet)"]
+    ModeSelect -->|"Mode B: From Scratch"| Txt2Img["Text-to-Image Pipeline (Apple Studio Lighting Prompt)"]
     
-    Img2Img & Txt2Img --> GenOutput["Save to projects/[project-id]/assets/generated/"]
+    Img2Img --> GenOutput["Save to projects/[project-id]/assets/generated/"]
+    Txt2Img --> GenOutput
     GenOutput --> Cutout["POST /api/projects/{id}/assets/cutout"]
     Cutout --> AlphaCut["BiRefNet / Rembg: Sub-pixel Alpha Masking"]
     AlphaCut --> SaveCutout["Save to projects/[project-id]/assets/cutouts/"]

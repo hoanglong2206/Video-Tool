@@ -33,8 +33,8 @@ flowchart TD
     subgraph Phase2 ["Phase 2: Chunk Scheduling & Parallel Capture"]
         Compile --> Chunks["Partition into 180-frame Chunks"]
         Chunks --> CacheCheck{"Chunk Hash in renders/chunks/?"}
-        CacheCheck -- Yes --> StreamCopy["Re-use Cached Chunk MP4"]
-        CacheCheck -- No --> LaunchChrome["Spawn Headless Chromium (WebGL Enabled)"]
+        CacheCheck -->|Yes| StreamCopy["Re-use Cached Chunk MP4"]
+        CacheCheck -->|No| LaunchChrome["Spawn Headless Chromium (WebGL Enabled)"]
         LaunchChrome --> StepFrame["Step Frame(t) via remotion_setFrame()"]
         StepFrame --> GrabRGBA["Extract Raw RGBA Byte Stream"]
     end
@@ -47,7 +47,8 @@ flowchart TD
     end
 
     subgraph Phase4 ["Phase 4: Assembly & Master Delivery"]
-        StreamCopy & RawChunk --> Concat["FFmpeg Concat Demuxer (-c copy)"]
+        StreamCopy --> Concat["FFmpeg Concat Demuxer (-c copy)"]
+        RawChunk --> Concat
         Concat --> AudioMux["Mux Master Audio (AAC 320k)"]
         AudioMux --> FinalMaster["Save projects/[project-id]/renders/master_4k60.mp4"]
         FinalMaster --> Release["Release GPU Semaphore & Notify Web Client"]

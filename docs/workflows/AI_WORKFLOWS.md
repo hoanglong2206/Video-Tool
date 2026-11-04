@@ -14,24 +14,30 @@ This document details the practical, production-oriented workflow of the studio 
 ```mermaid
 flowchart TD
     A["Customer Request & Product Photos"] --> B{"Image Gen Pipeline"}
-    B -- "Option 1: From Scratch" --> B1["Text-to-Image (Flux/SDXL Studio Prompts)"]
-    B -- "Option 2: From Customer Photo" --> B2["Image-to-Image Restyling (Apple Lighting Rig)"]
+    B -->|"Option 1: From Scratch"| B1["Text-to-Image (Flux/SDXL Studio Prompts)"]
+    B -->|"Option 2: From Customer Photo"| B2["Image-to-Image Restyling (Apple Lighting Rig)"]
     
-    B1 & B2 --> C["Asset Extraction & Item Creation"]
+    B1 --> C["Asset Extraction & Item Creation"]
+    B2 --> C
     C --> C1["Transparent Alpha Cutouts (BiRefNet/Rembg)"]
     C --> C2["3D Product Models / Mockups (.glb)"]
     C --> C3["Macro Background Plates & Textures"]
     
-    C1 & C2 & C3 --> D["Frame Composition (Scene DSL)"]
+    C1 --> D["Frame Composition (Scene DSL)"]
+    C2 --> D
+    C3 --> D
     D --> D1["Camera Trajectories (Macro Dolly, Orbital Orbit)"]
     D --> D2["Kinetic Typography Staggers (Apple Font Rigs)"]
     D --> D3["Directional Rim & Studio Lights"]
     
-    D1 & D2 & D3 --> E["Dual Editor Review"]
+    D1 --> E["Dual Editor Review"]
+    D2 --> E
+    D3 --> E
     E --> E1["Scene Editor (Spatial 3D & Layout)"]
     E --> E2["Timeline Editor (Timing, Curves & Audio)"]
     
-    E1 & E2 --> F["Remotion Real-Time In-Browser Preview"]
+    E1 --> F["Remotion Real-Time In-Browser Preview"]
+    E2 --> F
     F --> G["NVIDIA NVENC Hardware 4K60 Export"]
 ```
 
