@@ -12,32 +12,45 @@
 1.  **Honesty in Implementation Status:** Never claim an unwritten feature, API endpoint, or component exists. The repository is a **greenfield workspace**; treat the codebase as the sole source of truth.
 2.  **No Unnecessary Microservices or Heavy Databases:** Do not introduce PostgreSQL, pgvector, Alembic migrations, or S3/MinIO setups. Projects use a clean **File-Based Project Workspace** architecture (`projects/<id>/project.json`, `scenes.json`, `assets/`, `renders/`).
 3.  **No Authentication Overhead:** This is a dedicated internal studio tool for the creator. Do not write login, register, OAuth2, or JWT authorization screens or middleware.
-4.  **Strict Frontend Directory Structure in `apps/web`:**
-    All features must follow the **Feature-Sliced Architecture**:
-    ```text
-    app/features/<feature-name>/
-    ├── <FeatureName>.tsx       # Container Component (only wires hooks & layout)
-    ├── index.ts                # Public API (exports FeatureName and public types)
-    ├── types.ts                # Internal feature types
-    ├── hooks/                  # Feature custom hooks & business logic
-    └── components/             # Sub-components grouped by function
-        ├── <group-a>/
-        └── <group-b>/
-    ```
-    All external network calls, AI generation triggers, and render API clients must reside in modular service folders under:
-    ```text
-    app/services/<service-name>/
-    ├── index.ts                # Public API (export service instance & public types)
-    ├── types.ts                # Kiểu dữ liệu / types của service
-    └── <các file nghiệp vụ>    # client.ts, handlers.ts, utils.ts, etc.
-    ```
+4.  **Strict Frontend Directory Structure in `apps/web` (Next.js `src/` Convention):**
+    Using the standard Next.js `src/` directory convention:
+    *   `src/app/` holds purely the App Router routing tree:
+        ```text
+        src/app/
+        ├── layout.tsx                 # Global Root Shell (Theme, Providers)
+        ├── page.tsx                   # Project Showcase & Studio Dashboard
+        └── projects/
+            ├── new/page.tsx           # New Project Creation & Brief intake
+            └── [projectId]/
+                ├── layout.tsx         # Project Context & WebSocket Bridge
+                └── page.tsx           # Studio Workspace (Mounts Feature Containers)
+        ```
+    *   All UI features reside in `src/features/<feature-name>/`:
+        ```text
+        src/features/<feature-name>/
+        ├── <FeatureName>.tsx          # Container Component (only wires hooks & layout)
+        ├── index.ts                   # Public API (exports FeatureName and public types)
+        ├── types.ts                   # Internal feature types
+        ├── hooks/                     # Feature custom hooks & business logic
+        └── components/                # Sub-components grouped by function
+            ├── <group-a>/
+            └── <group-b>/
+        ```
+    *   All external network calls, AI generation triggers, and render API clients reside in modular service folders under:
+        ```text
+        src/services/<service-name>/
+        ├── index.ts                   # Public API (export service instance & public types)
+        ├── types.ts                   # Kiểu dữ liệu / types của service
+        └── <các file nghiệp vụ>       # client.ts, handlers.ts, utils.ts, etc.
+        ```
+    *   Global state stores live in `src/stores/`.
 5.  **Declarative Scene DSL Primacy:** Video compositions are modeled strictly via `@video-ai/scene-dsl`. Never write ad-hoc imperative rendering scripts.
 6.  **Toolchain Standard:** Always use **Bun** for all TypeScript/Node workspaces (`bun install`, `bun run dev`, `bun test`).
-7.  **Strict File Length Budget (Max 300 - 500 Lines):** Never generate monolithic files. All source code files must adhere to strict line count budgets:
-    *   Container components (`<FeatureName>.tsx`): $\le 500$ lines.
-    *   Presentational UI components & custom hooks: $\le 300$ lines.
-    *   Client services & Python use cases / routers: $\le 300$ lines.
-    *   **Absolute Hard Ceiling: 300 lines.** Whenever a file approaches 300 lines, decompose it immediately into focused sub-components, composed hooks, or helper modules.
+7.  **Strict File Length Budget (Max 250–300 Lines):** Never generate monolithic files. All source code files must adhere to strict line count budgets:
+    *   Container components (`<FeatureName>.tsx`): $\le 150$ lines.
+    *   Presentational UI components & custom hooks: $\le 200$ lines.
+    *   Client services & Python use cases / routers: $\le 220$ lines.
+    *   **Absolute Hard Ceiling: 300 lines.** Whenever a file approaches 200 lines, decompose it immediately into focused sub-components, composed hooks, or helper modules.
 
 ---
 
@@ -136,10 +149,10 @@ All commit messages must strictly follow **Conventional Commits**:
 
 Before submitting code:
 *   [ ] Commit messages adhere to Conventional Commits format with appropriate monorepo scope.
-*   [ ] No created or modified source code file exceeds the 300 - 500 line budget.
+*   [ ] No created or modified source code file exceeds the 250–300 line budget.
 *   [ ] No references to deleted `IMPLEMENTATION_ROADMAP.md`.
 *   [ ] No unnecessary database dependencies (PostgreSQL/pgvector) or auth middleware added.
-*   [ ] All web UI components live within `app/features/<feature-name>/` or `app/services/`.
+*   [ ] All web UI components live within `src/features/<feature-name>/` or `src/services/`.
 *   [ ] Commands use `bun` instead of `pnpm` or `npm`.
 *   [ ] Scene DSL updates validate against `@video-ai/scene-dsl` schemas.
 *   [ ] All Markdown documentation cross-references use valid relative links.

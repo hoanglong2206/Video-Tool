@@ -26,8 +26,8 @@
 | Subsystem | Target Architecture | Repository Status | Verification |
 | :--- | :--- | :--- | :--- |
 | **Next.js 16 App Shell** | App Router, React 19, Turbopack | **Planned (0% Implemented)** | Directory unpopulated |
-| **Feature Slices (`app/features/*`)**| Feature modular pattern | **Planned (0% Implemented)** | Directory unpopulated |
-| **Client Services (`app/services/*`)**| Centralized API & WS abstraction | **Planned (0% Implemented)** | Directory unpopulated |
+| **Feature Slices (`src/features/*`)**| Feature modular pattern | **Planned (0% Implemented)** | Directory unpopulated |
+| **Client Services (`src/services/*`)**| Centralized API & WS abstraction | **Planned (0% Implemented)** | Directory unpopulated |
 | **Zustand State Stores** | Playback, Scene Graph, Temporal Undo/Redo | **Planned (0% Implemented)** | Directory unpopulated |
 | **Remotion Player Canvas** | `@remotion/player` + R3F Canvas | **Planned (0% Implemented)** | Directory unpopulated |
 
@@ -39,14 +39,15 @@ The frontend strictly adheres to the **Feature-Sliced Architecture** and **Centr
 
 ```text
 apps/web/
-├── app/
-│   ├── layout.tsx                     # Global Root Shell (Theme, Providers)
-│   ├── page.tsx                       # Project Showcase & Studio Dashboard
-│   ├── projects/
-│   │   ├── new/page.tsx               # New Project Creation & Brief intake
-│   │   └── [projectId]/
-│   │       ├── layout.tsx             # Project Context & WebSocket Bridge
-│   │       └── page.tsx               # Studio Workspace (Mounts Feature Containers)
+├── src/
+│   ├── app/                           # Next.js App Router (Routing & Pages Only)
+│   │   ├── layout.tsx                 # Global Root Shell (Theme, Providers)
+│   │   ├── page.tsx                   # Project Showcase & Studio Dashboard
+│   │   └── projects/
+│   │       ├── new/page.tsx           # New Project Creation & Brief intake
+│   │       └── [projectId]/
+│   │           ├── layout.tsx         # Project Context & WebSocket Bridge
+│   │           └── page.tsx           # Studio Workspace (Mounts Feature Containers)
 │   │
 │   ├── features/                      # Feature-Sliced Domain Modules
 │   │   ├── brief-intake/              # Customer brief & customer asset upload
@@ -106,47 +107,47 @@ apps/web/
 │   │           ├── modal/             # ExportConfigModal, CodecSelector
 │   │           └── progress/          # GpuProgressBar, ChunkStatusGrid
 │   │
-│   └── services/                      # Client Services (Modular Service Folders)
-│       ├── api/                       # Core HTTP & fetch client service
-│       │   ├── index.ts               # Public API (export apiClient và types)
-│       │   ├── types.ts               # RequestOptions, ApiResponse, ApiError
-│       │   ├── client.ts              # Fetch wrapper, error envelope handling
-│       │   └── interceptors.ts        # Timeout, traceId, headers interceptor
-│       │
-│       ├── websocket/                 # WebSocket real-time event dispatcher
-│       │   ├── index.ts               # Public API (export wsService và types)
-│       │   ├── types.ts               # WsMessage, WsSubscription, WsPayload
-│       │   ├── socket.ts              # Connection management & auto-reconnect
-│       │   └── handlers.ts            # Progress & job event dispatchers
-│       │
-│       ├── ai/                        # AI Image generation (txt2img & img2img)
-│       │   ├── index.ts               # Public API (export aiService và types)
-│       │   ├── types.ts               # Img2ImgOptions, Txt2ImgOptions, AiResponse
-│       │   ├── client.ts              # Diffusion generation API calls
-│       │   └── prompt-builder.ts      # Apple-style prompt assembly & style presets
-│       │
-│       ├── asset/                     # Customer photo upload, cutouts, 3D glTF
-│       │   ├── index.ts               # Public API (export assetService và types)
-│       │   ├── types.ts               # UploadProgress, CutoutResult, AssetMeta
-│       │   ├── uploader.ts            # Multipart file upload handler
-│       │   └── cutout.ts              # Background removal trigger & polling
-│       │
-│       ├── scene/                     # Scene DSL persistence & AST manipulation
-│       │   ├── index.ts               # Public API (export sceneService và types)
-│       │   ├── types.ts               # SceneSaveOptions, AstValidationResult
-│       │   ├── persistence.ts         # scenes.json load & save operations
-│       │   └── validator.ts           # Client-side AST schema verification
-│       │
-│       └── render/                    # Hardware NVENC render dispatch & progress
-│           ├── index.ts               # Public API (export renderService và types)
-│           ├── types.ts               # RenderJobConfig, ProgressStats, ExportResult
-│           ├── runner.ts              # Dispatch render job, cancel job
-│           └── telemetry.ts           # Frame speed, GPU VRAM, ETA calculators
-│
-├── stores/                            # Global Zustand Stores
-│   ├── use-playback-store.ts          # High-frequency playhead & frame state
-│   ├── use-scene-store.ts             # Active Scene DSL AST with undo/redo
-│   └── use-project-store.ts           # Current project metadata
+│   ├── services/                      # Client Services (Modular Service Folders)
+│   │   ├── api/                       # Core HTTP & fetch client service
+│   │   │   ├── index.ts               # Public API (export apiClient và types)
+│   │   │   ├── types.ts               # RequestOptions, ApiResponse, ApiError
+│   │   │   ├── client.ts              # Fetch wrapper, error envelope handling
+│   │   │   └── interceptors.ts        # Timeout, traceId, headers interceptor
+│   │   │
+│   │   ├── websocket/                 # WebSocket real-time event dispatcher
+│   │   │   ├── index.ts               # Public API (export wsService và types)
+│   │   │   ├── types.ts               # WsMessage, WsSubscription, WsPayload
+│   │   │   ├── socket.ts              # Connection management & auto-reconnect
+│   │   │   └── handlers.ts            # Progress & job event dispatchers
+│   │   │
+│   │   ├── ai/                        # AI Image generation (txt2img & img2img)
+│   │   │   ├── index.ts               # Public API (export aiService và types)
+│   │   │   ├── types.ts               # Img2ImgOptions, Txt2ImgOptions, AiResponse
+│   │   │   ├── client.ts              # Diffusion generation API calls
+│   │   │   └── prompt-builder.ts      # Apple-style prompt assembly & style presets
+│   │   │
+│   │   ├── asset/                     # Customer photo upload, cutouts, 3D glTF
+│   │   │   ├── index.ts               # Public API (export assetService và types)
+│   │   │   ├── types.ts               # UploadProgress, CutoutResult, AssetMeta
+│   │   │   ├── uploader.ts            # Multipart file upload handler
+│   │   │   └── cutout.ts              # Background removal trigger & polling
+│   │   │
+│   │   ├── scene/                     # Scene DSL persistence & AST manipulation
+│   │   │   ├── index.ts               # Public API (export sceneService và types)
+│   │   │   ├── types.ts               # SceneSaveOptions, AstValidationResult
+│   │   │   ├── persistence.ts         # scenes.json load & save operations
+│   │   │   └── validator.ts           # Client-side AST schema verification
+│   │   │
+│   │   └── render/                    # Hardware NVENC render dispatch & progress
+│   │       ├── index.ts               # Public API (export renderService và types)
+│   │       ├── types.ts               # RenderJobConfig, ProgressStats, ExportResult
+│   │       ├── runner.ts              # Dispatch render job, cancel job
+│   │       └── telemetry.ts           # Frame speed, GPU VRAM, ETA calculators
+│   │
+│   └── stores/                        # Global Zustand Stores
+│       ├── use-playback-store.ts      # High-frequency playhead & frame state
+│       ├── use-scene-store.ts         # Active Scene DSL AST with undo/redo
+│       └── use-project-store.ts       # Current project metadata
 ├── package.json
 └── tsconfig.json
 ```
@@ -155,13 +156,13 @@ apps/web/
 
 ## 4. Feature Component Anatomy Pattern
 
-Every feature in `app/features/<feature-name>/` strictly implements this uniform architecture:
+Every feature in `src/features/<feature-name>/` strictly implements this uniform architecture:
 
 ```mermaid
 graph TD
     Container["[FeatureName].tsx (Container)"]
     Hooks["hooks/ (useFeatureLogic)"]
-    Service["app/services/[service-name]/ (External I/O)"]
+    Service["src/services/[service-name]/ (External I/O)"]
     SubComponents["components/[group]/ (Presentational UI)"]
     PublicAPI["index.ts (Public Exports)"]
 
@@ -175,7 +176,7 @@ graph TD
 The container component (`<FeatureName>.tsx`) never contains complex inline business logic. It connects hooks to presentational sub-components:
 
 ```tsx
-// Example: app/features/asset-generator/AssetGenerator.tsx
+// Example: src/features/asset-generator/AssetGenerator.tsx
 'use client';
 
 import React from 'react';
@@ -212,21 +213,21 @@ export const AssetGenerator: React.FC<{ projectId: string }> = ({ projectId }) =
 
 ---
 
-## 5. Client Services Architecture (`app/services/<service-name>/`)
+## 5. Client Services Architecture (`src/services/<service-name>/`)
 
-Every service in `app/services/` is structured as a dedicated directory containing its own types, implementation files, and a clean public API index:
+Every service in `src/services/` is structured as a dedicated directory containing its own types, implementation files, and a clean public API index:
 
 ```text
-app/services/<service-name>/
+src/services/<service-name>/
 ├── index.ts                # Public API (export service instance và các type công khai)
 ├── types.ts                # Kiểu dữ liệu / types nội bộ của service
 └── <các file nghiệp vụ>    # client.ts, uploader.ts, handlers.ts, utils.ts
 ```
 
-### 5.1 Service Implementation Example: `app/services/ai/`
+### 5.1 Service Implementation Example: `src/services/ai/`
 
 ```typescript
-// 1. app/services/ai/types.ts
+// 1. src/services/ai/types.ts
 export interface Img2ImgOptions {
   sourceAssetPath: string;
   prompt: string;
@@ -246,7 +247,7 @@ export interface GeneratedAssetResponse {
 ```
 
 ```typescript
-// 2. app/services/ai/client.ts
+// 2. src/services/ai/client.ts
 import { apiClient } from '@/services/api';
 import { Img2ImgOptions, Txt2ImgOptions, GeneratedAssetResponse } from './types';
 
@@ -271,7 +272,7 @@ export const aiClient = {
 ```
 
 ```typescript
-// 3. app/services/ai/index.ts
+// 3. src/services/ai/index.ts
 export { aiClient as aiService } from './client';
 export type * from './types';
 ```
@@ -280,10 +281,10 @@ export type * from './types';
 
 ## 6. Remotion Web Preview Integration
 
-The studio embeds `@remotion/player` within `app/features/video-preview/` to execute live frame rendering:
+The studio embeds `@remotion/player` within `src/features/video-preview/` to execute live frame rendering:
 
 ```tsx
-// app/features/video-preview/components/player/RemotionPlayerWrapper.tsx
+// src/features/video-preview/components/player/RemotionPlayerWrapper.tsx
 'use client';
 
 import React from 'react';

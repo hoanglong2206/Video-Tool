@@ -62,7 +62,7 @@ graph TD
 
 ### 3.1 Client Application (`apps/web`)
 *   **Role:** User presentation, creative authoring, real-time preview.
-*   **Structure:** Organized strictly into `app/features/<feature-name>/` and `app/services/`.
+*   **Structure:** Organized strictly into `src/app/` (routing tree), `src/features/<feature-name>/`, `src/services/<service-name>/`, and `src/stores/`.
 *   **State:** Local Zustand stores managing playback time, active layer selection, and Scene DSL AST with undo/redo history.
 *   **Auth:** Zero authentication: direct access for the studio creator.
 

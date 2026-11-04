@@ -45,9 +45,11 @@ Adopt **Bun (v1.1+)** as the universal workspace package manager and TypeScript 
 Large non-linear video editing UIs can become unmaintainable when components, hooks, and business logic are mixed into monolithic page files or arbitrary component folders.
 
 ### Decision
-Upgrade to **Next.js 16 (React 19)** using Turbopack and enforce a strict **Feature-Sliced Architecture**:
-*   Every feature resides in `app/features/<feature-name>/` with `<FeatureName>.tsx`, `index.ts`, `types.ts`, `hooks/`, and `components/`.
-*   All client-side external I/O resides in `app/services/`.
+Upgrade to **Next.js 16 (React 19)** using Turbopack and enforce the standard Next.js `src/` directory convention:
+*   The App Router routing tree lives purely in `src/app/` (`layout.tsx`, `page.tsx`, `projects/`).
+*   Every feature resides in `src/features/<feature-name>/` with `<FeatureName>.tsx`, `index.ts`, `types.ts`, `hooks/`, and `components/`.
+*   All client-side external I/O resides in modular service folders under `src/services/<service-name>/`.
+*   Global state stores live in `src/stores/`.
 
 ### Consequences
 *   **Positive:** Clear public APIs per feature; isolated testing; fast Turbopack compilation; zero component spaghetti.

@@ -10,7 +10,7 @@
 ## 1. Codebase Philosophy & Engineering Tenets
 
 1.  **Deterministic Over Ad-Hoc:** All video compositions and animations must be mathematically reproducible. Avoid non-deterministic algorithms or unversioned local assets.
-2.  **Feature-Sliced Web Architecture:** All frontend UI logic belongs strictly in `app/features/<feature-name>/`, while external I/O belongs in `app/services/`.
+2.  **Feature-Sliced Web Architecture:** All frontend UI logic belongs strictly in `src/features/<feature-name>/`, while external I/O belongs in `src/services/<service-name>/`.
 3.  **Local Filesystem Primacy:** Project data lives in `projects/<id>/`. Do not introduce heavyweight external database servers (PostgreSQL/pgvector) or external object stores.
 4.  **Zero Hallucinated Implementation:** Code and documentation must reflect only verified, working implementations.
 5.  **Strict File Length & Complexity Budget:** Files must remain compact, modular, and single-responsibility. Never allow source files to grow into unmaintainable monoliths.
@@ -25,15 +25,15 @@ To prevent code bloat, maintain readability, and facilitate AI agent pair-progra
 
 | File Type / Role | Location Pattern | Target Line Count | Strict Hard Limit | Action on Limit Exceeded |
 | :--- | :--- | :--- | :--- | :--- |
-| **Container Components** | `app/features/*/*.tsx` | $\le 500$ lines | **600 lines** | Move inline logic to custom hooks |
-| **Presentational Components**| `app/features/*/components/**/*.tsx` | $\le 400$ lines | **450 lines** | Split into sub-components in subfolders |
-| **Custom Hooks** | `app/features/*/hooks/*.ts` | $\le 300$ lines | **350 lines** | Decompose into composed hooks or pure utils |
-| **Client Services** | `app/services/*/*.ts` | $\le 300$ lines | **350 lines** | Split into specialized handlers / clients |
-| **Zustand State Stores** | `stores/*.ts` | $\le 200$ lines | **250 lines** | Separate store into modular slices |
-| **Python Domain Entities** | `apps/server/src/domain/entities/*.py`| $\le 200$ lines | **250 lines** | Separate aggregate roots / value objects |
-| **Python Use Cases** | `apps/server/src/application/use_cases/*.py` | $\le 250$ lines | **300 lines** | Enforce Single Responsibility Principle |
-| **Python API Routers** | `apps/server/src/api/routers/*.py` | $\le 250$ lines | **300 lines** | Split into nested resource sub-routers |
-| **Infrastructure Adapters**| `apps/server/src/infrastructure/**/*.py`| $\le 250$ lines | **300 lines** | Extract helper utilities or sub-clients |
+| **Container Components** | `src/features/*/*.tsx` | $\le 100$ lines | **150 lines** | Move inline logic to custom hooks |
+| **Presentational Components**| `src/features/*/components/**/*.tsx` | $\le 120$ lines | **200 lines** | Split into sub-components in subfolders |
+| **Custom Hooks** | `src/features/*/hooks/*.ts` | $\le 120$ lines | **180 lines** | Decompose into composed hooks or pure utils |
+| **Client Services** | `src/services/*/*.ts` | $\le 150$ lines | **220 lines** | Split into specialized handlers / clients |
+| **Zustand State Stores** | `src/stores/*.ts` | $\le 100$ lines | **160 lines** | Separate store into modular slices |
+| **Python Domain Entities** | `apps/server/src/domain/entities/*.py`| $\le 100$ lines | **150 lines** | Separate aggregate roots / value objects |
+| **Python Use Cases** | `apps/server/src/application/use_cases/*.py` | $\le 120$ lines | **180 lines** | Enforce Single Responsibility Principle |
+| **Python API Routers** | `apps/server/src/api/routers/*.py` | $\le 150$ lines | **220 lines** | Split into nested resource sub-routers |
+| **Infrastructure Adapters**| `apps/server/src/infrastructure/**/*.py`| $\le 180$ lines | **250 lines** | Extract helper utilities or sub-clients |
 | **Render Pipelines & Compilers**| `apps/render/src/**/*.ts` | $\le 180$ lines | **250 lines** | Modularize chunking, IPC, and NVENC runners |
 | **Shared Contracts & AST** | `packages/**/*.ts` | $\le 150$ lines | **200 lines** | Group schemas by domain entity |
 
@@ -43,12 +43,12 @@ To prevent code bloat, maintain readability, and facilitate AI agent pair-progra
 
 ### 2.2 Decomposition & Refactoring Triggers
 1.  **Component Decomposition Trigger:** A component must be split if:
-    *   It contains more than 500 lines of code.
+    *   It contains more than 150 lines of code.
     *   It renders more than 2 distinct functional UI regions.
     *   It manages multiple unrelated `useState` or `useEffect` hooks.
 2.  **Hook Decomposition Trigger:** A custom hook must be split if:
     *   It manages more than one distinct state machine or network lifecycle.
-    *   It contains more than 300 lines of procedural logic.
+    *   It contains more than 120 lines of procedural logic.
 3.  **Router Decomposition Trigger:** A FastAPI router must be split into sub-routers if it handles more than 5 distinct HTTP endpoints.
 
 ---
@@ -59,18 +59,18 @@ To prevent code bloat, maintain readability, and facilitate AI agent pair-progra
 *   **Package Manager & Runner:** Always use **Bun** (`bun install`, `bun test`, `bun run dev`).
 *   **TypeScript Strictness:** `"strict": true`, `"noImplicitAny": true`, `"noUnusedLocals": true`.
 *   **Feature Anatomy Standard:**
-    Every feature in `apps/web/app/features/` must follow this structure:
+    Every feature in `apps/web/src/features/` must follow this structure:
     ```text
-    app/features/<feature-name>/
+    src/features/<feature-name>/
     ├── <FeatureName>.tsx       # Container Component (only connects hooks & layout)
     ├── index.ts                # Public API (export FeatureName and public types)
     ├── types.ts                # Internal feature types
     ├── hooks/                  # Custom hooks & business logic
     └── components/             # Presentational components grouped by function
     ```
-*   **Services Layer Anatomy:** All REST calls, WebSocket listeners, and file upload clients must live in modular service folders in `apps/web/app/services/<service-name>/`:
+*   **Services Layer Anatomy:** All REST calls, WebSocket listeners, and file upload clients must live in modular service folders in `apps/web/src/services/<service-name>/`:
     ```text
-    app/services/<service-name>/
+    src/services/<service-name>/
     ├── index.ts                # Public API (export service instance & public types)
     ├── types.ts                # Kiểu dữ liệu / types của service
     └── <các file nghiệp vụ>    # client.ts, handlers.ts, utils.ts

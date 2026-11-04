@@ -55,7 +55,7 @@ video-ai-demo/
 │   ├── scene-dsl/              # Declarative Scene DSL specification & AST parser
 │   ├── animation/              # Spring physics solvers, bezier curves, camera math
 │   └── preset-apple/           # Apple-style typography presets, lighting rigs, shaders
-├── projects/                   # Local file-based project workspaces (<id>/project.json, assets/)
+├── projects/                   # Local file-based project workspaces ([project-id]/project.json, assets/)
 ├── docs/                       # Comprehensive architectural & API documentation
 ├── CLAUDE.md                   # AI agent operational guidelines
 ├── PROJECT.md                  # Central project specification
