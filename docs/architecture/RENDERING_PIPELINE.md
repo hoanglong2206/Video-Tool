@@ -24,13 +24,13 @@ Because the project workspace resides directly on the host NVMe filesystem (`pro
 
 ```mermaid
 flowchart TD
-    subgraph "Phase 1: Local Preparation"
-        Job["Render Request: projects/<id>/"] --> Lock["Check GPU NVENC Semaphore"]
-        Lock --> Read["Read projects/<id>/scenes.json"]
+    subgraph Phase1 ["Phase 1: Local Preparation"]
+        Job["Render Request: projects/[project-id]/"] --> Lock["Check GPU NVENC Semaphore"]
+        Lock --> Read["Read projects/[project-id]/scenes.json"]
         Read --> Compile["Compile AST into Remotion RootComposition"]
     end
 
-    subgraph "Phase 2: Chunk Scheduling & Parallel Capture"
+    subgraph Phase2 ["Phase 2: Chunk Scheduling & Parallel Capture"]
         Compile --> Chunks["Partition into 180-frame Chunks"]
         Chunks --> CacheCheck{"Chunk Hash in renders/chunks/?"}
         CacheCheck -- Yes --> StreamCopy["Re-use Cached Chunk MP4"]
@@ -39,17 +39,17 @@ flowchart TD
         StepFrame --> GrabRGBA["Extract Raw RGBA Byte Stream"]
     end
 
-    subgraph "Phase 3: Hardware NVENC Encode"
+    subgraph Phase3 ["Phase 3: Hardware NVENC Encode"]
         GrabRGBA --> NamedPipe["Pipe to Named Pipe (/tmp/render_pipe)"]
         NamedPipe --> FFmpeg["FFmpeg Subprocess (h264_nvenc)"]
         FFmpeg --> NVENC["NVIDIA Hardware NVENC Core"]
         NVENC --> RawChunk["Write Chunk MP4"]
     end
 
-    subgraph "Phase 4: Assembly & Master Delivery"
+    subgraph Phase4 ["Phase 4: Assembly & Master Delivery"]
         StreamCopy & RawChunk --> Concat["FFmpeg Concat Demuxer (-c copy)"]
         Concat --> AudioMux["Mux Master Audio (AAC 320k)"]
-        AudioMux --> FinalMaster["Save projects/<id>/renders/master_4k60.mp4"]
+        AudioMux --> FinalMaster["Save projects/[project-id]/renders/master_4k60.mp4"]
         FinalMaster --> Release["Release GPU Semaphore & Notify Web Client"]
     end
 ```

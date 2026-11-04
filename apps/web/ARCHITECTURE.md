@@ -159,10 +159,10 @@ Every feature in `app/features/<feature-name>/` strictly implements this uniform
 
 ```mermaid
 graph TD
-    Container["<FeatureName>.tsx (Container)"]
+    Container["[FeatureName].tsx (Container)"]
     Hooks["hooks/ (useFeatureLogic)"]
-    Service["app/services/<service-name>/ (External I/O)"]
-    SubComponents["components/<group>/ (Presentational UI)"]
+    Service["app/services/[service-name]/ (External I/O)"]
+    SubComponents["components/[group]/ (Presentational UI)"]
     PublicAPI["index.ts (Public Exports)"]
 
     Container --> Hooks

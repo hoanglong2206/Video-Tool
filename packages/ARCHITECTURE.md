@@ -18,23 +18,23 @@ Adhering strictly to a **Directed Acyclic Graph (DAG)**:
 
 ```mermaid
 graph TD
-    subgraph Applications
+    subgraph AppTier ["Applications Tier"]
         Web["apps/web (Next.js 16 + Bun)"]
         Server["apps/server (FastAPI)"]
         Render["apps/render (Remotion + NVENC)"]
     end
 
-    subgraph "Domain & Contracts Tier"
+    subgraph DomainTier ["Domain & Contracts Tier"]
         Contracts["@video-ai/contracts"]
         Assets["@video-ai/assets"]
     end
 
-    subgraph "Core Synthesis Tier"
+    subgraph CoreTier ["Core Synthesis Tier"]
         SceneDSL["@video-ai/scene-dsl"]
         Animation["@video-ai/animation"]
     end
 
-    subgraph "Apple Aesthetic Presets"
+    subgraph PresetsTier ["Apple Aesthetic Presets"]
         PresetApple["@video-ai/preset-apple"]
     end
 

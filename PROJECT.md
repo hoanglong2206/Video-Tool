@@ -109,7 +109,7 @@ To maintain architectural integrity, this document explicitly distinguishes betw
 
 ```mermaid
 graph TD
-    subgraph Client Tier
+    subgraph ClientTier ["Client Tier"]
         Web["apps/web (Next.js 16 + Bun)"]
         WebFeatures["Feature Slices: brief, asset-gen, scene-editor, timeline-editor, preview"]
         WebServices["Client Services: api, ai, render, asset, scene"]
@@ -117,14 +117,14 @@ graph TD
         Web --- WebServices
     end
 
-    subgraph Backend & Execution Tier
+    subgraph BackendTier ["Backend & Execution Tier"]
         Server["apps/server (FastAPI)"]
-        ProjectsDir[("Local File Workspace: projects/<id>/")]
+        ProjectsDir[("Local File Workspace: projects/[project-id]/")]
         RenderWorker["apps/render (Remotion + Chromium + NVENC)"]
         AI_Bridge["AI Generation Adapters (Flux, SDXL, ComfyUI, APIs)"]
     end
 
-    subgraph Shared Core Tier
+    subgraph SharedCoreTier ["Shared Core Tier"]
         Contracts["packages/contracts"]
         DSL["packages/scene-dsl"]
         Animation["packages/animation"]
@@ -189,7 +189,7 @@ sequenceDiagram
 
     Creator->>Web: Provide Brief & Upload Customer Product Images
     Web->>API: POST /api/projects/{id}/brief
-    API->>FS: Save brief & customer raw assets in projects/<id>/assets/
+    API->>FS: Save brief & customer raw assets in projects/[project-id]/assets/
     
     Creator->>Web: Trigger AI Image Generation (txt2img or img2img)
     Web->>API: POST /api/projects/{id}/assets/generate
@@ -197,7 +197,7 @@ sequenceDiagram
     AI-->>API: Generated visual frames & textures
     API->>AI: Execute Background Cutout (BiRefNet/Rembg)
     AI-->>API: Transparent product cutouts
-    API->>FS: Store in projects/<id>/assets/
+    API->>FS: Store in projects/[project-id]/assets/
 
     API->>API: Generate Initial Scene DSL (scenes.json)
     API-->>Web: Push Scene Graph (WebSocket: 'scene:ready')
@@ -211,7 +211,7 @@ sequenceDiagram
     API->>Render: Dispatch Render Job with project directory path
     Render->>FS: Read scenes.json and local assets
     Render->>Render: Chromium WebGL stepping & FFmpeg NVENC encode
-    Render->>FS: Write output video to projects/<id>/renders/master.mp4
+    Render->>FS: Write output video to projects/[project-id]/renders/master.mp4
     Render-->>API: Emit Render Complete
     API-->>Web: WebSocket 'render:complete'
     Web-->>Creator: Display Final 4K Video for Instant Playback & Export

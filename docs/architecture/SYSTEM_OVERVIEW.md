@@ -25,7 +25,7 @@ The architecture emphasizes zero maintenance overhead, maximum rendering speed, 
 graph TD
     User["Creator / Motion Designer"]
 
-    subgraph "Studio Frontend (apps/web - Next.js 16 + Bun)"
+    subgraph FrontendTier ["Studio Frontend (apps/web - Next.js 16 + Bun)"]
         Web["Studio Shell (App Router)"]
         Features["Feature Slices: brief, asset-gen, scene-editor, timeline-editor, preview"]
         Services["Client Services: api, ai, render, asset, scene"]
@@ -33,17 +33,17 @@ graph TD
         Features --- Services
     end
 
-    subgraph "Orchestration & AI Backend (apps/server - FastAPI)"
+    subgraph BackendTier ["Orchestration & AI Backend (apps/server - FastAPI)"]
         Server["FastAPI Orchestrator"]
         AI_Bridge["AI Diffusion & Cutout Bridge (Flux / SDXL / Rembg)"]
         Server --- AI_Bridge
     end
 
-    subgraph "Local Storage (No Database Server Required)"
-        ProjectsDir[("Local File Workspace: projects/<id>/<br/>• project.json<br/>• scenes.json<br/>• assets/ (raw, generated, cutouts)<br/>• renders/")]
+    subgraph StorageTier ["Local Storage (No Database Server Required)"]
+        ProjectsDir[("Local File Workspace: projects/[project-id]/")]
     end
 
-    subgraph "Hardware Render Engine (apps/render)"
+    subgraph RenderTier ["Hardware Render Engine (apps/render)"]
         Worker["Render Daemon (Remotion CLI + Headless Chrome)"]
         NVENC["NVIDIA NVENC Hardware Encoder (h264_nvenc)"]
         Worker --> NVENC

@@ -37,12 +37,12 @@
 
 ```mermaid
 flowchart TD
-    subgraph "1. Dispatch & AST Compilation"
-        Job["Render Request: projects/<id>/"] --> ReadDSL["Read projects/<id>/scenes.json"]
+    subgraph PrepPhase ["1. Dispatch & AST Compilation"]
+        Job["Render Request: projects/[project-id]/"] --> ReadDSL["Read projects/[project-id]/scenes.json"]
         ReadDSL --> Compiler["Compile to Remotion RootComposition"]
     end
 
-    subgraph "2. Parallel Chunk Processing"
+    subgraph ChunkPhase ["2. Parallel Chunk Processing"]
         Compiler --> Chunks["Divide into 180-frame Chunks"]
         Chunks --> CheckCache{"Chunk Hash Exists in renders/chunks/?"}
         CheckCache -- Yes --> Skip["Re-use Cached Chunk MP4"]
@@ -50,16 +50,16 @@ flowchart TD
         ExecChrome --> FrameStep["Step Frame(t) & Extract RGBA Pixels"]
     end
 
-    subgraph "3. Hardware NVENC Encode"
+    subgraph EncodePhase ["3. Hardware NVENC Encode"]
         FrameStep --> Pipe["Named Pipe / Shared Memory FIFO"]
         Pipe --> NVENC["FFmpeg Subprocess (h264_nvenc -preset p7)"]
-        NVENC --> SaveChunk["Write Chunk to renders/chunks/<hash>.mp4"]
+        NVENC --> SaveChunk["Write Chunk to renders/chunks/[hash].mp4"]
     end
 
-    subgraph "4. Final Assembly"
+    subgraph AssemblyPhase ["4. Final Assembly"]
         Skip & SaveChunk --> Concat["FFmpeg Concat Demuxer (-c copy)"]
         Concat --> AudioMux["Mux Master Audio (AAC 320kbps)"]
-        AudioMux --> Master["Save projects/<id>/renders/master_4k60.mp4"]
+        AudioMux --> Master["Save projects/[project-id]/renders/master_4k60.mp4"]
     end
 ```
 

@@ -25,7 +25,7 @@ sequenceDiagram
     participant Web as apps/web (Next.js 16)
     participant API as apps/server (FastAPI)
     participant AI as AI Diffusion & Cutout Engine
-    participant FS as Local Filesystem (projects/<id>/)
+    participant FS as Local Filesystem (projects/[project-id]/)
 
     Creator->>Web: Input Brief & Upload Customer Product Photo
     Web->>API: POST /api/projects/{id}/brief
@@ -53,12 +53,12 @@ sequenceDiagram
     actor Creator as Studio Creator
     participant Web as apps/web
     participant API as apps/server
-    participant FS as Local Filesystem (projects/<id>/)
+    participant FS as Local Filesystem (projects/[project-id]/)
 
     Creator->>Web: Click "Generate Initial Trailer Frames"
     Web->>API: POST /api/projects/{id}/scenes/synthesize
     API->>API: Compose 6-scene AST (Camera trajectories, lighting rigs, text staggers)
-    API->>FS: Write to projects/<id>/scenes.json
+    API->>FS: Write to projects/[project-id]/scenes.json
     API-->>Web: WebSocket 'scene:ready' with SceneCompositionDSL
     Web-->>Creator: Load scenes into Scene Editor & Timeline Editor
 ```
@@ -80,7 +80,7 @@ sequenceDiagram
     Store-->>Editor: Re-render WebGL canvas and timeline curve
     Note over Editor,API: Auto-save debounce (e.g. 500ms)
     Editor->>API: PUT /api/projects/{id}/scenes (JSON AST)
-    API->>FS: Overwrite projects/<id>/scenes.json
+    API->>FS: Overwrite projects/[project-id]/scenes.json
     API-->>Editor: 200 OK (Saved)
 ```
 
@@ -99,7 +99,7 @@ sequenceDiagram
     Creator->>Web: Click "Export Master MP4" (4K60 Apple Master Preset)
     Web->>API: POST /api/projects/{id}/render
     API->>Render: Dispatch render job with project folder path
-    Render->>FS: Read projects/<id>/scenes.json and local assets
+    Render->>FS: Read projects/[project-id]/scenes.json and local assets
     loop 180-frame Chunks
         Render->>Render: Headless Chromium WebGL stepping
         Render->>Render: Pipe raw RGBA to FFmpeg NVENC (h264_nvenc)
@@ -107,7 +107,7 @@ sequenceDiagram
         API-->>Web: WebSocket 'render:progress'
         Web-->>Creator: Update GPU Progress Bar
     end
-    Render->>FS: Write final master to projects/<id>/renders/master_4k60.mp4
+    Render->>FS: Write final master to projects/[project-id]/renders/master_4k60.mp4
     Render-->>API: Render Completed
     API-->>Web: WebSocket 'render:complete'
     Web-->>Creator: Display master video with download and local play controls
@@ -119,13 +119,13 @@ sequenceDiagram
 
 ```mermaid
 graph TD
-    A["Customer Request & Product Photo"] -->|Local Upload| B["projects/<id>/assets/raw/"]
+    A["Customer Request & Product Photo"] -->|Local Upload| B["projects/[project-id]/assets/raw/"]
     B -->|AI Restyling & Cutout| C["Transparent Product PNGs & Textures"]
-    C -->|Scene Synthesizer| D["projects/<id>/scenes.json (Declarative AST)"]
+    C -->|Scene Synthesizer| D["projects/[project-id]/scenes.json (Declarative AST)"]
     D -->|Dual Editor Tuning| E["Mutated Scene DSL"]
     E -->|Remotion Compiler| F["Executable React & WebGL DOM"]
     F -->|Chromium Frame Stepping| G["Raw RGBA Byte Stream"]
-    G -->|NVIDIA NVENC Hardware Encode| H["projects/<id>/renders/master_4k60.mp4"]
+    G -->|NVIDIA NVENC Hardware Encode| H["projects/[project-id]/renders/master_4k60.mp4"]
 ```
 
 ---

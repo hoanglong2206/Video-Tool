@@ -52,15 +52,15 @@ sequenceDiagram
     participant FS as Local Filesystem
 
     Creator->>API: Upload customer photo (e.g. phone, watch, bottle)
-    API->>FS: Save to projects/<id>/assets/raw/
+    API->>FS: Save to projects/[project-id]/assets/raw/
     Creator->>API: Request Restyle: 'Apple Keynote Minimalist Dark'
     API->>AI: Execute img2img with Depth/Canny conditioning
     Note over AI: Preserves exact product shape while relighting with studio rim sweeps
     AI-->>API: Restyled high-res hero image
-    API->>FS: Save to projects/<id>/assets/generated/
+    API->>FS: Save to projects/[project-id]/assets/generated/
     API->>Cutout: Process background removal
     Cutout-->>API: Crisp transparent cutout PNG
-    API->>FS: Save to projects/<id>/assets/cutouts/
+    API->>FS: Save to projects/[project-id]/assets/cutouts/
     API-->>Creator: Ready for Scene DSL compositing
 ```
 

@@ -20,32 +20,32 @@ To eliminate premature enterprise complexity, the backend rejects heavy external
 
 ```mermaid
 graph TD
-    subgraph Presentation Layer
-        API[FastAPI Routers: Projects, Assets, Scenes, Render]
-        WS[WebSocket Manager: Real-time progress]
+    subgraph PresentationTier ["Presentation Layer"]
+        API["FastAPI Routers: Projects, Assets, Scenes, Render"]
+        WS["WebSocket Manager: Real-time progress"]
     end
 
-    subgraph Application Layer
-        UseCases[Use Cases: CreateProject, GenerateImg2Img, ExtractCutout, RenderExport]
-        DTOs[Pydantic v2 Request / Response Models]
+    subgraph ApplicationTier ["Application Layer"]
+        UseCases["Use Cases: CreateProject, GenerateImg2Img, ExtractCutout, RenderExport"]
+        DTOs["Pydantic v2 Request / Response Models"]
     end
 
-    subgraph Domain Layer
-        Entities[Domain Entities: Project, SceneDSL, Asset]
-        RepoInterfaces[Repository Interfaces: IProjectRepository, IAssetStorage]
+    subgraph DomainTier ["Domain Layer"]
+        Entities["Domain Entities: Project, SceneDSL, Asset"]
+        RepoInterfaces["Repository Interfaces: IProjectRepository, IAssetStorage"]
     end
 
-    subgraph Infrastructure Layer
-        FSRepo[FileSystemProjectRepository: projects/<id>/]
-        SQLiteIndex[Local SQLite Index: projects.db]
-        AI_Adapters[AI Diffusion & Cutout Adapters: Flux, SDXL, BiRefNet]
-        RenderClient[Render Process IPC / Subprocess Client]
+    subgraph InfrastructureTier ["Infrastructure Layer"]
+        FSRepo["FileSystemProjectRepository: projects/[project-id]/"]
+        SQLiteIndex["Local SQLite Index: projects.db"]
+        AI_Adapters["AI Diffusion & Cutout Adapters: Flux, SDXL, BiRefNet"]
+        RenderClient["Render Process IPC / Subprocess Client"]
     end
 
-    Presentation Layer --> Application Layer
-    Application Layer --> Domain Layer
-    Infrastructure Layer --> Domain Layer
-    Infrastructure Layer -.->|Implements| RepoInterfaces
+    PresentationTier --> ApplicationTier
+    ApplicationTier --> DomainTier
+    InfrastructureTier --> DomainTier
+    InfrastructureTier -.->|Implements| RepoInterfaces
 ```
 
 ---
@@ -124,17 +124,17 @@ A core capability of the backend is handling customer product photos and transfo
 ```mermaid
 flowchart TD
     Client["Client / Creator Upload"] --> Upload["POST /api/projects/{id}/assets/upload"]
-    Upload --> SaveRaw["Save to projects/<id>/assets/raw/<filename>"]
+    Upload --> SaveRaw["Save to projects/[project-id]/assets/raw/"]
     
     SaveRaw --> ModeSelect{"Generation Mode"}
     
     ModeSelect -- "Mode A: Restyle Customer Photo" --> Img2Img["Image-to-Image Pipeline (Flux/SDXL Depth/ControlNet)"]
     ModeSelect -- "Mode B: From Scratch" --> Txt2Img["Text-to-Image Pipeline (Apple Studio Lighting Prompt)"]
     
-    Img2Img & Txt2Img --> GenOutput["Save to projects/<id>/assets/generated/"]
+    Img2Img & Txt2Img --> GenOutput["Save to projects/[project-id]/assets/generated/"]
     GenOutput --> Cutout["POST /api/projects/{id}/assets/cutout"]
     Cutout --> AlphaCut["BiRefNet / Rembg: Sub-pixel Alpha Masking"]
-    AlphaCut --> SaveCutout["Save to projects/<id>/assets/cutouts/"]
+    AlphaCut --> SaveCutout["Save to projects/[project-id]/assets/cutouts/"]
     SaveCutout --> UpdateDSL["Inject into scenes.json as LayerNode"]
 ```
 
