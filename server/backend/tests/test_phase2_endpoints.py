@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 
 # Add project root to sys.path
-root = Path(__file__).resolve().parent
+root = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(root))
 
 from httpx import AsyncClient, ASGITransport
