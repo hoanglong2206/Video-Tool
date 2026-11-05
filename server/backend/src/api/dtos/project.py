@@ -33,4 +33,23 @@ class CreateProjectRequestDTO(BaseModel):
 
     name: str = Field(min_length=1, max_length=255)
     brief: str | None = None
+    client: str | None = None
+    duration: str | None = None
+    aspect_ratio: str | None = None
+    style_preference: str | None = None
 
+
+class BriefCheckRequestDTO(BaseModel):
+    """Payload to evaluate creative brief completeness."""
+
+    brief: str
+    project_name: str | None = None
+    client: str | None = None
+
+
+class BriefCheckResponseDTO(BaseModel):
+    """AI evaluation of the client creative brief."""
+
+    missing_items: list[str]
+    suggested_structure: str
+    is_complete: bool

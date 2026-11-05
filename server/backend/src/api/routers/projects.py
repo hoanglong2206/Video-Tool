@@ -1,6 +1,8 @@
 from uuid import uuid4
 from fastapi import APIRouter, status
 from server.backend.src.api.dtos.project import (
+    BriefCheckRequestDTO,
+    BriefCheckResponseDTO,
     CreateProjectRequestDTO,
     ProjectResponseDTO,
 )
@@ -75,3 +77,19 @@ async def create_project(payload: CreateProjectRequestDTO) -> ProjectResponseDTO
     _PROJECTS_STORAGE.insert(0, new_project)
     return ProjectResponseDTO.from_domain(new_project)
 
+
+@router.post("/brief-check", response_model=BriefCheckResponseDTO)
+async def check_brief_completeness(payload: BriefCheckRequestDTO) -> BriefCheckResponseDTO:
+    """AI assessment of client brief completeness and structure recommendations."""
+    missing: list[str] = []
+    text = payload.brief.lower()
+    if "target" not in text and "audience" not in text:
+        missing.append("target audience.")
+    if not any(k in text for k in ["call-to-action", "cta", "order", "buy", "visit"]):
+        missing.append("call-to-action text.")
+
+    return BriefCheckResponseDTO(
+        missing_items=missing,
+        suggested_structure="6 scenes, about 5 s each.",
+        is_complete=len(missing) == 0,
+    )
