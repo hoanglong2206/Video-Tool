@@ -37,3 +37,4 @@ export function CanvasViewport({ properties }: CanvasViewportProps): React.React
     </div>
   );
 }
+

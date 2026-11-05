@@ -47,3 +47,4 @@ export function EditorJourneyBar(): React.ReactElement {
     </div>
   );
 }
+

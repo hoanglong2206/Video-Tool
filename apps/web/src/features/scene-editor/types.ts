@@ -29,3 +29,4 @@ export interface MotionSuggestion {
   cameraOrbitDeg: number;
   sweepDurationSec: number;
 }
+
