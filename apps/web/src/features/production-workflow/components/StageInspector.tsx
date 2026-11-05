@@ -1,5 +1,6 @@
 import React from "react";
 import type { PipelineStage } from "../types";
+import { Badge, Button } from "@/components/ui";
 
 interface StageInspectorProps {
   stage: PipelineStage;
@@ -23,13 +24,11 @@ export function StageInspector({
 
       <div className="mb-4">
         {isWaitingApproval ? (
-          <span className="bg-[#2D2111] text-[#F59E0B] border border-[#784D16] rounded-full px-2.5 py-0.5 text-[10px] font-medium inline-block">
-            Waiting for approval
-          </span>
+          <Badge variant="warning">Waiting for approval</Badge>
         ) : (
-          <span className="bg-[#132E27] text-[#10B981] border border-[#065F46] rounded-full px-2.5 py-0.5 text-[10px] font-medium inline-block capitalize">
+          <Badge variant="success" className="capitalize">
             {stage.status.replace("_", " ")}
-          </span>
+          </Badge>
         )}
       </div>
 
@@ -62,21 +61,17 @@ export function StageInspector({
 
       {/* Actions */}
       <div className="flex items-center gap-2.5 mt-auto pt-4 border-t border-[#1C2436]/60">
-        <button
-          type="button"
-          onClick={() => onApprove(stage.id)}
-          className="h-8 px-4 rounded-md text-xs font-medium text-white bg-[#3B82F6] hover:bg-[#2563EB] active:scale-[0.98] transition-all shadow-sm"
-        >
+        <Button size="sm" onClick={() => onApprove(stage.id)}>
           Approve
-        </button>
+        </Button>
 
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          size="sm"
           onClick={() => onRequestRevision(stage.id)}
-          className="h-8 px-3.5 rounded-md text-xs font-medium text-slate-300 bg-[#141A27] border border-[#242D40] hover:bg-[#1C2538] hover:text-white transition-all shadow-sm"
         >
           Request revision
-        </button>
+        </Button>
       </div>
     </aside>
   );

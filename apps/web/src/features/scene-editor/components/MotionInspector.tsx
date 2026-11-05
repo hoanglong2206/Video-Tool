@@ -1,5 +1,6 @@
 import React from "react";
 import type { LayerProperties, MotionSuggestion } from "../types";
+import { Button } from "@/components/ui";
 
 interface MotionInspectorProps {
   properties: LayerProperties;
@@ -60,20 +61,21 @@ export function MotionInspector({
           </p>
 
           <div className="flex items-center gap-2 mt-3 pt-2">
-            <button
-              type="button"
-              className="h-7 px-3 rounded text-[11px] font-medium text-slate-300 bg-[#162138] border border-[#233860] hover:bg-[#1E2E4E] transition-colors"
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 px-3 text-[11px]"
             >
               Preview
-            </button>
+            </Button>
 
-            <button
-              type="button"
+            <Button
+              size="sm"
               onClick={onApplySuggestion}
-              className="h-7 px-3.5 rounded text-[11px] font-medium text-white bg-[#3B82F6] hover:bg-[#2563EB] active:scale-[0.98] transition-colors"
+              className="h-7 px-3.5 text-[11px]"
             >
               Apply
-            </button>
+            </Button>
           </div>
         </div>
       </div>

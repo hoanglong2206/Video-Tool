@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { Button } from "@/components/ui";
 
 interface DashboardHeaderProps {
   onNewProject?: () => void;
@@ -17,29 +18,22 @@ export function DashboardHeader({
       </h1>
 
       <div className="flex items-center gap-3">
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          size="sm"
           onClick={onRenderHistory}
-          className="h-8 px-3.5 rounded-md text-xs font-medium text-slate-300 bg-[#141A27] border border-[#242D40] hover:bg-[#1C2538] hover:text-white transition-all shadow-sm"
         >
           Render history
-        </button>
+        </Button>
 
         {onNewProject ? (
-          <button
-            type="button"
-            onClick={onNewProject}
-            className="h-8 px-3.5 rounded-md text-xs font-medium text-white bg-[#3B82F6] hover:bg-[#2563EB] active:scale-[0.98] transition-all shadow-sm"
-          >
+          <Button size="sm" onClick={onNewProject}>
             New project
-          </button>
+          </Button>
         ) : (
-          <Link
-            href="/projects/new"
-            className="h-8 px-3.5 rounded-md text-xs font-medium text-white bg-[#3B82F6] hover:bg-[#2563EB] flex items-center justify-center active:scale-[0.98] transition-all shadow-sm"
-          >
-            New project
-          </Link>
+          <Button size="sm" asChild>
+            <Link href="/projects/new">New project</Link>
+          </Button>
         )}
       </div>
     </header>

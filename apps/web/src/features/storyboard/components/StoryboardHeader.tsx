@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { Badge, Button } from "@/components/ui";
 
 interface StoryboardHeaderProps {
   projectName: string;
@@ -24,32 +25,32 @@ export function StoryboardHeader({
         </Link>
         <span className="text-slate-600">/</span>
         <span className="text-slate-300 font-normal">Storyboard Studio</span>
-        <span className="bg-[#132E27] text-[#10B981] border border-[#065F46] rounded-full text-[10px] px-2 py-0.5 font-medium ml-1 flex items-center gap-1">
+        <Badge variant="success" className="ml-1">
           ✓ Approved
-        </span>
+        </Badge>
       </div>
 
       {/* Action Buttons */}
       <div className="flex items-center gap-2.5">
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          size="sm"
           onClick={onPreview}
-          className="h-8 px-3.5 rounded-md text-xs font-medium text-slate-300 bg-[#141A27] border border-[#242D40] hover:bg-[#1C2538] hover:text-white transition-all shadow-sm"
         >
           Preview storyboard
-        </button>
+        </Button>
 
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          size="sm"
           onClick={onReopenRevision}
-          className="h-8 px-3.5 rounded-md text-xs font-medium text-slate-300 bg-[#141A27] border border-[#242D40] hover:bg-[#1C2538] hover:text-white transition-all shadow-sm"
         >
           Reopen for revision
-        </button>
+        </Button>
 
-        <span className="h-8 px-3 rounded-md text-xs font-medium text-slate-400 bg-[#101520] border border-[#1C2436] flex items-center">
+        <Badge variant="secondary" className="h-8 px-3 rounded-md">
           Approved v2
-        </span>
+        </Badge>
       </div>
     </header>
   );

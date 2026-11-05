@@ -1,5 +1,6 @@
 import React from "react";
 import type { ChatMessage, AssistantContext } from "../types";
+import { Badge, Button, Input } from "@/components/ui";
 
 interface AssistantChatSidebarProps {
   context: AssistantContext;
@@ -32,15 +33,15 @@ export function AssistantChatSidebar({
 
         {/* Context Badges */}
         <div className="flex items-center gap-1.5 flex-wrap mb-4">
-          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#1D2B4A] text-blue-400 border border-blue-500/30">
+          <Badge variant="default">
             {context.stage}
-          </span>
-          <span className="px-2.5 py-0.5 rounded-full text-[11px] text-slate-400 border border-[#222E44]">
+          </Badge>
+          <Badge variant="outline">
             {context.scene}
-          </span>
-          <span className="px-2.5 py-0.5 rounded-full text-[11px] text-slate-400 border border-[#222E44]">
+          </Badge>
+          <Badge variant="outline">
             {context.layer}
-          </span>
+          </Badge>
         </div>
 
         {/* Messages list */}
@@ -69,18 +70,27 @@ export function AssistantChatSidebar({
                     {msg.suggestion.description}
                   </p>
                   <div className="flex items-center gap-2 pt-1">
-                    <button className="px-2.5 py-1 text-xs font-medium rounded-md text-slate-300 bg-[#161F30] border border-[#26354F] hover:bg-[#1E293E] transition-colors">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 px-2.5 text-xs"
+                    >
                       Preview
-                    </button>
-                    <button className="px-2.5 py-1 text-xs font-medium rounded-md text-slate-300 bg-[#161F30] border border-[#26354F] hover:bg-[#1E293E] transition-colors">
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 px-2.5 text-xs"
+                    >
                       Edit
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      size="sm"
                       onClick={() => onApplySuggestion(msg.suggestion!.id)}
-                      className="px-3 py-1 text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-500 transition-colors shadow-sm"
+                      className="h-7 px-3 text-xs font-medium"
                     >
                       Apply
-                    </button>
+                    </Button>
                   </div>
                 </div>
               );
@@ -102,13 +112,15 @@ export function AssistantChatSidebar({
           </h3>
           <div className="flex flex-wrap gap-1.5">
             {quickRequests.map((req, idx) => (
-              <button
+              <Button
                 key={idx}
+                variant="outline"
+                size="sm"
                 onClick={() => onSend(req)}
-                className="px-2.5 py-1 rounded-lg text-xs text-slate-300 bg-[#121824] border border-[#202B3F] hover:bg-[#182132] hover:border-[#2F3E5A] transition-colors"
+                className="h-7 px-2.5 text-xs rounded-lg"
               >
                 {req}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -116,13 +128,13 @@ export function AssistantChatSidebar({
 
       {/* Input Field */}
       <div className="mt-4 pt-3 border-t border-[#1C2538]/60">
-        <input
+        <Input
           type="text"
           value={inputText}
           onChange={(e) => onInputChange(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && onSend(inputText)}
           placeholder="Ask about this scene..."
-          className="w-full bg-[#101624] border border-[#202B3F] rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-400 focus:outline-none focus:border-blue-500 transition-colors"
+          className="h-9"
         />
       </div>
     </aside>

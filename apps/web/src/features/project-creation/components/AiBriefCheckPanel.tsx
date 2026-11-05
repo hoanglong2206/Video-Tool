@@ -1,5 +1,6 @@
 import React from "react";
 import type { AiBriefAnalysis } from "../types";
+import { Button } from "@/components/ui";
 
 interface AiBriefCheckPanelProps {
   analysis: AiBriefAnalysis;
@@ -35,13 +36,13 @@ export function AiBriefCheckPanel({
       </div>
 
       <div className="mt-5">
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          size="sm"
           onClick={onFillFromNotes}
-          className="h-8 px-3.5 rounded-md text-xs font-medium text-slate-300 bg-[#141A27] border border-[#242D40] hover:bg-[#1C2538] hover:text-white transition-all shadow-sm"
         >
           Fill from my notes
-        </button>
+        </Button>
       </div>
     </aside>
   );

@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { Button } from "@/components/ui";
 
 interface AssetStudioHeaderProps {
   projectName: string;
@@ -30,29 +31,28 @@ export function AssetStudioHeader({
 
       {/* Action Buttons */}
       <div className="flex items-center gap-2.5">
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          size="sm"
           onClick={onUpload}
-          className="h-8 px-3.5 rounded-md text-xs font-medium text-slate-300 bg-[#141A27] border border-[#242D40] hover:bg-[#1C2538] hover:text-white transition-all shadow-sm"
         >
           Upload
-        </button>
+        </Button>
 
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          size="sm"
           onClick={onGenerateImage}
-          className="h-8 px-3.5 rounded-md text-xs font-medium text-slate-300 bg-[#141A27] border border-[#242D40] hover:bg-[#1C2538] hover:text-white transition-all shadow-sm"
         >
           Generate image
-        </button>
+        </Button>
 
-        <button
-          type="button"
+        <Button
+          size="sm"
           onClick={onApproveSelected}
-          className="h-8 px-3.5 rounded-md text-xs font-medium text-white bg-[#3B82F6] hover:bg-[#2563EB] active:scale-[0.98] transition-all shadow-sm"
         >
           Approve selected
-        </button>
+        </Button>
       </div>
     </header>
   );

@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { Badge, Button } from "@/components/ui";
 
 interface ApprovalHeaderProps {
   pendingCount: number;
@@ -13,18 +14,15 @@ export function ApprovalHeader({ pendingCount }: ApprovalHeaderProps): React.Rea
         <h1 className="text-sm font-semibold text-slate-100 tracking-tight">
           Approval Center
         </h1>
-        <span className="bg-[#2D2111] text-[#F59E0B] border border-[#784D16] rounded-full text-[10px] px-2 py-0.5 font-medium">
+        <Badge variant="warning">
           {pendingCount} pending
-        </span>
+        </Badge>
       </div>
 
       {/* Editor Jump */}
-      <Link
-        href="/editor"
-        className="h-8 px-3.5 rounded-md text-xs font-medium text-slate-300 bg-[#141A27] border border-[#242D40] hover:bg-[#1C2538] hover:text-white flex items-center justify-center transition-all shadow-sm"
-      >
-        Open in editor
-      </Link>
+      <Button variant="outline" size="sm" asChild>
+        <Link href="/editor">Open in editor</Link>
+      </Button>
     </header>
   );
 }

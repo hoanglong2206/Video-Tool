@@ -1,5 +1,6 @@
 import React from "react";
 import type { ProjectBriefFormData } from "../types";
+import { Input, Textarea } from "@/components/ui";
 
 interface BriefFormProps {
   formData: ProjectBriefFormData;
@@ -18,11 +19,9 @@ export function BriefForm({
           <label className="block text-[11px] font-medium text-slate-400 mb-1.5">
             Project name
           </label>
-          <input
-            type="text"
+          <Input
             value={formData.projectName}
             onChange={(e) => onChangeField("projectName", e.target.value)}
-            className="w-full h-9 rounded-md bg-[#101520] border border-[#1C2436] px-3 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#3B82F6] transition-colors"
           />
         </div>
 
@@ -30,11 +29,9 @@ export function BriefForm({
           <label className="block text-[11px] font-medium text-slate-400 mb-1.5">
             Client
           </label>
-          <input
-            type="text"
+          <Input
             value={formData.client}
             onChange={(e) => onChangeField("client", e.target.value)}
-            className="w-full h-9 rounded-md bg-[#101520] border border-[#1C2436] px-3 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#3B82F6] transition-colors"
           />
         </div>
       </div>
@@ -44,11 +41,11 @@ export function BriefForm({
         <label className="block text-[11px] font-medium text-slate-400 mb-1.5">
           Brief
         </label>
-        <textarea
+        <Textarea
           rows={4}
           value={formData.brief}
           onChange={(e) => onChangeField("brief", e.target.value)}
-          className="w-full rounded-md bg-[#101520] border border-[#1C2436] p-3 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#3B82F6] transition-colors resize-none leading-relaxed"
+          className="resize-none leading-relaxed"
         />
       </div>
 
@@ -71,11 +68,9 @@ export function BriefForm({
           <label className="block text-[11px] font-medium text-slate-400 mb-1.5">
             Duration
           </label>
-          <input
-            type="text"
+          <Input
             value={formData.duration}
             onChange={(e) => onChangeField("duration", e.target.value)}
-            className="w-full h-9 rounded-md bg-[#101520] border border-[#1C2436] px-3 text-xs text-slate-100 focus:outline-none focus:border-[#3B82F6]"
           />
         </div>
 
@@ -83,11 +78,9 @@ export function BriefForm({
           <label className="block text-[11px] font-medium text-slate-400 mb-1.5">
             Aspect ratio
           </label>
-          <input
-            type="text"
+          <Input
             value={formData.aspectRatio}
             onChange={(e) => onChangeField("aspectRatio", e.target.value)}
-            className="w-full h-9 rounded-md bg-[#101520] border border-[#1C2436] px-3 text-xs text-slate-100 focus:outline-none focus:border-[#3B82F6]"
           />
         </div>
 
@@ -95,11 +88,9 @@ export function BriefForm({
           <label className="block text-[11px] font-medium text-slate-400 mb-1.5">
             Style preference
           </label>
-          <input
-            type="text"
+          <Input
             value={formData.stylePreference}
             onChange={(e) => onChangeField("stylePreference", e.target.value)}
-            className="w-full h-9 rounded-md bg-[#101520] border border-[#1C2436] px-3 text-xs text-slate-100 focus:outline-none focus:border-[#3B82F6]"
           />
         </div>
       </div>

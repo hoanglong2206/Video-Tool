@@ -1,5 +1,6 @@
 import React from "react";
 import type { StoryboardScene } from "../types";
+import { Button, Textarea } from "@/components/ui";
 
 interface SceneInspectorProps {
   scene: StoryboardScene;
@@ -34,11 +35,11 @@ export function SceneInspector({
         <label className="block text-[11px] font-medium text-slate-400 mb-1.5">
           Description
         </label>
-        <textarea
+        <Textarea
           rows={3}
           value={scene.description}
           onChange={(e) => onChangeDescription(e.target.value)}
-          className="w-full rounded-md bg-[#101520] border border-[#1C2436] p-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#3B82F6] transition-colors resize-none leading-relaxed"
+          className="resize-none leading-relaxed"
         />
       </div>
 
@@ -54,31 +55,32 @@ export function SceneInspector({
 
       {/* Scene Actions */}
       <div className="grid grid-cols-2 gap-2 mb-2">
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          size="sm"
           onClick={onRegenerateFrame}
-          className="h-8 rounded-md text-xs font-medium text-slate-300 bg-[#141A27] border border-[#242D40] hover:bg-[#1C2538] hover:text-white transition-all shadow-sm"
         >
           Regenerate frame
-        </button>
+        </Button>
 
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          size="sm"
           onClick={onDuplicate}
-          className="h-8 rounded-md text-xs font-medium text-slate-300 bg-[#141A27] border border-[#242D40] hover:bg-[#1C2538] hover:text-white transition-all shadow-sm"
         >
           Duplicate
-        </button>
+        </Button>
       </div>
 
       <div className="mb-6">
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          size="sm"
           onClick={onRemove}
-          className="h-8 w-20 rounded-md text-xs font-medium text-slate-400 bg-[#141A27] border border-[#242D40] hover:bg-[#20181E] hover:text-rose-400 transition-all shadow-sm"
+          className="w-20 text-slate-400 hover:text-rose-400 hover:border-rose-900/50"
         >
           Remove
-        </button>
+        </Button>
       </div>
 
       {/* Creative Direction */}

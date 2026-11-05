@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { LayoutGrid } from "lucide-react";
+import { Badge, Button } from "@/components/ui";
 
 interface RenderHeaderProps {
   projectName: string;
@@ -31,32 +32,35 @@ export function RenderHeader({
           <span className="font-semibold text-slate-100">Render & Export</span>
           <span className="text-slate-400">/</span>
           <span className="text-slate-300">{projectName}</span>
-          <span className="ml-2 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#1A1822] text-amber-400/90 border border-amber-500/20">
+          <Badge variant="warning" className="ml-2">
             – Blocked: stages 05–08 not approved
-          </span>
+          </Badge>
         </div>
       </div>
 
       <div className="flex items-center gap-2">
-        <button
+        <Button
+          variant="outline"
+          size="sm"
           onClick={onCancel}
           disabled={!isRendering}
-          className="px-3 py-1.5 rounded-md text-xs font-medium text-slate-300 bg-[#141A26] border border-[#232E42] hover:bg-[#1A2234] hover:border-[#32425E] disabled:opacity-50 transition-colors"
         >
           Cancel render
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
           onClick={onExport}
-          className="px-3.5 py-1.5 rounded-md text-xs font-medium text-slate-200 bg-[#161D2B] border border-[#243048] hover:bg-[#1E283C] transition-colors"
         >
           Export MP4
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="subtle"
+          size="sm"
           onClick={onStart}
-          className="px-3.5 py-1.5 rounded-md text-xs font-medium text-slate-400 bg-[#131722] border border-[#1E2536] hover:text-slate-200 transition-colors"
         >
           Start render
-        </button>
+        </Button>
       </div>
     </header>
   );

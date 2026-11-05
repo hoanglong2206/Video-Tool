@@ -1,5 +1,6 @@
 import React from "react";
 import type { PipelineStage } from "../types";
+import { Badge, Card } from "@/components/ui";
 
 interface StageCardProps {
   stage: PipelineStage;
@@ -25,41 +26,21 @@ export function StageCard({
   const renderBadge = (): React.ReactElement => {
     switch (stage.status) {
       case "approved":
-        return (
-          <span className="bg-[#132E27] text-[#10B981] border border-[#065F46] rounded text-[10px] px-1.5 py-0.5 font-medium inline-block">
-            Approved
-          </span>
-        );
+        return <Badge variant="success">Approved</Badge>;
       case "waiting_approval":
-        return (
-          <span className="bg-[#2D2111] text-[#F59E0B] border border-[#784D16] rounded text-[10px] px-1.5 py-0.5 font-medium inline-block">
-            Waiting for approval
-          </span>
-        );
+        return <Badge variant="warning">Waiting for approval</Badge>;
       case "running":
-        return (
-          <span className="bg-[#14233D] text-[#3B82F6] border border-[#1E3A8A] rounded text-[10px] px-1.5 py-0.5 font-medium inline-block">
-            Running {stage.progressPercent}%
-          </span>
-        );
+        return <Badge variant="default">Running {stage.progressPercent}%</Badge>;
       case "skipped":
-        return (
-          <span className="bg-[#1A2234] text-slate-400 border border-slate-700 rounded text-[10px] px-1.5 py-0.5 font-medium inline-block">
-            Skipped
-          </span>
-        );
+        return <Badge variant="secondary">Skipped</Badge>;
       case "pending":
       default:
-        return (
-          <span className="bg-[#131926] text-slate-500 border border-[#1C2436] rounded text-[10px] px-1.5 py-0.5 font-medium inline-block">
-            Pending
-          </span>
-        );
+        return <Badge variant="outline">Pending</Badge>;
     }
   };
 
   return (
-    <div
+    <Card
       onClick={() => onSelect(stage.id)}
       className={`bg-[#101520] border ${getBorderColor()} rounded-lg p-3.5 flex flex-col justify-between min-h-[96px] cursor-pointer transition-all select-none`}
     >
@@ -73,7 +54,7 @@ export function StageCard({
       </div>
 
       <div className="mt-3">{renderBadge()}</div>
-    </div>
+    </Card>
   );
 }
 

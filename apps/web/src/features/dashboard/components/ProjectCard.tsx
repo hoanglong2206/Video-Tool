@@ -1,5 +1,6 @@
 import React from "react";
 import type { ProjectItem } from "../types";
+import { Button, Progress, Card } from "@/components/ui";
 
 interface ProjectCardProps {
   project: ProjectItem;
@@ -11,9 +12,9 @@ export function ProjectCard({ project, onOpen }: ProjectCardProps): React.ReactE
   const isCompleted = project.status === "completed";
 
   return (
-    <div
+    <Card
       onClick={() => onOpen?.(project)}
-      className="bg-[#101520] border border-[#1C2436] hover:border-[#28354D] rounded-lg p-3 flex flex-col justify-between transition-all cursor-pointer group"
+      className="bg-[#101520] border-[#1C2436] hover:border-[#28354D] p-3 flex flex-col justify-between transition-all cursor-pointer group rounded-lg"
     >
       {/* Aspect Ratio Video / Asset Preview Placeholder */}
       <div className="w-full aspect-[16/9] rounded-md bg-[#131926] border border-[#1A2234] flex items-center justify-center p-3 select-none">
@@ -36,25 +37,24 @@ export function ProjectCard({ project, onOpen }: ProjectCardProps): React.ReactE
 
         {isLibrary ? (
           <div className="mt-3">
-            <button
-              type="button"
-              className="text-[11px] font-medium text-slate-300 bg-[#141A27] border border-[#242D40] hover:bg-[#1C2538] hover:text-white px-3 py-1 rounded transition-colors"
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-[11px] h-7 px-3 py-1 text-slate-300"
             >
               Open library
-            </button>
+            </Button>
           </div>
         ) : (
-          <div className="w-full h-1 bg-[#1C2436] rounded-full mt-3 overflow-hidden">
-            <div
-              className={`h-full rounded-full transition-all duration-500 ${
-                isCompleted ? "bg-[#10B981]" : "bg-[#3B82F6]"
-              }`}
-              style={{ width: `${project.progress}%` }}
+          <div className="mt-3">
+            <Progress
+              value={project.progress}
+              className={`h-1 ${isCompleted ? "[&>div]:bg-emerald-500" : "[&>div]:bg-blue-500"}`}
             />
           </div>
         )}
       </div>
-    </div>
+    </Card>
   );
 }
 

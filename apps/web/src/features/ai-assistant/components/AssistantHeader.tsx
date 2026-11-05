@@ -1,4 +1,5 @@
 import React from "react";
+import { Button } from "@/components/ui";
 
 interface AssistantHeaderProps {
   projectName: string;
@@ -19,12 +20,13 @@ export function AssistantHeader({
         <span className="text-slate-300 font-normal">{sceneName}</span>
       </div>
 
-      <button
+      <Button
+        variant="outline"
+        size="sm"
         onClick={onSaveVersion}
-        className="px-3.5 py-1.5 rounded-md text-xs font-medium text-slate-200 bg-[#141A28] border border-[#232F45] hover:bg-[#1C2538] hover:border-[#32425E] transition-colors"
       >
         Save version
-      </button>
+      </Button>
     </header>
   );
 }

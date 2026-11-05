@@ -1,5 +1,6 @@
 import React from "react";
 import type { AssetItem } from "../types";
+import { Button } from "@/components/ui";
 
 interface AssetInspectorProps {
   asset: AssetItem;
@@ -47,37 +48,41 @@ export function AssetInspector({
 
       {/* Action Buttons Grid (2x2) */}
       <div className="grid grid-cols-2 gap-2 mt-auto pt-4 border-t border-[#1C2436]/60">
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          size="sm"
+          className="text-[11px] h-8 px-2.5"
           onClick={onRemoveBackground}
-          className="h-8 px-2.5 rounded-md text-[11px] font-medium text-slate-300 bg-[#141A27] border border-[#242D40] hover:bg-[#1C2538] hover:text-white transition-all shadow-sm"
         >
           Remove background
-        </button>
+        </Button>
 
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          size="sm"
+          className="text-[11px] h-8 px-2.5"
           onClick={onVariations}
-          className="h-8 px-2.5 rounded-md text-[11px] font-medium text-slate-300 bg-[#141A27] border border-[#242D40] hover:bg-[#1C2538] hover:text-white transition-all shadow-sm"
         >
           Variations
-        </button>
+        </Button>
 
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          size="sm"
+          className="text-[11px] h-8 px-2.5"
           onClick={onEditWithAi}
-          className="h-8 px-2.5 rounded-md text-[11px] font-medium text-slate-300 bg-[#141A27] border border-[#242D40] hover:bg-[#1C2538] hover:text-white transition-all shadow-sm"
         >
           Edit with AI
-        </button>
+        </Button>
 
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          size="sm"
+          className="text-[11px] h-8 px-2.5"
           onClick={onCompareVersions}
-          className="h-8 px-2.5 rounded-md text-[11px] font-medium text-slate-300 bg-[#141A27] border border-[#242D40] hover:bg-[#1C2538] hover:text-white transition-all shadow-sm"
         >
           Compare versions
-        </button>
+        </Button>
       </div>
     </aside>
   );

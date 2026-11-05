@@ -1,5 +1,6 @@
 import React from "react";
 import type { BrandKitInfo } from "../types";
+import { Button } from "@/components/ui";
 
 interface BrandKitSidebarProps {
   brandKit: BrandKitInfo;
@@ -44,16 +45,18 @@ export function BrandKitSidebar({
       </div>
 
       {/* Apply to project button */}
-      <button
+      <Button
+        variant="outline"
+        size="sm"
         onClick={onApply}
-        className={`self-start py-1.5 px-3.5 rounded-lg text-xs font-medium border transition-colors ${
+        className={`self-start ${
           isApplied
             ? "bg-emerald-950/40 border-emerald-500/50 text-emerald-400"
-            : "border-[#253249] bg-[#121927] hover:bg-[#182133] hover:border-[#384869] text-slate-200"
+            : ""
         }`}
       >
         {isApplied ? "Applied to current project!" : "Apply to project"}
-      </button>
+      </Button>
     </aside>
   );
 }

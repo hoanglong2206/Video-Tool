@@ -1,4 +1,5 @@
 import React from "react";
+import { Button, Input } from "@/components/ui";
 
 interface AssetLibraryHeaderProps {
   searchQuery: string;
@@ -20,19 +21,19 @@ export function AssetLibraryHeader({
       </div>
 
       <div className="flex items-center gap-3">
-        <input
+        <Input
           type="text"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Search assets, templates, presets"
-          className="w-72 bg-[#101522] border border-[#1E2638] rounded-md px-3.5 py-1.5 text-xs text-slate-200 placeholder-slate-400 focus:outline-none focus:border-blue-500 transition-colors"
+          className="w-72"
         />
-        <button
+        <Button
+          size="sm"
           onClick={onSaveTemplate}
-          className="px-4 py-1.5 bg-[#3B82F6] hover:bg-[#2563EB] text-white text-xs font-medium rounded-md transition-colors shadow-sm"
         >
           Save as template
-        </button>
+        </Button>
       </div>
     </header>
   );
