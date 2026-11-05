@@ -1,65 +1,56 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { PipelineStage, ExecutionLogEntry } from "../types";
 
-const INITIAL_STAGES: PipelineStage[] = [
-  { id: "stage-01", stageNumber: "01", name: "Brief analysis", status: "approved" },
-  { id: "stage-02", stageNumber: "02", name: "Storyboard", status: "approved" },
-  { id: "stage-03", stageNumber: "03", name: "Asset generation", status: "approved" },
-  { id: "stage-04", stageNumber: "04", name: "Asset processing", status: "approved" },
-  {
-    id: "stage-05",
-    stageNumber: "05",
-    name: "Scene composition",
-    status: "waiting_approval",
-    dependsOn: "Stage 04 · Asset processing (approved)",
-    approvalHistory: "v2 revision requested · v3 awaiting review",
-    hasPreview: true,
-  },
-  {
-    id: "stage-06",
-    stageNumber: "06",
-    name: "Motion design",
-    status: "running",
-    progressPercent: 62,
-    dependsOn: "Stage 05 · Scene composition",
-  },
-  { id: "stage-07", stageNumber: "07", name: "3D production", status: "skipped" },
-  { id: "stage-08", stageNumber: "08", name: "Sound design", status: "pending" },
-  { id: "stage-09", stageNumber: "09", name: "Render & post", status: "pending" },
-  { id: "stage-10", stageNumber: "10", name: "QC & export", status: "pending" },
-];
+export function useProductionWorkflow(projectName: string = "Aurora X1 Launch", projectId: string = "proj-1") {
+  const [stages, setStages] = useState<PipelineStage[]>([]);
+  const [selectedStageId, setSelectedStageId] = useState<string>("");
+  const [logs, setLogs] = useState<ExecutionLogEntry[]>([]);
+  const [overallProgress, setOverallProgress] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-const INITIAL_LOGS: ExecutionLogEntry[] = [
-  {
-    id: "log-1",
-    timestamp: "14:02",
-    stageLabel: "Stage 06",
-    message: "Generating keyframes for scene 03",
-  },
-  {
-    id: "log-2",
-    timestamp: "14:01",
-    stageLabel: "Stage 05",
-    message: "Composition ready for review (6 scenes)",
-  },
-  {
-    id: "log-3",
-    timestamp: "13:48",
-    stageLabel: "Stage 04",
-    message: "Masks and depth maps approved",
-  },
-];
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-export function useProductionWorkflow(projectName: string = "Aurora X1 Launch") {
-  const [stages, setStages] = useState<PipelineStage[]>(INITIAL_STAGES);
-  const [selectedStageId, setSelectedStageId] = useState<string>("stage-05");
-  const [logs, setLogs] = useState<ExecutionLogEntry[]>(INITIAL_LOGS);
-  const [overallProgress] = useState<number>(46);
+  // Fetch workflow state from Supabase via backend API
+  const fetchWorkflow = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(`${apiUrl}/api/v1/projects/${projectId}/workflow`, {
+        headers: { Accept: "application/json" },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.stages)) {
+          setStages(data.stages);
+          setSelectedStageId((prev) => prev || data.stages[0]?.id || "");
+        }
+        if (Array.isArray(data.logs)) {
+          setLogs(data.logs);
+        }
+        if (typeof data.overallProgress === "number") {
+          setOverallProgress(data.overallProgress);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load workflow DAG from Supabase backend:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [apiUrl, projectId]);
+
+  useEffect(() => {
+    fetchWorkflow();
+  }, [fetchWorkflow]);
 
   const selectedStage =
-    stages.find((s) => s.id === selectedStageId) || stages[4];
+    stages.find((s) => s.id === selectedStageId) || stages[0] || {
+      id: "stage-empty",
+      stageNumber: "01",
+      name: "Loading...",
+      status: "pending",
+    };
 
-  const handleApprove = (stageId: string): void => {
+  const handleApprove = async (stageId: string): Promise<void> => {
+    // 1. Optimistic UI update
     setStages((prev) =>
       prev.map((s) => (s.id === stageId ? { ...s, status: "approved" } : s))
     );
@@ -72,9 +63,18 @@ export function useProductionWorkflow(projectName: string = "Aurora X1 Launch") 
       },
       ...prev,
     ]);
+
+    // 2. Persist to Supabase
+    try {
+      await fetch(`${apiUrl}/api/v1/projects/${projectId}/stages/${stageId}/approve`, {
+        method: "POST",
+      });
+    } catch (err) {
+      console.error("Error approving stage on Supabase:", err);
+    }
   };
 
-  const handleRequestRevision = (stageId: string): void => {
+  const handleRequestRevision = async (stageId: string): Promise<void> => {
     setLogs((prev) => [
       {
         id: `log-${Date.now()}`,
@@ -84,6 +84,14 @@ export function useProductionWorkflow(projectName: string = "Aurora X1 Launch") 
       },
       ...prev,
     ]);
+
+    try {
+      await fetch(`${apiUrl}/api/v1/projects/${projectId}/stages/${stageId}/revision`, {
+        method: "POST",
+      });
+    } catch (err) {
+      console.error("Error requesting stage revision on Supabase:", err);
+    }
   };
 
   return {
@@ -92,9 +100,9 @@ export function useProductionWorkflow(projectName: string = "Aurora X1 Launch") 
     stages,
     selectedStage,
     logs,
+    isLoading,
     setSelectedStageId,
     handleApprove,
     handleRequestRevision,
   };
 }
-

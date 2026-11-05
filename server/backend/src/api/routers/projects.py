@@ -1,5 +1,8 @@
 from uuid import uuid4
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Depends, status
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from server.backend.src.api.dtos.project import (
     BriefCheckRequestDTO,
     BriefCheckResponseDTO,
@@ -7,75 +10,87 @@ from server.backend.src.api.dtos.project import (
     ProjectResponseDTO,
 )
 from server.backend.src.domain.entities.project import Project, ProjectStatus
+from server.backend.src.infrastructure.database.models import ProjectModel, WorkflowStageModel
+from server.backend.src.infrastructure.database.session import get_db_session
 
 router = APIRouter(prefix="/api/v1/projects", tags=["Projects"])
 
-_PROJECTS_STORAGE: list[Project] = [
-    Project(
-        id="proj-1",
-        name="Aurora X1 Launch",
-        stage_description="Stage 06 · Motion design",
-        progress=25,
-        status=ProjectStatus.IN_PROGRESS,
-    ),
-    Project(
-        id="proj-2",
-        name="Nova Watch Teaser",
-        stage_description="Stage 03 · Asset generation",
-        progress=18,
-        status=ProjectStatus.IN_PROGRESS,
-    ),
-    Project(
-        id="proj-3",
-        name="Halo Speaker Promo",
-        stage_description="Stage 09 · Render",
-        progress=85,
-        status=ProjectStatus.IN_PROGRESS,
-    ),
-    Project(
-        id="proj-4",
-        name="Kite Sneaker Reveal",
-        stage_description="Completed",
-        progress=100,
-        status=ProjectStatus.COMPLETED,
-    ),
-    Project(
-        id="proj-5",
-        name="Brew Coffee Ad",
-        stage_description="Stage 01 · Brief analysis",
-        progress=8,
-        status=ProjectStatus.IN_PROGRESS,
-    ),
-    Project(
-        id="proj-6",
-        name="Asset library",
-        stage_description="412 assets · 18 templates",
-        progress=0,
-        status=ProjectStatus.LIBRARY,
-        asset_count=412,
-        template_count=18,
-    ),
-]
-
 
 @router.get("", response_model=list[ProjectResponseDTO])
-async def list_projects() -> list[ProjectResponseDTO]:
-    """List recent video production projects."""
-    return [ProjectResponseDTO.from_domain(p) for p in _PROJECTS_STORAGE]
+async def list_projects(
+    session: AsyncSession = Depends(get_db_session),
+) -> list[ProjectResponseDTO]:
+    """List recent video production projects persisted in Supabase PostgreSQL."""
+    stmt = select(ProjectModel).order_by(ProjectModel.created_at.desc())
+    result = await session.scalars(stmt)
+    projects = result.all()
+
+    return [
+        ProjectResponseDTO(
+            id=p.id,
+            name=p.name,
+            stageDescription=p.stage_description,
+            progress=p.progress,
+            status=ProjectStatus(p.status) if p.status in [e.value for e in ProjectStatus] else ProjectStatus.IN_PROGRESS,
+            assetCount=p.asset_count,
+            templateCount=p.template_count,
+        )
+        for p in projects
+    ]
 
 
 @router.post("", response_model=ProjectResponseDTO, status_code=status.HTTP_201_CREATED)
-async def create_project(payload: CreateProjectRequestDTO) -> ProjectResponseDTO:
-    """Initialize a new video project."""
-    new_project = Project(
-        id=f"proj-{uuid4().hex[:8]}",
+async def create_project(
+    payload: CreateProjectRequestDTO,
+    session: AsyncSession = Depends(get_db_session),
+) -> ProjectResponseDTO:
+    """Initialize and persist a new video project and its 10 pipeline stages."""
+    project_id = f"proj-{uuid4().hex[:8]}"
+    new_project = ProjectModel(
+        id=project_id,
         name=payload.name,
+        client=payload.client,
+        brief=payload.brief,
         stage_description="Stage 01 · Brief analysis",
         progress=0,
+        status="in_progress",
+    )
+    session.add(new_project)
+
+    # Initialize standard 10 production workflow stages
+    stage_names = [
+        ("01", "Brief analysis"),
+        ("02", "Storyboard"),
+        ("03", "Asset generation"),
+        ("04", "Asset processing"),
+        ("05", "Scene composition"),
+        ("06", "Motion design"),
+        ("07", "3D production"),
+        ("08", "Sound design"),
+        ("09", "Render & post"),
+        ("10", "QC & export"),
+    ]
+    for num, name in stage_names:
+        stage = WorkflowStageModel(
+            id=f"{project_id}-stage-{num}",
+            project_id=project_id,
+            stage_number=num,
+            name=name,
+            status="pending" if num != "01" else "running",
+            progress_percent=0,
+        )
+        session.add(stage)
+
+    await session.commit()
+    await session.refresh(new_project)
+
+    return ProjectResponseDTO(
+        id=new_project.id,
+        name=new_project.name,
+        stageDescription=new_project.stage_description,
+        progress=new_project.progress,
         status=ProjectStatus.IN_PROGRESS,
     )
-    _PROJECTS_STORAGE.insert(0, new_project)
-    return ProjectResponseDTO.from_domain(new_project)
 
 
 @router.post("/brief-check", response_model=BriefCheckResponseDTO)

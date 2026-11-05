@@ -1,82 +1,76 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { StoryboardScene } from "../types";
 
-const INITIAL_SCENES: StoryboardScene[] = [
-  {
-    id: "scene-1",
-    sceneNumber: 1,
-    title: "Dark intro",
-    durationSeconds: 4,
-    cameraMovement: "Slow push-in",
-    transitionType: "Fade",
-    description: "Deep shadows cloak the headphones as an ambient glow slowly hints at the silhouette.",
-    creativeDirection: "Dark studio, slow and deliberate pacing, metallic highlights.",
-  },
-  {
-    id: "scene-2",
-    sceneNumber: 2,
-    title: "Product reveal",
-    durationSeconds: 6,
-    cameraMovement: "Orbit",
-    transitionType: "Light sweep",
-    description: "Headphones emerge from darkness as a soft light sweep crosses the metal surface.",
-    creativeDirection: "Dark studio, slow and deliberate pacing, metallic highlights.",
-  },
-  {
-    id: "scene-3",
-    sceneNumber: 3,
-    title: "Driver detail",
-    durationSeconds: 5,
-    cameraMovement: "Macro dolly",
-    transitionType: "Cut",
-    description: "Extreme close-up on the titanium acoustic driver diaphragm vibrating with precision sound waves.",
-    creativeDirection: "Dark studio, macro fidelity, crisp micro-contrast.",
-  },
-  {
-    id: "scene-4",
-    sceneNumber: 4,
-    title: "Materials",
-    durationSeconds: 5,
-    cameraMovement: "Slider",
-    transitionType: "Cross dissolve",
-    description: "Anodized aluminum band flexing effortlessly with leatherette ear cushion texture focus.",
-    creativeDirection: "Premium haptic feel, soft studio lighting.",
-  },
-  {
-    id: "scene-5",
-    sceneNumber: 5,
-    title: "Battery life",
-    durationSeconds: 5,
-    cameraMovement: "Typography",
-    transitionType: "Wipe",
-    description: "Kinetic typography reveal: '60 Hours Non-Stop Playback' integrated seamlessly onto the surface.",
-    creativeDirection: "Bold typography, fluid motion blur.",
-  },
-  {
-    id: "scene-6",
-    sceneNumber: 6,
-    title: "Logo end card",
-    durationSeconds: 5,
-    cameraMovement: "Static",
-    transitionType: "Fade out",
-    description: "Aurora Audio emblem centers on screen with launch date and call-to-action lockup.",
-    creativeDirection: "Clean branding, confident final hold.",
-  },
-];
+export function useStoryboard(projectName: string = "Aurora X1 Launch", projectId: string = "proj-1") {
+  const [scenes, setScenes] = useState<StoryboardScene[]>([]);
+  const [selectedSceneId, setSelectedSceneId] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-export function useStoryboard(projectName: string = "Aurora X1 Launch") {
-  const [scenes, setScenes] = useState<StoryboardScene[]>(INITIAL_SCENES);
-  const [selectedSceneId, setSelectedSceneId] = useState<string>("scene-2");
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+  // Fetch storyboard from Supabase via backend API
+  const fetchStoryboard = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(`${apiUrl}/api/v1/projects/${projectId}/storyboard`, {
+        headers: { Accept: "application/json" },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.scenes) && data.scenes.length > 0) {
+          setScenes(data.scenes);
+          setSelectedSceneId((prev) => prev || data.scenes[0].id);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load storyboard from Supabase backend:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [apiUrl, projectId]);
+
+  useEffect(() => {
+    fetchStoryboard();
+  }, [fetchStoryboard]);
 
   const selectedScene =
-    scenes.find((s) => s.id === selectedSceneId) || scenes[1];
+    scenes.find((s) => s.id === selectedSceneId) || scenes[0] || {
+      id: "scene-empty",
+      sceneNumber: 1,
+      title: "Loading...",
+      durationSeconds: 5,
+      cameraMovement: "Static",
+      transitionType: "Cut",
+      description: "",
+      creativeDirection: "",
+    };
 
-  const totalDuration = scenes.reduce((acc, s) => acc + s.durationSeconds, 0);
+  const totalDuration = scenes.reduce((acc, s) => acc + (s.durationSeconds || 0), 0);
 
-  const updateSelectedScene = (field: keyof StoryboardScene, value: string | number): void => {
+  // Persist scene modifications directly to Supabase
+  const updateSelectedScene = async (field: keyof StoryboardScene, value: string | number): Promise<void> => {
+    if (!selectedSceneId) return;
+
+    // 1. Optimistic UI update
     setScenes((prev) =>
       prev.map((s) => (s.id === selectedSceneId ? { ...s, [field]: value } : s))
     );
+
+    // 2. Persist to Supabase
+    try {
+      const payload: Record<string, string | number> = {};
+      if (field === "description") payload.description = String(value);
+      if (field === "durationSeconds") payload.durationSeconds = Number(value);
+      if (field === "transitionType") payload.transitionType = String(value);
+
+      await fetch(`${apiUrl}/api/v1/projects/${projectId}/storyboard/scenes/${selectedSceneId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+    } catch (err) {
+      console.error("Error persisting scene edit to Supabase:", err);
+    }
   };
 
   const handleAddScene = (): void => {
@@ -88,8 +82,8 @@ export function useStoryboard(projectName: string = "Aurora X1 Launch") {
       durationSeconds: 5,
       cameraMovement: "Dolly in",
       transitionType: "Dissolve",
-      description: "New cinematic scene concept awaiting description.",
-      creativeDirection: selectedScene.creativeDirection,
+      description: "New cinematic scene concept awaiting direction.",
+      creativeDirection: selectedScene.creativeDirection || "Studio minimal",
     };
     setScenes((prev) => [...prev, newScene]);
     setSelectedSceneId(newScene.id);
@@ -110,7 +104,7 @@ export function useStoryboard(projectName: string = "Aurora X1 Launch") {
     if (scenes.length <= 1) return;
     const filtered = scenes.filter((s) => s.id !== selectedSceneId);
     setScenes(filtered);
-    setSelectedSceneId(filtered[0].id);
+    setSelectedSceneId(filtered[0]?.id || "");
   };
 
   return {
@@ -118,6 +112,7 @@ export function useStoryboard(projectName: string = "Aurora X1 Launch") {
     scenes,
     selectedScene,
     totalDuration,
+    isLoading,
     setSelectedSceneId,
     updateSelectedScene,
     handleAddScene,
@@ -125,4 +120,3 @@ export function useStoryboard(projectName: string = "Aurora X1 Launch") {
     handleRemove,
   };
 }
-

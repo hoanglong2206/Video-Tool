@@ -1,46 +1,68 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { PendingApprovalItem, DecisionType } from "../types";
 
-const INITIAL_APPROVALS: PendingApprovalItem[] = [
-  {
-    id: "appr-1",
-    stageName: "Stage 05 · Composition",
-    title: "Scene 03 · Product reveal",
-    versionLabel: "v3 · 4 min ago",
-    previousVersionLabel: "v2 · previous",
-    previousDescription: "Product off-center, flat lighting",
-    currentVersionLabel: "v3 · current",
-    currentDescription: "Centered, rim light added",
-    aiSummary: "Product moved to the center third, title lifted above the fold, rim lighting added from the left.",
-  },
-  {
-    id: "appr-2",
-    stageName: "Stage 05 · Composition",
-    title: "Scene 04 · Feature close-up",
-    versionLabel: "v1 · 18 min ago",
-    previousVersionLabel: "v0 · storyboard sketch",
-    previousDescription: "Initial storyboard wireframe concept",
-    currentVersionLabel: "v1 · current",
-    currentDescription: "Macro driver mesh with specular gloss",
-    aiSummary: "Generated high-resolution macro depth pass for acoustic driver diaphragm.",
-  },
-];
-
-export function useApprovalCenter(projectName: string = "Aurora X1 Launch") {
-  const [items, setItems] = useState<PendingApprovalItem[]>(INITIAL_APPROVALS);
-  const [selectedItemId, setSelectedItemId] = useState<string>("appr-1");
+export function useApprovalCenter(projectName: string = "Aurora X1 Launch", projectId: string = "proj-1") {
+  const [items, setItems] = useState<PendingApprovalItem[]>([]);
+  const [selectedItemId, setSelectedItemId] = useState<string>("");
   const [comment, setComment] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+  // Fetch pending approval items directly from Supabase via backend API
+  const fetchApprovals = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(`${apiUrl}/api/v1/projects/${projectId}/approvals`, {
+        headers: { Accept: "application/json" },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.items)) {
+          setItems(data.items);
+          if (data.items.length > 0) {
+            setSelectedItemId((prev) => prev || data.items[0].id);
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load approvals from Supabase backend:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [apiUrl, projectId]);
+
+  useEffect(() => {
+    fetchApprovals();
+  }, [fetchApprovals]);
 
   const selectedItem =
-    items.find((i) => i.id === selectedItemId) || items[0];
+    items.find((i) => i.id === selectedItemId) || items[0] || null;
 
-  const handleDecision = (decision: DecisionType): void => {
-    if (!selectedItem) return;
-    setItems((prev) => prev.filter((i) => i.id !== selectedItemId));
+  // Record review decision and persist into Supabase
+  const handleDecision = async (decision: DecisionType): Promise<void> => {
+    if (!selectedItemId) return;
+
+    const currentId = selectedItemId;
+    // 1. Optimistic removal from UI queue
+    const remaining = items.filter((i) => i.id !== currentId);
+    setItems(remaining);
+    setSelectedItemId(remaining[0]?.id || "");
+    const decisionComment = comment;
     setComment("");
-    if (items.length > 1) {
-      const remaining = items.filter((i) => i.id !== selectedItemId);
-      setSelectedItemId(remaining[0].id);
+
+    // 2. Persist to Supabase
+    try {
+      await fetch(`${apiUrl}/api/v1/projects/${projectId}/approvals/${currentId}/decision`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          decision,
+          comment: decisionComment,
+        }),
+      });
+    } catch (err) {
+      console.error("Error saving approval decision to Supabase:", err);
     }
   };
 
@@ -49,9 +71,9 @@ export function useApprovalCenter(projectName: string = "Aurora X1 Launch") {
     items,
     selectedItem,
     comment,
+    isLoading,
     setComment,
     setSelectedItemId,
     handleDecision,
   };
 }
-

@@ -1,116 +1,46 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import type { AssetItem, AssetCategory, AssetSourceType, CategoryCount } from "../types";
 
-const INITIAL_CATEGORIES: CategoryCount[] = [
-  { id: "all", label: "All assets", count: 64 },
-  { id: "product", label: "Product", count: 12 },
-  { id: "backgrounds", label: "Backgrounds", count: 18 },
-  { id: "particles", label: "Particles", count: 9 },
-  { id: "textures", label: "Textures", count: 11 },
-  { id: "logos", label: "Logos", count: 4 },
-];
-
-const INITIAL_ASSETS: AssetItem[] = [
-  {
-    id: "asset-1",
-    name: "product-front",
-    category: "product",
-    sourceType: "generated",
-    resolution: "4096×4096",
-    format: "Transparent PNG",
-    scenesUsed: [2, 3, 6],
-    version: 3,
-    totalVersions: 3,
-    isTransparent: true,
-  },
-  {
-    id: "asset-2",
-    name: "product-side",
-    category: "product",
-    sourceType: "generated",
-    resolution: "4096×4096",
-    format: "Transparent PNG",
-    scenesUsed: [2, 4],
-    version: 2,
-    totalVersions: 2,
-    isTransparent: true,
-  },
-  {
-    id: "asset-3",
-    name: "bg-studio-01",
-    category: "backgrounds",
-    sourceType: "generated",
-    resolution: "3840×2160",
-    format: "EXR Studio Map",
-    scenesUsed: [1, 2],
-    version: 1,
-    totalVersions: 1,
-  },
-  {
-    id: "asset-4",
-    name: "bg-studio-02",
-    category: "backgrounds",
-    sourceType: "generated",
-    resolution: "3840×2160",
-    format: "HDR Atmosphere",
-    scenesUsed: [3, 4],
-    version: 2,
-    totalVersions: 2,
-  },
-  {
-    id: "asset-5",
-    name: "particles",
-    category: "particles",
-    sourceType: "generated",
-    resolution: "1920×1080",
-    format: "Alpha Depth Pass",
-    scenesUsed: [1, 5],
-    version: 1,
-    totalVersions: 1,
-  },
-  {
-    id: "asset-6",
-    name: "flare",
-    category: "particles",
-    sourceType: "generated",
-    resolution: "2048×2048",
-    format: "Anamorphic Streak",
-    scenesUsed: [2],
-    version: 1,
-    totalVersions: 1,
-  },
-  {
-    id: "asset-7",
-    name: "metal-tex",
-    category: "textures",
-    sourceType: "generated",
-    resolution: "4096×4096",
-    format: "Roughness PBR Map",
-    scenesUsed: [3, 4],
-    version: 1,
-    totalVersions: 1,
-  },
-  {
-    id: "asset-8",
-    name: "logo.png",
-    category: "logos",
-    sourceType: "original",
-    resolution: "2048×2048",
-    format: "Vector Cutout",
-    scenesUsed: [6],
-    version: 1,
-    totalVersions: 1,
-    isTransparent: true,
-  },
-];
-
-export function useAssetStudio(projectName: string = "Aurora X1 Launch") {
-  const [assets] = useState<AssetItem[]>(INITIAL_ASSETS);
-  const [categories] = useState<CategoryCount[]>(INITIAL_CATEGORIES);
+export function useAssetStudio(projectName: string = "Aurora X1 Launch", projectId: string = "proj-1") {
+  const [assets, setAssets] = useState<AssetItem[]>([]);
+  const [categories, setCategories] = useState<CategoryCount[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<AssetCategory>("all");
   const [sourceFilter, setSourceFilter] = useState<AssetSourceType>("generated");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedAssetId, setSelectedAssetId] = useState<string>("asset-1");
+  const [selectedAssetId, setSelectedAssetId] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+  // Fetch asset matrix from Supabase via backend API
+  const fetchAssets = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(`${apiUrl}/api/v1/projects/${projectId}/assets`, {
+        headers: { Accept: "application/json" },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.assets)) {
+          setAssets(data.assets);
+          if (data.assets.length > 0) {
+            setSelectedAssetId((prev) => prev || data.assets[0].id);
+          }
+        }
+        if (Array.isArray(data.categories)) {
+          setCategories(data.categories);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load assets from Supabase backend:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [apiUrl, projectId]);
+
+  useEffect(() => {
+    fetchAssets();
+  }, [fetchAssets]);
 
   const filteredAssets = useMemo(() => {
     return assets.filter((asset) => {
@@ -125,7 +55,18 @@ export function useAssetStudio(projectName: string = "Aurora X1 Launch") {
   }, [assets, selectedCategoryId, sourceFilter, searchQuery]);
 
   const selectedAsset =
-    assets.find((a) => a.id === selectedAssetId) || assets[0];
+    assets.find((a) => a.id === selectedAssetId) || filteredAssets[0] || assets[0] || {
+      id: "asset-empty",
+      name: "No assets found",
+      category: "product",
+      sourceType: "generated",
+      resolution: "4K",
+      format: "PNG",
+      scenesUsed: [],
+      version: 1,
+      totalVersions: 1,
+      isTransparent: false,
+    };
 
   return {
     projectName,
@@ -135,10 +76,10 @@ export function useAssetStudio(projectName: string = "Aurora X1 Launch") {
     searchQuery,
     filteredAssets,
     selectedAsset,
+    isLoading,
     setSelectedCategoryId,
     setSourceFilter,
     setSearchQuery,
     setSelectedAssetId,
   };
 }
-
