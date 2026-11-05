@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { LayoutGrid, GitFork, Monitor, ChevronRight, Play } from "lucide-react";
+import { LayoutGrid, GitFork, Monitor, Check, Play } from "lucide-react";
 
 export function DashboardSidebar(): React.ReactElement {
   return (
@@ -33,19 +33,20 @@ export function DashboardSidebar(): React.ReactElement {
         </Link>
 
         <Link
-          href="/editor"
-          aria-label="Scene & Motion Editor"
+          href="/approvals"
+          aria-label="Approval Center"
           className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-500 hover:text-slate-300 hover:bg-[#161D2B] transition-colors"
         >
-          <ChevronRight className="w-4 h-4 rotate-90" />
+          <Check className="w-4 h-4" />
         </Link>
 
-        <button
-          aria-label="Render Engine"
+        <Link
+          href="/editor"
+          aria-label="Render Engine / Editor"
           className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-500 hover:text-slate-300 hover:bg-[#161D2B] transition-colors"
         >
           <Play className="w-4 h-4" />
-        </button>
+        </Link>
       </div>
     </aside>
   );
