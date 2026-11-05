@@ -1,0 +1,27 @@
+{
+  "name": "video-ai-demo-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-native video production platform monorepo",
+  "scripts": {
+    "dev": "concurrently -n web,server -c cyan,yellow \"npm run dev:web\" \"npm run dev:server\"",
+    "dev:web": "npm --prefix apps/web run dev",
+    "dev:server": "powershell -Command \"if (Test-Path .venv\\Scripts\\python.exe) { .\\.venv\\Scripts\\python.exe -m uvicorn server.backend.src.main:app --host 0.0.0.0 --port 8000 --reload } else { uvicorn server.backend.src.main:app --host 0.0.0.0 --port 8000 --reload }\"",
+    "build": "npm run build:web",
+    "build:web": "npm --prefix apps/web run build",
+    "start:web": "npm --prefix apps/web run start",
+    "infra:up": "docker compose -f docker-compose.infra.yml up -d",
+    "infra:down": "docker compose -f docker-compose.infra.yml down",
+    "infra:ps": "docker compose -f docker-compose.infra.yml ps",
+    "deps:check": "powershell -ExecutionPolicy Bypass -File ./scripts/check-deps.ps1",
+    "deps:check:web": "npm-check-updates --cwd apps/web",
+    "deps:check:server": "powershell -Command \"if (Test-Path .venv\\Scripts\\pur.exe) { .\\.venv\\Scripts\\pur.exe -r server/backend/requirements.txt -d } else { pip list --outdated }\"",
+    "deps:upgrade:web": "npm-check-updates --cwd apps/web -u && cd apps/web && bun install",
+    "deps:upgrade:server": "powershell -Command \"if (Test-Path .venv\\Scripts\\pur.exe) { .\\.venv\\Scripts\\pur.exe -r server/backend/requirements.txt; .\\.venv\\Scripts\\pip.exe install --upgrade -r server/backend/requirements.txt }\"",
+    "deps:upgrade": "powershell -ExecutionPolicy Bypass -File ./scripts/upgrade-deps.ps1"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6",
+    "npm-check-updates": "^23.1.1"
+  }
+}
