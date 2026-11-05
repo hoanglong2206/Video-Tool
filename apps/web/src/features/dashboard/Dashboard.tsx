@@ -38,7 +38,7 @@ export function Dashboard(): React.ReactElement {
             <div className="xl:col-span-3">
               <RecentProjectsGrid
                 projects={projects}
-                onOpenProject={(proj) => console.log("Open project", proj.name)}
+                onOpenProject={(proj) => router.push(`/projects/${proj.id}/workflow`)}
               />
             </div>
 
@@ -46,7 +46,7 @@ export function Dashboard(): React.ReactElement {
             <div className="xl:col-span-1 flex flex-col">
               <ApprovalPanel
                 approvals={approvals}
-                onSelectApproval={(item) => console.log("Select approval", item.title)}
+                onSelectApproval={() => router.push("/workflow")}
               />
 
               <RenderQueuePanel queueItem={renderQueue} />

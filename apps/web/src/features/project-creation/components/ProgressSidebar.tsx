@@ -39,3 +39,4 @@ export function ProgressSidebar(): React.ReactElement {
     </aside>
   );
 }
+

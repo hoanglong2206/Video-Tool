@@ -21,3 +21,4 @@ export interface ProgressStep {
   isDone: boolean;
   isActive: boolean;
 }
+
