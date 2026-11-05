@@ -28,6 +28,7 @@ export function SceneEditor({
     isApproved,
     suggestion,
     setSelectedLayerId,
+    setCurrentTimeSec,
     togglePlay,
     applySuggestion,
     handleApproveScene,
@@ -69,6 +70,7 @@ export function SceneEditor({
             <TimelineRuler
               tracks={tracks}
               currentTimeSec={currentTimeSec}
+              onScrub={setCurrentTimeSec}
             />
           </div>
 

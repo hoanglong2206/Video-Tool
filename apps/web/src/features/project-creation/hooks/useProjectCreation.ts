@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { ProjectBriefFormData, AiBriefAnalysis } from "../types";
 
@@ -25,6 +25,41 @@ export function useProjectCreation() {
   const [formData, setFormData] = useState<ProjectBriefFormData>(INITIAL_FORM);
   const [analysis, setAnalysis] = useState<AiBriefAnalysis>(INITIAL_ANALYSIS);
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [isCheckingBrief, setIsCheckingBrief] = useState<boolean>(false);
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+  // Debounced live AI Brief analysis
+  useEffect(() => {
+    if (!formData.brief || formData.brief.length < 15) return;
+    const timer = setTimeout(async () => {
+      setIsCheckingBrief(true);
+      try {
+        const res = await fetch(`${apiUrl}/api/v1/projects/brief-check`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            brief: formData.brief,
+            project_name: formData.projectName,
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setAnalysis({
+            missingItems: data.missing_items || [],
+            suggestedStructure: data.suggested_structure || "6 scenes, about 5 s each.",
+            isComplete: data.is_complete ?? false,
+          });
+        }
+      } catch (err) {
+        console.error("Failed to run live AI brief check:", err);
+      } finally {
+        setIsCheckingBrief(false);
+      }
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [formData.brief, formData.projectName, apiUrl]);
 
   const updateField = (field: keyof ProjectBriefFormData, value: string): void => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -35,17 +70,11 @@ export function useProjectCreation() {
       formData.brief +
       " Target audience: Tech audiophiles & creative professionals aged 22-40. CTA: Pre-order now at aurora-audio.com to receive exclusive founder engraving.";
     setFormData((prev) => ({ ...prev, brief: enrichedBrief }));
-    setAnalysis({
-      missingItems: [],
-      suggestedStructure: "6 scenes, about 5 s each (hook, 360 showcase, ANC feature, comfort fit, specs, CTA).",
-      isComplete: true,
-    });
   };
 
   const handleSaveDraft = async (): Promise<void> => {
     setIsSaving(true);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
       await fetch(`${apiUrl}/api/v1/projects`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -64,7 +93,32 @@ export function useProjectCreation() {
   };
 
   const handleContinue = async (): Promise<void> => {
-    await handleSaveDraft();
+    setIsSaving(true);
+    try {
+      const res = await fetch(`${apiUrl}/api/v1/projects`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.projectName,
+          brief: formData.brief,
+          client: formData.client,
+          duration: formData.duration,
+          aspect_ratio: formData.aspectRatio,
+          style_preference: formData.stylePreference,
+        }),
+      });
+      if (res.ok) {
+        const project = await res.json();
+        if (project.id) {
+          router.push(`/projects/${project.id}/storyboard`);
+          return;
+        }
+      }
+    } catch (err) {
+      console.error("Error creating project and launching workflow:", err);
+    } finally {
+      setIsSaving(false);
+    }
     router.push("/");
   };
 
@@ -72,6 +126,7 @@ export function useProjectCreation() {
     formData,
     analysis,
     isSaving,
+    isCheckingBrief,
     updateField,
     handleFillFromNotes,
     handleSaveDraft,

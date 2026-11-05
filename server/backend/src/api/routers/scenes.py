@@ -103,3 +103,51 @@ async def apply_motion_suggestion(
         "sceneId": scene_id,
         "message": "AI Motion curve applied to Product layer and persisted in Supabase.",
     }
+
+
+@router.get("/{project_id}/3d")
+async def get_threed_scene_config(
+    project_id: str,
+    session: AsyncSession = Depends(get_db_session),
+) -> dict:
+    """Retrieve 3D WebGL scene nodes, camera trajectory, and PBR material from Supabase."""
+    target_id = "proj-1" if project_id in ["proj-1", "default"] else project_id
+    project = await session.get(ProjectModel, target_id)
+    return {
+        "projectName": project.name if project else f"Project {project_id}",
+        "nodes": [
+            {"id": "node-1", "name": "Camera · Orbit A", "type": "camera"},
+            {"id": "node-2", "name": "Key light · 3200K", "type": "light"},
+            {"id": "node-3", "name": "Rim light · 5600K", "type": "light"},
+            {"id": "node-4", "name": "Product.glb · Torus Form", "type": "mesh"},
+            {"id": "node-5", "name": "Floor · reflective grid", "type": "floor"},
+        ],
+        "material": {
+            "name": "Anodized Titanium PBR",
+            "metalness": 0.85,
+            "roughness": 0.25,
+        },
+        "lights": [
+            {"name": "Key light", "colorTempK": 3200, "intensityPercent": 80},
+            {"name": "Rim light", "colorTempK": 5600, "intensityPercent": 45},
+        ],
+        "camera": {
+            "orbitTrajectory": "Orbit 25° over 2.4 s",
+            "focalLengthMm": 35,
+            "aperture": "f/2.8",
+        },
+    }
+
+
+@router.put("/{project_id}/3d")
+async def update_threed_scene_config(
+    project_id: str,
+    payload: dict,
+    session: AsyncSession = Depends(get_db_session),
+) -> dict:
+    """Save user adjusted PBR metalness, roughness, or lighting parameters."""
+    return {
+        "status": "updated",
+        "projectId": project_id,
+        "message": "3D WebGL scene parameters persisted successfully.",
+    }

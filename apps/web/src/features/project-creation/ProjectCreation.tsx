@@ -13,6 +13,7 @@ export function ProjectCreation(): React.ReactElement {
     formData,
     analysis,
     isSaving,
+    isCheckingBrief,
     updateField,
     handleFillFromNotes,
     handleSaveDraft,
@@ -41,6 +42,7 @@ export function ProjectCreation(): React.ReactElement {
           <BriefForm formData={formData} onChangeField={updateField} />
           <AiBriefCheckPanel
             analysis={analysis}
+            isChecking={isCheckingBrief}
             onFillFromNotes={handleFillFromNotes}
           />
         </main>

@@ -4,18 +4,27 @@ import { Button } from "@/components/ui";
 
 interface AiBriefCheckPanelProps {
   analysis: AiBriefAnalysis;
+  isChecking?: boolean;
   onFillFromNotes: () => void;
 }
 
 export function AiBriefCheckPanel({
   analysis,
+  isChecking = false,
   onFillFromNotes,
 }: AiBriefCheckPanelProps): React.ReactElement {
   return (
     <aside className="w-64 border-l border-[#1E2638] bg-[#0A0E17] p-6 flex flex-col shrink-0 select-none">
-      <h2 className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-4">
-        AI Brief Check
-      </h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+          AI Brief Check
+        </h2>
+        {isChecking && (
+          <span className="text-[10px] text-blue-400 animate-pulse font-mono">
+            Thinking...
+          </span>
+        )}
+      </div>
 
       <div className="flex flex-col gap-2.5 text-xs text-slate-400">
         {analysis.missingItems.length > 0 ? (

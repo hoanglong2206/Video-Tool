@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type {
   SceneGraphNode,
   PbrMaterial,
@@ -21,31 +21,52 @@ const INITIAL_TRACKS: ThreeDTimelineTrack[] = [
   { id: "track-3", name: "Lights", startPercent: 38, durationPercent: 30, colorClass: "bg-[#784D16]" },
 ];
 
-export function useThreeDStudio(projectName: string = "Aurora X1 Launch") {
-  const [nodes] = useState<SceneGraphNode[]>(INITIAL_NODES);
+export function useThreeDStudio(projectName: string = "Aurora X1 Launch", projectId: string = "proj-1") {
+  const [nodes, setNodes] = useState<SceneGraphNode[]>(INITIAL_NODES);
   const [selectedNodeId, setSelectedNodeId] = useState<string>("node-4");
   const [isOrbitMode, setIsOrbitMode] = useState<boolean>(true);
   const [isRendering, setIsRendering] = useState<boolean>(false);
   const [isApproved, setIsApproved] = useState<boolean>(false);
 
   const [material, setMaterial] = useState<PbrMaterial>({
-    name: "Brushed Aluminum",
-    metalness: 0.9,
-    roughness: 0.3,
+    name: "Anodized Titanium PBR",
+    metalness: 0.85,
+    roughness: 0.25,
   });
 
-  const [lights] = useState<LightSetting[]>([
+  const [lights, setLights] = useState<LightSetting[]>([
     { name: "Key light", colorTempK: 3200, intensityPercent: 80 },
     { name: "Rim light", colorTempK: 5600, intensityPercent: 45 },
   ]);
 
-  const [camera] = useState<Camera3DSettings>({
+  const [camera, setCamera] = useState<Camera3DSettings>({
     orbitTrajectory: "Orbit 25° over 2.4 s",
     focalLengthMm: 35,
     aperture: "f/2.8",
   });
 
   const [tracks] = useState<ThreeDTimelineTrack[]>(INITIAL_TRACKS);
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+  const fetchThreeDConfig = useCallback(async () => {
+    try {
+      const res = await fetch(`${apiUrl}/api/v1/projects/${projectId}/3d`);
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.nodes)) setNodes(data.nodes);
+        if (data.material) setMaterial(data.material);
+        if (Array.isArray(data.lights)) setLights(data.lights);
+        if (data.camera) setCamera(data.camera);
+      }
+    } catch (err) {
+      console.error("Failed to fetch 3D WebGL config from Supabase:", err);
+    }
+  }, [apiUrl, projectId]);
+
+  useEffect(() => {
+    fetchThreeDConfig();
+  }, [fetchThreeDConfig]);
 
   const selectedNode =
     nodes.find((n) => n.id === selectedNodeId) || nodes[3];

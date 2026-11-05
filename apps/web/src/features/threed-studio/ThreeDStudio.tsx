@@ -30,6 +30,7 @@ export function ThreeDStudio({
     tracks,
     setSelectedNodeId,
     setIsOrbitMode,
+    setMaterial,
     handleRenderPreview,
     handleApproveScene,
   } = useThreeDStudio(projectName);
@@ -67,7 +68,12 @@ export function ThreeDStudio({
 
           {/* Center 3D Viewport & Bottom Timeline */}
           <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-            <ThreeDViewport camera={camera} />
+            <ThreeDViewport
+              camera={camera}
+              material={material}
+              lights={lights}
+              isOrbitMode={isOrbitMode}
+            />
             <ThreeDTimeline tracks={tracks} />
           </div>
 
@@ -76,6 +82,7 @@ export function ThreeDStudio({
             material={material}
             lights={lights}
             camera={camera}
+            onMaterialChange={setMaterial}
           />
         </main>
       </div>

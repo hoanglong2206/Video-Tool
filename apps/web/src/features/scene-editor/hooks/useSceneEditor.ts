@@ -57,6 +57,24 @@ export function useSceneEditor(
 
   const togglePlay = (): void => setIsPlaying((prev) => !prev);
 
+  // 60 FPS Timehead scrubbing loop
+  useEffect(() => {
+    if (!isPlaying) return;
+    let lastTime = performance.now();
+    let animId: number;
+    const loop = (time: number) => {
+      const dt = (time - lastTime) / 1000;
+      lastTime = time;
+      setCurrentTimeSec((prev) => {
+        const next = prev + dt;
+        return next > 6.0 ? 0 : next;
+      });
+      animId = requestAnimationFrame(loop);
+    };
+    animId = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(animId);
+  }, [isPlaying]);
+
   const applySuggestion = async (): Promise<void> => {
     setProperties((prev) => ({
       ...prev,
@@ -90,6 +108,7 @@ export function useSceneEditor(
     suggestion,
     setSelectedLayerId,
     setProperties,
+    setCurrentTimeSec,
     togglePlay,
     applySuggestion,
     handleApproveScene,

@@ -5,12 +5,14 @@ interface ThreeDInspectorProps {
   material: PbrMaterial;
   lights: LightSetting[];
   camera: Camera3DSettings;
+  onMaterialChange?: (mat: PbrMaterial) => void;
 }
 
 export function ThreeDInspector({
   material,
   lights,
   camera,
+  onMaterialChange,
 }: ThreeDInspectorProps): React.ReactElement {
   return (
     <aside className="w-80 border-l border-[#1E2638] bg-[#0A0E17] p-6 flex flex-col shrink-0 select-none overflow-y-auto">
@@ -19,12 +21,47 @@ export function ThreeDInspector({
         Material · {material.name}
       </h2>
 
-      <div className="grid grid-cols-2 gap-2 text-xs mb-6">
-        <div className="h-8 rounded-md bg-[#101520] border border-[#1C2436] px-3 flex items-center text-slate-300">
-          Metalness {material.metalness}
+      <div className="flex flex-col gap-3 text-xs mb-6">
+        <div>
+          <div className="flex justify-between text-slate-400 mb-1">
+            <span>Metalness</span>
+            <span className="text-slate-200 font-mono">{material.metalness.toFixed(2)}</span>
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            value={material.metalness}
+            onChange={(e) =>
+              onMaterialChange?.({
+                ...material,
+                metalness: parseFloat(e.target.value),
+              })
+            }
+            className="w-full accent-blue-500 cursor-pointer"
+          />
         </div>
-        <div className="h-8 rounded-md bg-[#101520] border border-[#1C2436] px-3 flex items-center text-slate-300">
-          Roughness {material.roughness}
+
+        <div>
+          <div className="flex justify-between text-slate-400 mb-1">
+            <span>Roughness</span>
+            <span className="text-slate-200 font-mono">{material.roughness.toFixed(2)}</span>
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            value={material.roughness}
+            onChange={(e) =>
+              onMaterialChange?.({
+                ...material,
+                roughness: parseFloat(e.target.value),
+              })
+            }
+            className="w-full accent-blue-500 cursor-pointer"
+          />
         </div>
       </div>
 
