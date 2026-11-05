@@ -68,3 +68,4 @@ async def cancel_render() -> dict:
 async def retry_failed_jobs() -> dict:
     """Retry failed scene frame renders."""
     return {"status": "requeued", "message": "Failed frame jobs requeued"}
+

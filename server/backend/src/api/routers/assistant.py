@@ -37,3 +37,4 @@ async def apply_assistant_change(req: ApplyChangeRequest) -> dict:
         "scene_id": req.scene_id,
         "message": f"Successfully merged AI motion adjustments into {req.scene_id}",
     }
+

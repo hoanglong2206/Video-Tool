@@ -17,3 +17,4 @@ export interface BrandKitInfo {
   guidelines: string;
   usageCount: number;
 }
+

@@ -35,3 +35,4 @@ class ApplyChangeRequest(BaseModel):
     change_id: str
     scene_id: str
     parameters: Optional[dict] = None
+

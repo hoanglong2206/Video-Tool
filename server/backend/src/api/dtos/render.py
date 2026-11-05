@@ -27,3 +27,4 @@ class RenderProgressDto(BaseModel):
 class StartRenderRequest(BaseModel):
     project_id: str
     settings: Optional[ExportSettingsDto] = None
+

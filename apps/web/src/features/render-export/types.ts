@@ -20,3 +20,4 @@ export interface RenderProgress {
   elapsedTime: string;
   logs: string[];
 }
+

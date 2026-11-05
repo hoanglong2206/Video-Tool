@@ -62,3 +62,4 @@ async def trigger_3d_render_preview(project_id: str) -> dict[str, str]:
         "projectId": project_id,
         "message": "Blender Cycles headless render dispatched.",
     }
+

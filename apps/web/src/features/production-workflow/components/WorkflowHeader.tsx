@@ -36,13 +36,12 @@ export function WorkflowHeader({
           Overall <strong className="text-slate-200 font-semibold">{overallProgress}%</strong>
         </span>
 
-        <button
-          type="button"
-          onClick={onOpenApprovals}
-          className="h-8 px-3.5 rounded-md text-xs font-medium text-white bg-[#3B82F6] hover:bg-[#2563EB] active:scale-[0.98] transition-all shadow-sm"
+        <Link
+          href="/approvals"
+          className="h-8 px-3.5 rounded-md text-xs font-medium text-white bg-[#3B82F6] hover:bg-[#2563EB] active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
         >
           Open approvals ({pendingApprovalsCount})
-        </button>
+        </Link>
       </div>
     </header>
   );

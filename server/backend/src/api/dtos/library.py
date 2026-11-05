@@ -35,3 +35,4 @@ class BrandKitDto(BaseModel):
 class ApplyBrandKitRequest(BaseModel):
     project_id: str = Field(..., description="Target project ID")
     brand_kit_id: str = Field(..., description="Brand kit to apply")
+

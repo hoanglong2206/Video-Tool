@@ -11,3 +11,4 @@ export function SceneViewport(): React.ReactElement {
     </div>
   );
 }
+

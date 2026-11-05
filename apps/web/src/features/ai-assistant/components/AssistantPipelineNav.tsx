@@ -51,3 +51,4 @@ export function AssistantPipelineNav(): React.ReactElement {
     </nav>
   );
 }
+

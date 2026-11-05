@@ -16,3 +16,4 @@ export interface AssistantContext {
   scene: string;
   layer: string;
 }
+

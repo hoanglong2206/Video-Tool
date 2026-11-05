@@ -54,3 +54,4 @@ class ThreeDSceneResponseDTO(BaseModel):
     tracks: list[ThreeDTimelineTrackDTO]
 
     model_config = ConfigDict(from_attributes=True)
+

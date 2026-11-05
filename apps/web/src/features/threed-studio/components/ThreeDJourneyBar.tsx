@@ -49,3 +49,4 @@ export function ThreeDJourneyBar(): React.ReactElement {
     </div>
   );
 }
+

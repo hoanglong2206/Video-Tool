@@ -75,3 +75,4 @@ async def apply_brand_kit(req: ApplyBrandKitRequest) -> dict:
         "brand_kit_id": req.brand_kit_id,
         "message": f"Brand kit '{req.brand_kit_id}' successfully applied to project '{req.project_id}'",
     }
+

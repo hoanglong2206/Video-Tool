@@ -89,17 +89,13 @@ export function ExportSettingsPanel({
         {renders.map((render) => (
           <div
             key={render.id}
-            className="text-xs text-slate-400 py-1 flex items-center justify-between"
+            className="text-xs text-slate-400 py-0.5"
           >
-            <span>
-              {render.version} · {render.resolution} · {render.duration}
-            </span>
-            {render.status === "failed" && (
-              <span className="text-[11px] text-rose-400 font-medium">Error</span>
-            )}
+            {render.version} · {render.resolution} · {render.duration}
           </div>
         ))}
       </div>
     </div>
   );
 }
+

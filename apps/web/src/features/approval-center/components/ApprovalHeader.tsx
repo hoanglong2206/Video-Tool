@@ -28,3 +28,4 @@ export function ApprovalHeader({ pendingCount }: ApprovalHeaderProps): React.Rea
     </header>
   );
 }
+

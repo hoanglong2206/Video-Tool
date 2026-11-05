@@ -28,3 +28,4 @@ export function ThreeDViewport({ camera }: ThreeDViewportProps): React.ReactElem
     </div>
   );
 }
+

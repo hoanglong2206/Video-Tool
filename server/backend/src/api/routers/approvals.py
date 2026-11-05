@@ -58,3 +58,4 @@ async def record_approval_decision(
         "decision": payload.decision,
         "message": f"Decision '{payload.decision}' successfully processed for {item_id}.",
     }
+

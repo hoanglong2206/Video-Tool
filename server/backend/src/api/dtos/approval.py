@@ -26,3 +26,4 @@ class ApprovalCenterResponseDTO(BaseModel):
 class ApprovalDecisionRequestDTO(BaseModel):
     decision: str  # "approve" | "revision" | "reject"
     comment: str | None = None
+

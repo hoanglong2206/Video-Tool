@@ -30,3 +30,4 @@ export interface ThreeDTimelineTrack {
   durationPercent: number;
   colorClass: string;
 }
+

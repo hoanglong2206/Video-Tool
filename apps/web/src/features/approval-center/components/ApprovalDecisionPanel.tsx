@@ -67,3 +67,4 @@ export function ApprovalDecisionPanel({
     </aside>
   );
 }
+

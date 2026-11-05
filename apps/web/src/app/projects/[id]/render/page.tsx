@@ -12,3 +12,4 @@ export default async function ProjectRenderPage({ params }: ProjectRenderPagePro
   const { id } = await params;
   return <RenderExport projectName={`Project #${id}`} />;
 }
+
