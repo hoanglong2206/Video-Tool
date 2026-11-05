@@ -15,6 +15,7 @@ from server.backend.src.infrastructure.database.models import (
     WorkflowStageModel,
 )
 from server.backend.src.infrastructure.database.session import get_db_session
+from worker.daemon import workflow_daemon
 
 router = APIRouter(prefix="/api/v1/projects", tags=["Workflow"])
 
@@ -144,3 +145,20 @@ async def request_stage_revision(
         "stageId": stage_id,
         "message": f"Revision requested for stage {stage_name}.",
     }
+
+
+@router.post("/{project_id}/workflow/start")
+async def start_project_workflow(project_id: str) -> dict:
+    """Trigger the background production pipeline to execute the next workflow stages."""
+    target_id = "proj-1" if project_id in ["proj-1", "default"] else project_id
+    result = await workflow_daemon.advance_project_pipeline(target_id)
+    return result
+
+
+@router.post("/{project_id}/stages/{stage_id}/advance")
+async def advance_workflow_stage(project_id: str, stage_id: str) -> dict:
+    """Advance the specified stage to completion via worker daemon."""
+    target_id = "proj-1" if project_id in ["proj-1", "default"] else project_id
+    result = await workflow_daemon.advance_project_pipeline(target_id)
+    return result
+

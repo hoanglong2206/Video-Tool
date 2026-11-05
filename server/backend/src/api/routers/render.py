@@ -1,7 +1,10 @@
+import asyncio
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import List
 from uuid import uuid4
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import FileResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,6 +16,8 @@ from server.backend.src.api.dtos.render import (
 )
 from server.backend.src.infrastructure.database.models import RenderJobModel
 from server.backend.src.infrastructure.database.session import get_db_session
+from worker.config import worker_settings
+from worker.daemon import workflow_daemon
 
 router = APIRouter(prefix="/api/v1/render", tags=["Render & Export Center"])
 
@@ -97,12 +102,43 @@ async def start_render(
     session.add(new_job)
     await session.commit()
 
+    # Trigger asynchronous background worker to process render passes and composite MP4
+    asyncio.create_task(workflow_daemon.run_render_job(job_id))
+
     return {
         "status": "queued",
         "job_id": job_id,
         "project_id": req.project_id,
         "message": "Render pipeline initialized and recorded in Supabase",
     }
+
+
+@router.get("/download/{job_id}")
+async def download_rendered_video(job_id: str) -> FileResponse:
+    """Stream or download the compiled master MP4 video file."""
+    candidate_paths = [
+        worker_settings.render_out_dir / f"{job_id}.mp4",
+        worker_settings.workspace_root / "storage" / "remotion_test.mp4",
+        worker_settings.render_out_dir / "proj-1_master.mp4",
+    ]
+
+    target_file = None
+    for p in candidate_paths:
+        if p.exists() and p.stat().st_size > 0:
+            target_file = p
+            break
+
+    if not target_file:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Rendered video for job {job_id} is still encoding or not found.",
+        )
+
+    return FileResponse(
+        path=str(target_file),
+        media_type="video/mp4",
+        filename=f"master_{job_id}.mp4",
+    )
 
 
 @router.post("/cancel", status_code=status.HTTP_200_OK)

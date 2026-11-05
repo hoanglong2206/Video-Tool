@@ -21,6 +21,8 @@ export function RenderExport({
     renders,
     progress,
     isRendering,
+    startRender,
+    downloadMasterVideo,
     cancelRender,
     retryFailed,
   } = useRenderExport(projectName);
@@ -37,8 +39,8 @@ export function RenderExport({
           projectName={projectName}
           isRendering={isRendering}
           onCancel={cancelRender}
-          onExport={() => alert("Downloading MP4 video...")}
-          onStart={() => alert("Render job initialized")}
+          onExport={downloadMasterVideo}
+          onStart={startRender}
         />
 
         {/* Pipeline Breadcrumb Journey */}

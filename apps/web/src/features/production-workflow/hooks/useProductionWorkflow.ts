@@ -7,6 +7,7 @@ export function useProductionWorkflow(projectName: string = "Aurora X1 Launch", 
   const [logs, setLogs] = useState<ExecutionLogEntry[]>([]);
   const [overallProgress, setOverallProgress] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isAdvancing, setIsAdvancing] = useState<boolean>(false);
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -94,6 +95,22 @@ export function useProductionWorkflow(projectName: string = "Aurora X1 Launch", 
     }
   };
 
+  const handleStartPipeline = async (): Promise<void> => {
+    setIsAdvancing(true);
+    try {
+      const res = await fetch(`${apiUrl}/api/v1/projects/${projectId}/workflow/start`, {
+        method: "POST",
+      });
+      if (res.ok) {
+        await fetchWorkflow();
+      }
+    } catch (err) {
+      console.error("Error advancing pipeline stage on Supabase:", err);
+    } finally {
+      setIsAdvancing(false);
+    }
+  };
+
   return {
     projectName,
     overallProgress,
@@ -101,6 +118,8 @@ export function useProductionWorkflow(projectName: string = "Aurora X1 Launch", 
     selectedStage,
     logs,
     isLoading,
+    isAdvancing,
+    handleStartPipeline,
     setSelectedStageId,
     handleApprove,
     handleRequestRevision,

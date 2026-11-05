@@ -18,6 +18,8 @@ build/
 # Next.js
 apps/web/.next/
 apps/web/out/
+apps/video-engine/build/
+apps/video-engine/out/
 
 # Environment files
 .env

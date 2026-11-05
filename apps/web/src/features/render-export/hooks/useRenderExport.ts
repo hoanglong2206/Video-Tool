@@ -65,8 +65,42 @@ export function useRenderExport(projectName: string = "Aurora X1 Launch", projec
     fetchRenderData();
   }, [fetchRenderData]);
 
+  // Live polling while rendering is in progress
+  useEffect(() => {
+    if (!isRendering) return;
+    const interval = setInterval(() => {
+      fetchRenderData();
+    }, 1500);
+    return () => clearInterval(interval);
+  }, [isRendering, fetchRenderData]);
+
   const updateSetting = (key: keyof ExportSettings, value: string) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const startRender = async () => {
+    setIsRendering(true);
+    try {
+      const res = await fetch(`${apiUrl}/api/v1/render/start`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          project_id: projectId,
+          resolution: settings.resolution,
+          codec: settings.codec,
+        }),
+      });
+      if (res.ok) {
+        await fetchRenderData();
+      }
+    } catch (err) {
+      console.error("Error starting render job:", err);
+      setIsRendering(false);
+    }
+  };
+
+  const downloadMasterVideo = () => {
+    window.open(`${apiUrl}/api/v1/render/download/master`, "_blank");
   };
 
   const cancelRender = async () => {
@@ -96,6 +130,8 @@ export function useRenderExport(projectName: string = "Aurora X1 Launch", projec
     renders,
     progress,
     isRendering,
+    startRender,
+    downloadMasterVideo,
     cancelRender,
     retryFailed,
   };

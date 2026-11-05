@@ -20,6 +20,8 @@ export function ProductionWorkflow({
     stages,
     selectedStage,
     logs,
+    isAdvancing,
+    handleStartPipeline,
     setSelectedStageId,
     handleApprove,
     handleRequestRevision,
@@ -36,6 +38,8 @@ export function ProductionWorkflow({
         <WorkflowHeader
           projectName={projectName}
           overallProgress={overallProgress}
+          isAdvancing={isAdvancing}
+          onStartPipeline={handleStartPipeline}
           onOpenApprovals={() => setSelectedStageId("stage-05")}
         />
 
