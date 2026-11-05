@@ -9,6 +9,7 @@ export function useAssetStudio(projectName: string = "Aurora X1 Launch", project
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedAssetId, setSelectedAssetId] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isRemovingBg, setIsRemovingBg] = useState<boolean>(false);
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -68,6 +69,31 @@ export function useAssetStudio(projectName: string = "Aurora X1 Launch", project
       isTransparent: false,
     };
 
+  const handleRemoveBackground = async (assetId?: string) => {
+    const targetId = assetId || selectedAsset.id;
+    if (!targetId || targetId === "asset-empty") return;
+    setIsRemovingBg(true);
+    try {
+      const res = await fetch(`${apiUrl}/api/v1/projects/${projectId}/assets/${targetId}/remove-bg`, {
+        method: "POST",
+        headers: { Accept: "application/json" },
+      });
+      if (res.ok) {
+        setAssets((prev) =>
+          prev.map((a) =>
+            a.id === targetId
+              ? { ...a, isTransparent: true, format: "Transparent PNG", version: a.version + 1 }
+              : a
+          )
+        );
+      }
+    } catch (err) {
+      console.error("Failed to remove background:", err);
+    } finally {
+      setIsRemovingBg(false);
+    }
+  };
+
   return {
     projectName,
     categories,
@@ -77,6 +103,8 @@ export function useAssetStudio(projectName: string = "Aurora X1 Launch", project
     filteredAssets,
     selectedAsset,
     isLoading,
+    isRemovingBg,
+    handleRemoveBackground,
     setSelectedCategoryId,
     setSourceFilter,
     setSearchQuery,

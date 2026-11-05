@@ -4,6 +4,7 @@ import { Button } from "@/components/ui";
 
 interface AssetInspectorProps {
   asset: AssetItem;
+  isRemovingBg?: boolean;
   onRemoveBackground?: () => void;
   onVariations?: () => void;
   onEditWithAi?: () => void;
@@ -12,6 +13,7 @@ interface AssetInspectorProps {
 
 export function AssetInspector({
   asset,
+  isRemovingBg = false,
   onRemoveBackground,
   onVariations,
   onEditWithAi,
@@ -51,10 +53,11 @@ export function AssetInspector({
         <Button
           variant="outline"
           size="sm"
+          disabled={isRemovingBg}
           className="text-[11px] h-8 px-2.5"
           onClick={onRemoveBackground}
         >
-          Remove background
+          {isRemovingBg ? "Removing..." : "Remove background"}
         </Button>
 
         <Button

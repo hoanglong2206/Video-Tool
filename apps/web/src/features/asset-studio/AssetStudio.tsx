@@ -23,6 +23,8 @@ export function AssetStudio({
     searchQuery,
     filteredAssets,
     selectedAsset,
+    isRemovingBg,
+    handleRemoveBackground,
     setSelectedCategoryId,
     setSourceFilter,
     setSearchQuery,
@@ -67,7 +69,8 @@ export function AssetStudio({
 
           <AssetInspector
             asset={selectedAsset}
-            onRemoveBackground={() => console.log("Remove background")}
+            isRemovingBg={isRemovingBg}
+            onRemoveBackground={() => handleRemoveBackground(selectedAsset.id)}
             onVariations={() => console.log("Generate variations")}
             onEditWithAi={() => console.log("Edit with AI")}
             onCompareVersions={() => console.log("Compare versions")}

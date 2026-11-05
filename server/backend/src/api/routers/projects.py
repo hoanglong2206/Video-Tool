@@ -93,18 +93,15 @@ async def create_project(
     )
 
 
+from server.ai_engine.src.llm.service import llm_service
+
+
 @router.post("/brief-check", response_model=BriefCheckResponseDTO)
 async def check_brief_completeness(payload: BriefCheckRequestDTO) -> BriefCheckResponseDTO:
-    """AI assessment of client brief completeness and structure recommendations."""
-    missing: list[str] = []
-    text = payload.brief.lower()
-    if "target" not in text and "audience" not in text:
-        missing.append("target audience.")
-    if not any(k in text for k in ["call-to-action", "cta", "order", "buy", "visit"]):
-        missing.append("call-to-action text.")
-
+    """AI assessment of client brief completeness and structure recommendations using LLM reasoning."""
+    result = await llm_service.check_brief_completeness(payload.brief)
     return BriefCheckResponseDTO(
-        missing_items=missing,
-        suggested_structure="6 scenes, about 5 s each.",
-        is_complete=len(missing) == 0,
+        missing_items=result.missing_items,
+        suggested_structure=result.suggested_structure or "6 scenes, about 5 s each.",
+        is_complete=result.is_complete,
     )

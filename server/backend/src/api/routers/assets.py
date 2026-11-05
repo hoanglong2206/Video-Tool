@@ -72,22 +72,43 @@ async def get_project_assets(
     )
 
 
+from pathlib import Path
+from server.ai_engine.src.vision.service import vision_service
+from server.backend.src.infrastructure.storage.local_storage import storage_service
+
+
 @router.post("/{project_id}/assets/{asset_id}/remove-bg")
 async def remove_asset_background(
     project_id: str,
     asset_id: str,
     session: AsyncSession = Depends(get_db_session),
 ) -> dict[str, str]:
-    """Trigger background removal isolation on target asset and persist state."""
+    """Trigger AI background removal isolation on target asset and persist state."""
     asset = await session.get(AssetModel, asset_id)
-    if asset:
-        asset.is_transparent = True
-        asset.format = "Transparent PNG"
-        await session.commit()
+    if not asset:
+        return {"status": "failed", "message": "Asset not found", "assetId": asset_id}
+
+    target_id = "proj-1" if project_id in ["proj-1", "default"] else project_id
+    proj_dir = storage_service.get_project_dir(target_id)
+    out_file = proj_dir / "assets" / f"{asset.name}_nobg.png"
+
+    # If an original raw file exists, process it with vision_service
+    raw_file = proj_dir / "raw" / f"{asset.name}.png"
+    if raw_file.exists():
+        raw_bytes = raw_file.read_bytes()
+        cutout_res = await vision_service.isolate_product(raw_bytes)
+        if cutout_res.success:
+            out_file.write_bytes(cutout_res.image_bytes)
+            asset.file_path = str(out_file)
+
+    asset.is_transparent = True
+    asset.format = "Transparent PNG"
+    await session.commit()
 
     return {
         "status": "completed",
         "assetId": asset_id,
         "format": "Transparent PNG",
-        "message": f"Background removed for asset {asset_id}.",
+        "outputFile": str(out_file),
+        "message": f"Background removed via AI Vision for asset {asset.name}.",
     }

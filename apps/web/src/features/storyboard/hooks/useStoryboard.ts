@@ -5,6 +5,7 @@ export function useStoryboard(projectName: string = "Aurora X1 Launch", projectI
   const [scenes, setScenes] = useState<StoryboardScene[]>([]);
   const [selectedSceneId, setSelectedSceneId] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -107,16 +108,38 @@ export function useStoryboard(projectName: string = "Aurora X1 Launch", projectI
     setSelectedSceneId(filtered[0]?.id || "");
   };
 
+  const handleGenerateWithAi = async (): Promise<void> => {
+    setIsGenerating(true);
+    try {
+      const res = await fetch(`${apiUrl}/api/v1/projects/${projectId}/storyboard/generate`, {
+        method: "POST",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.scenes) && data.scenes.length > 0) {
+          setScenes(data.scenes);
+          setSelectedSceneId(data.scenes[0].id);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to generate AI storyboard:", err);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return {
     projectName,
     scenes,
     selectedScene,
     totalDuration,
     isLoading,
+    isGenerating,
     setSelectedSceneId,
     updateSelectedScene,
     handleAddScene,
     handleDuplicate,
     handleRemove,
+    handleGenerateWithAi,
   };
 }

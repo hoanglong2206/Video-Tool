@@ -10,21 +10,25 @@ import { SceneInspector } from "./components/SceneInspector";
 
 interface StoryboardStudioProps {
   projectName?: string;
+  projectId?: string;
 }
 
 export function StoryboardStudio({
   projectName = "Aurora X1 Launch",
+  projectId = "proj-1",
 }: StoryboardStudioProps): React.ReactElement {
   const {
     scenes,
     selectedScene,
     totalDuration,
+    isGenerating,
     setSelectedSceneId,
     updateSelectedScene,
     handleAddScene,
     handleDuplicate,
     handleRemove,
-  } = useStoryboard(projectName);
+    handleGenerateWithAi,
+  } = useStoryboard(projectName, projectId);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#0B0F17] text-slate-100 antialiased select-none">
@@ -33,9 +37,11 @@ export function StoryboardStudio({
 
       {/* Main View Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Top Header */}
+        {/* Top Header with AI Generation Button */}
         <StoryboardHeader
           projectName={projectName}
+          onGenerateWithAi={handleGenerateWithAi}
+          isGenerating={isGenerating}
           onPreview={() => console.log("Preview storyboard")}
           onReopenRevision={() => console.log("Reopen revision")}
         />
@@ -58,11 +64,10 @@ export function StoryboardStudio({
             onChangeDescription={(desc) => updateSelectedScene("description", desc)}
             onDuplicate={handleDuplicate}
             onRemove={handleRemove}
-            onRegenerateFrame={() => console.log("Regenerating AI frame")}
+            onRegenerateFrame={handleGenerateWithAi}
           />
         </main>
       </div>
     </div>
   );
 }
-
