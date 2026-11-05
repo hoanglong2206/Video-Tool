@@ -17,7 +17,8 @@ export function DashboardSidebar(): React.ReactElement {
   const isStoryboard =
     pathname.startsWith("/storyboard") ||
     pathname.startsWith("/editor") ||
-    pathname.startsWith("/threed");
+    pathname.startsWith("/threed") ||
+    pathname.startsWith("/assistant");
   const isApprovals = pathname.startsWith("/approvals");
   const isRender = pathname.startsWith("/render");
 
