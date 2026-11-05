@@ -3,7 +3,7 @@ from typing import AsyncGenerator
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from server.backend.src.core.config import settings
-from server.backend.src.api.routers import health, dashboard, projects, workflow, storyboard, assets, scenes, threed, approvals, library, render
+from server.backend.src.api.routers import health, dashboard, projects, workflow, storyboard, assets, scenes, threed, approvals, library, render, assistant
 
 
 @asynccontextmanager
@@ -42,6 +42,7 @@ app.include_router(threed.router)
 app.include_router(approvals.router)
 app.include_router(library.router)
 app.include_router(render.router)
+app.include_router(assistant.router)
 
 
 if __name__ == "__main__":
