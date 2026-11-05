@@ -63,7 +63,24 @@ flowchart TD
 
 ---
 
-### Step 3.2: Launch Core Infrastructure with Docker Compose
+### Step 3.2: Unified Monorepo Runner (Fastest Setup)
+From the repository root, you can start both the Next.js 16 Frontend Studio and the FastAPI Backend Gateway simultaneously with a single command:
+```bash
+# Using Bun or npm from root:
+bun run dev
+# or using PowerShell on Windows:
+powershell -ExecutionPolicy Bypass -File ./scripts/dev.ps1
+```
+
+To check and upgrade dependencies across both Web (Node/Bun) and Backend (Python):
+```bash
+bun run deps:check      # Check latest available versions
+bun run deps:upgrade    # Upgrade all dependencies to latest versions
+```
+
+---
+
+### Step 3.3: Launch Core Infrastructure with Docker Compose
 The project provides a multi-container Docker Compose setup for local infrastructure services:
 * **PostgreSQL 16** (Database on port `5432`)
 * **Valkey 7** (Cache on port `6379`)
@@ -81,7 +98,7 @@ docker compose -f docker-compose.infra.yml ps
 
 ---
 
-### Step 3.3: Set Up Backend Server (`server/backend`)
+### Step 3.4: Set Up Backend Server (`server/backend`)
 1. Create and activate a Python virtual environment:
    ```bash
    python -m venv .venv
@@ -110,7 +127,7 @@ docker compose -f docker-compose.infra.yml ps
 
 ---
 
-### Step 3.4: Set Up AI Engine Services (`server/ai-engine`)
+### Step 3.5: Set Up AI Engine Services (`server/ai-engine`)
 In a separate terminal or virtual environment:
 1. Install AI Engine dependencies (Pillow, OpenCV, Ollama client, ComfyUI client):
    ```bash
@@ -119,7 +136,7 @@ In a separate terminal or virtual environment:
 
 ---
 
-### Step 3.5: Set Up Temporal Worker Daemon (`worker`)
+### Step 3.6: Set Up Temporal Worker Daemon (`worker`)
 In a separate terminal (with the virtual environment activated):
 1. Install worker dependencies:
    ```bash
@@ -135,7 +152,7 @@ In a separate terminal (with the virtual environment activated):
 
 ---
 
-### Step 3.6: Set Up Frontend Studio (`apps/web`)
+### Step 3.7: Set Up Frontend Studio (`apps/web`)
 In a separate terminal:
 1. Navigate to the web application:
    ```bash
@@ -156,7 +173,7 @@ In a separate terminal:
 
 ---
 
-### Step 3.7: Launch Video Motion Engine Preview (`apps/video-engine`)
+### Step 3.8: Launch Video Motion Engine Preview (`apps/video-engine`)
 To preview or develop Remotion and GSAP compositions independently:
 ```bash
 cd apps/video-engine
@@ -167,7 +184,7 @@ bun run preview
 
 ---
 
-### Step 3.8: Launch Local AI Engines (Ollama & ComfyUI)
+### Step 3.9: Launch Local AI Engines (Ollama & ComfyUI)
 1. **Ollama:**
    Pull the default reasoning model:
    ```bash

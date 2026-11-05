@@ -1,8 +1,8 @@
 # PROJECT SPECIFICATION: AI MOTION STUDIO
 
-> **Document Version:** 3.1.0  
-> **Status:** Specification Complete / Greenfield Repository  
-> **Target Frameworks:** Next.js (TypeScript, Tailwind, shadcn/ui), FastAPI (Python 3.11+, Pydantic v2), Temporal, PostgreSQL, Valkey, Blender 4.x, Remotion, FFmpeg  
+> **Document Version:** 3.2.0  
+> **Status:** Core Web Studio (11 screens with shadcn/ui) & Backend API Gateway Implemented  
+> **Target Frameworks:** Next.js 16+ (React 19, Tailwind CSS v4, shadcn/ui), FastAPI 0.162+ (Python 3.11+, Pydantic v2), Temporal, PostgreSQL, Valkey, Blender 4.x, Remotion, FFmpeg  
 > **Target Audience:** System Architects, AI Engineers, Fullstack Developers, Motion Designers  
 > **Project Root:** `video-ai-demo`
 
@@ -55,13 +55,13 @@ To maintain architectural integrity, this document explicitly distinguishes betw
 
 | Component / Layer | Target Architecture | Current Repository Status | Verification Source |
 | :--- | :--- | :--- | :--- |
-| **Monorepo Structure** | Multi-workspace layout (`apps/*`, `server/*`, `worker`, `docs`, `packages`) | **Scaffolded (Empty Directories)** | Repository file tree |
-| **API Gateway (`server/backend`)** | FastAPI, Pydantic v2, SQLAlchemy 2.0 Async, Alembic | **Scaffolded (Empty Directory)** | `server/backend/` |
-| **AI Engine Services (`server/ai-engine`)** | Ollama LLM client, ComfyUI adapter, OpenCV, Pillow | **Scaffolded (Empty Directory)** | `server/ai-engine/` |
-| **Worker Daemon (`worker`)** | Temporal Python Worker, Blender CLI, FFmpeg | **Scaffolded (Empty Directory)** | `worker/` |
-| **Web Studio (`apps/web`)** | Next.js 15+, Tailwind, shadcn/ui, Zustand, Remotion Player | **Planned (Specification Complete)** | `apps/web/` |
+| **Monorepo Tooling** | Root workspace runner, PowerShell scripts | **Fully Implemented** | Root `package.json`, `scripts/` |
+| **Web Studio (`apps/web`)** | Next.js 16.4+, React 19.3+, Tailwind v4.3+, shadcn/ui | **Fully Implemented (11 Screens)** | `apps/web/src/features/` |
+| **API Gateway (`server/backend`)** | FastAPI 0.162+, Pydantic v2.14+, CORS | **Fully Implemented (16 Routes)** | `server/backend/src/` |
+| **UI Design System** | 11 Production screen mockups | **Pixel-Matched in Code** | `UI Design/` $\leftrightarrow$ `apps/web/` |
+| **AI Engine Services (`server/ai-engine`)** | Ollama LLM client, ComfyUI adapter, OpenCV, Pillow | **Scaffolded (Specification Complete)** | `server/ai-engine/` |
+| **Worker Daemon (`worker`)** | Temporal Python Worker, Blender CLI, FFmpeg | **Scaffolded (Specification Complete)** | `worker/` |
 | **Motion Engine (`apps/video-engine`)** | Remotion v4, GSAP 3.12+, Three.js canvas compositions | **Planned (Specification Complete)** | `apps/video-engine/` |
-| **UI Design System** | 11 Production screen mockups | **Available as Visual Specs** | `UI Design/` |
 | **Database & Cache** | PostgreSQL 16 (Relational state), Valkey 7 (Cache/PubSub) | **Configured** | `docker-compose.infra.yml` |
 | **Orchestration** | Temporal Server & Web UI | **Configured** | `docker-compose.infra.yml` |
 

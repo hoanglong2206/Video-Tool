@@ -61,17 +61,18 @@ graph TD
 
 ## 📊 Implementation Status: Truth in Documentation
 
-The repository is currently an **architecturally scaffolded greenfield project**. All documentation reflects the authoritative target implementation.
+The repository features a fully functional frontend studio and backend API gateway, adhering strictly to the architecture specifications:
 
 | Subsystem / Component | Technology Baseline | Current Repository Status | Path / Location |
 | :--- | :--- | :--- | :--- |
-| **Monorepo Structure** | Multi-workspace directory layout | **Scaffolded** | Root directory |
-| **Frontend Studio** | Next.js 15+, Tailwind, shadcn/ui, Remotion | **Planned (Specification Complete)** | `apps/web/` |
+| **Monorepo Tooling** | Bun / Node.js Workspace, Concurrently, PowerShell | **Fully Implemented** | Root directory (`scripts/`) |
+| **Frontend Studio** | Next.js 16.4.5, React 19.3, Tailwind v4.3, shadcn/ui | **Fully Implemented (11 Screens)** | `apps/web/` |
+| **UI Design System** | 11 High-Fidelity Studio Screens Pixel-Matched | **Fully Implemented** | `apps/web/src/features/` |
+| **Backend API Gateway** | FastAPI 0.162+, Pydantic v2.14+, Uvicorn 0.54+ | **Fully Implemented (16 Routes)**| `server/backend/` |
+| **Dependencies Tooling** | `npm-check-updates`, `pur` / pip checker | **Fully Implemented** | `scripts/check-deps.ps1`, `scripts/upgrade-deps.ps1` |
+| **AI Engine Services** | Ollama, ComfyUI, OpenCV, Pillow | **Scaffolded (Specification Complete)** | `server/ai-engine/` |
+| **Worker Daemon** | Temporal Python Worker, Blender CLI, FFmpeg | **Scaffolded (Specification Complete)** | `worker/` |
 | **Motion Engine** | Remotion v4, GSAP 3.12+, Three.js | **Planned (Specification Complete)** | `apps/video-engine/` |
-| **Backend API Gateway** | FastAPI, Pydantic v2, SQLAlchemy 2.0, Alembic | **Scaffolded (Empty Directory)** | `server/backend/` |
-| **AI Engine Services** | Ollama, ComfyUI, OpenCV, Pillow | **Scaffolded (Empty Directory)** | `server/ai-engine/` |
-| **Worker Daemon** | Temporal Python Worker, Blender CLI, FFmpeg | **Scaffolded (Empty Directory)** | `worker/` |
-| **UI Design System** | 11 High-Fidelity Studio Screen Mockups | **Reference Artifacts Present** | `UI Design/` |
 | **Supporting Infra** | Docker Compose (PostgreSQL 16, Valkey 7, Temporal) | **Configured** | `docker-compose.infra.yml` |
 | **Configuration** | Environment variable specification & template | **Configured** | `.env.example` |
 | **Technical Documentation**| Complete architectural, development & testing guides | **Complete & Verified** | `docs/`, `PROJECT.md`, `CLAUDE.md` |
@@ -124,11 +125,11 @@ The platform's frontend experience is grounded in 11 comprehensive UI mockups lo
 
 ## 💻 Technology Stack Summary
 
-| Domain | Core Technologies |
+| Domain | Core Technologies & Versions |
 | :--- | :--- |
-| **Frontend UI** | Next.js 15+, TypeScript Strict, Tailwind CSS, shadcn/ui, Lucide Icons, Zustand |
+| **Frontend UI** | **Next.js 16.4.5**, **React 19.3.1**, TypeScript Strict, **Tailwind CSS v4.3.4**, **shadcn/ui** (Radix UI, CVA), Lucide Icons, Zustand |
 | **Interactive 3D / Video**| Three.js, React Three Fiber, `@remotion/player` |
-| **Backend API Gateway** | Python 3.11+, FastAPI, Pydantic v2, SQLAlchemy 2.0 Async, Alembic (`server/backend`) |
+| **Backend API Gateway** | **Python 3.11+ / 3.14**, **FastAPI 0.162.0**, **Pydantic v2.14.3**, **Uvicorn 0.54.0**, CORS Support (`server/backend`) |
 | **AI Engine Services** | Ollama (`llama3:8b`), ComfyUI (Flux.1 / SDXL Diffusion), OpenCV, Pillow (`server/ai-engine`) |
 | **Orchestration & Workflow**| Temporal (Python SDK, Temporal Server, Temporal Web UI) |
 | **Database & Cache** | PostgreSQL 16 (Relational state), Valkey 7 (Cache, Session store, PubSub) |
@@ -136,7 +137,7 @@ The platform's frontend experience is grounded in 11 comprehensive UI mockups lo
 | **3D Rendering Engine** | Blender 4.1+ (Headless Python API scripting, Cycles raytracing, EEVEE) |
 | **Video Compositing** | FFmpeg 6.1+ & FFprobe (NVIDIA NVENC `h264_nvenc` acceleration) |
 | **Storage Abstraction** | Local Filesystem provider $\rightarrow$ AWS S3 / MinIO provider |
-| **Containerization** | Docker, Docker Compose |
+| **Containerization & Dev** | Docker Compose, Monorepo orchestration scripts (`scripts/dev.ps1`, `scripts/check-deps.ps1`, `scripts/upgrade-deps.ps1`) |
 
 ---
 
@@ -145,7 +146,7 @@ The platform's frontend experience is grounded in 11 comprehensive UI mockups lo
 ### 1. Prerequisites
 Ensure your workstation has the following installed:
 * **Docker & Docker Compose** (for PostgreSQL, Valkey, and Temporal)
-* **Python 3.11+**
+* **Python 3.11+** (virtual environment in `.venv`)
 * **Node.js 20+** or **Bun 1.1+**
 * **Blender 4.1+** and **FFmpeg 6.1+** on your system `PATH`
 * **Ollama** and **ComfyUI** (for local AI features)
@@ -173,28 +174,31 @@ docker compose -f docker-compose.infra.yml ps
 
 ### 4. Start Application Services
 
+#### Option A: Unified Monorepo Runner (Recommended)
+Run both the Next.js Frontend Studio and the FastAPI Backend concurrently with a single command:
+```bash
+# Using Bun or npm from the repository root:
+bun run dev
+# or on Windows PowerShell:
+powershell -ExecutionPolicy Bypass -File ./scripts/dev.ps1
+```
+
+#### Option B: Standalone Terminal Execution
 ```bash
 # Terminal 1: Backend API Gateway (server/backend)
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\Activate.ps1
+.\.venv\Scripts\Activate.ps1   # Linux/macOS: source .venv/bin/activate
 cd server/backend
 pip install -r requirements.txt
-alembic upgrade head
-uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+python -m src.main            # Runs on http://localhost:8000 (Docs at /docs)
 
-# Terminal 2: Background Worker Daemon (worker)
-source .venv/bin/activate  # On Windows: .venv\Scripts\Activate.ps1
-cd worker
-pip install -r requirements.txt
-python -m src.main
-
-# Terminal 3: Studio Frontend (apps/web)
+# Terminal 2: Studio Frontend (apps/web)
 cd apps/web
-bun install && bun run dev
+bun install
+bun run dev                   # Runs on http://localhost:3000 (or :3001)
 
-# Terminal 4: Remotion Standalone Motion Preview (apps/video-engine)
-cd apps/video-engine
-bun install && bun run preview
+# Terminal 3: Dependency Maintenance Tooling
+bun run deps:check            # Verify latest versions
+bun run deps:upgrade          # Upgrade all dependencies to latest
 ```
 
 ### 5. Access Dashboards & Health Checks

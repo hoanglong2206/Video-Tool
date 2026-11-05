@@ -1,8 +1,8 @@
 # AI CODING INSTRUCTIONS & REPOSITORY CONVENTIONS
 
-> **Document Version:** 3.1.0  
+> **Document Version:** 3.2.0  
 > **Target Audience:** AI Coding Assistants (Claude, Antigravity, GitHub Copilot), Software Engineers  
-> **Architecture Baseline:** Next.js (TypeScript), FastAPI (Python 3.11+, Pydantic v2), Temporal, PostgreSQL, Valkey, Blender 4.x, Remotion, FFmpeg  
+> **Architecture Baseline:** Next.js 16+ (TypeScript 7+, React 19+, Tailwind v4+, shadcn/ui), FastAPI 0.162+ (Python 3.11+, Pydantic v2), Temporal, PostgreSQL, Valkey, Blender 4.x, Remotion, FFmpeg  
 > **Parent Context:** [PROJECT.md](PROJECT.md) | [SYSTEM_ARCHITECTURE.md](docs/architecture/SYSTEM_ARCHITECTURE.md)
 
 ---
@@ -10,7 +10,7 @@
 ## 1. Golden Directives for AI Agents
 
 1. **Honesty Regarding Implementation Status:**
-   Never state or assume that an unwritten API route, database table, UI view, or worker activity is implemented. The repository is currently in a **greenfield architectural scaffolding** state with directory scaffolds (`apps/web`, `apps/video-engine`, `server/backend`, `server/ai-engine`, `worker`). Treat the codebase on disk as the sole source of truth.
+   `apps/web` (Next.js 16.4+, React 19.3+, Tailwind CSS v4.3+, shadcn/ui components, 11 studio screens) and `server/backend` (FastAPI 0.162+, Pydantic v2.14+ Settings, 16 REST endpoints, CORS) are fully implemented. For unwritten worker activities or ai-engine model adapters, treat the codebase on disk as the sole source of truth.
 2. **Process Separation Discipline:**
    Do not collapse workloads into a monolithic process.
    * `apps/web`: Pure frontend presentation, WebGL preview, and user state.
@@ -34,14 +34,14 @@
 ```text
 video-ai-demo/
 ├── apps/
-│   ├── web/                     # Next.js 15+ frontend (TypeScript, Tailwind, shadcn/ui, Remotion Player)
+│   ├── web/                     # Next.js 16+ frontend (TypeScript 7, React 19, Tailwind v4, shadcn/ui)
 │   └── video-engine/            # Remotion video motion compositions, GSAP springs, WebGL compositions
 ├── server/
-│   ├── backend/                 # FastAPI API Gateway (Pydantic v2, SQLAlchemy 2.0 Async, Alembic, Temporal client)
+│   ├── backend/                 # FastAPI API Gateway (Pydantic v2.14+, Uvicorn, CORS, 16 REST endpoints)
 │   └── ai-engine/               # AI Engine services (Ollama LLM adapter, ComfyUI diffusion, OpenCV/Pillow)
 ├── worker/                      # Temporal Worker Daemon (Workflows, Activities, Blender CLI, FFmpeg NVENC)
 ├── packages/                    # Shared contracts, DTO schemas, and helper utilities
-├── scripts/                     # Operational, testing, and deployment automation scripts
+├── scripts/                     # Operational, testing, and deployment automation scripts (dev.ps1, check-deps.ps1, upgrade-deps.ps1)
 ├── UI Design/                   # 11 Production UI screen specifications & visual studio mockups
 ├── docs/                        # Architectural, API, and development documentation
 ├── docker-compose.infra.yml     # Local supporting infrastructure (PostgreSQL, Valkey, Temporal)
