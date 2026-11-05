@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 
 interface DashboardHeaderProps {
   onNewProject?: () => void;
@@ -24,15 +25,23 @@ export function DashboardHeader({
           Render history
         </button>
 
-        <button
-          type="button"
-          onClick={onNewProject}
-          className="h-8 px-3.5 rounded-md text-xs font-medium text-white bg-[#3B82F6] hover:bg-[#2563EB] active:scale-[0.98] transition-all shadow-sm"
-        >
-          New project
-        </button>
+        {onNewProject ? (
+          <button
+            type="button"
+            onClick={onNewProject}
+            className="h-8 px-3.5 rounded-md text-xs font-medium text-white bg-[#3B82F6] hover:bg-[#2563EB] active:scale-[0.98] transition-all shadow-sm"
+          >
+            New project
+          </button>
+        ) : (
+          <Link
+            href="/projects/new"
+            className="h-8 px-3.5 rounded-md text-xs font-medium text-white bg-[#3B82F6] hover:bg-[#2563EB] flex items-center justify-center active:scale-[0.98] transition-all shadow-sm"
+          >
+            New project
+          </Link>
+        )}
       </div>
     </header>
   );
 }
-

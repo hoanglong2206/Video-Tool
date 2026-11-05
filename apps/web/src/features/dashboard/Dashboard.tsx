@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 import { useDashboard } from "./hooks/useDashboard";
 import { DashboardSidebar } from "./components/DashboardSidebar";
 import { DashboardHeader } from "./components/DashboardHeader";
@@ -10,6 +11,7 @@ import { ApprovalPanel } from "./components/ApprovalPanel";
 import { RenderQueuePanel } from "./components/RenderQueuePanel";
 
 export function Dashboard(): React.ReactElement {
+  const router = useRouter();
   const { stats, projects, approvals, renderQueue } = useDashboard();
 
   return (
@@ -21,7 +23,7 @@ export function Dashboard(): React.ReactElement {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top Header */}
         <DashboardHeader
-          onNewProject={() => console.log("New project clicked")}
+          onNewProject={() => router.push("/projects/new")}
           onRenderHistory={() => console.log("Render history clicked")}
         />
 
@@ -55,4 +57,3 @@ export function Dashboard(): React.ReactElement {
     </div>
   );
 }
-
