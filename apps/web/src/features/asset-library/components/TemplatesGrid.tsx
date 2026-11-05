@@ -55,7 +55,7 @@ export function TemplatesGrid({
               <div
                 key={preset.id}
                 onClick={() => onSelectTemplate(preset.id)}
-                className={`aspect-[16/8] rounded-xl flex items-center justify-center p-4 cursor-pointer transition-all border ${
+                className={`aspect-[16/5] rounded-xl flex items-center justify-center p-3 cursor-pointer transition-all border ${
                   isSelected
                     ? "bg-[#111726] border-[#3B82F6] shadow-[0_0_15px_-3px_rgba(59,130,246,0.3)]"
                     : "bg-[#0F1420] border-[#1C2537] hover:border-[#2C3B56] hover:bg-[#131A2A]"

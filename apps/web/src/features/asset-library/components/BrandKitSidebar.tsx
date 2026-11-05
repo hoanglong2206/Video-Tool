@@ -46,7 +46,7 @@ export function BrandKitSidebar({
       {/* Apply to project button */}
       <button
         onClick={onApply}
-        className={`w-full py-2 px-3 rounded-lg text-xs font-medium border transition-colors ${
+        className={`self-start py-1.5 px-3.5 rounded-lg text-xs font-medium border transition-colors ${
           isApplied
             ? "bg-emerald-950/40 border-emerald-500/50 text-emerald-400"
             : "border-[#253249] bg-[#121927] hover:bg-[#182133] hover:border-[#384869] text-slate-200"

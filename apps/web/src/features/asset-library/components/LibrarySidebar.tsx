@@ -31,18 +31,14 @@ export function LibrarySidebar({
             <button
               key={cat.id}
               onClick={() => onSelectCategory(cat.id)}
-              className={`flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs transition-colors text-left ${
+              className={`text-xs py-1 text-left transition-colors flex items-center gap-1.5 ${
                 isSelected
-                  ? "bg-[#182030] text-slate-100 font-semibold"
-                  : "text-slate-300 hover:bg-[#121826] hover:text-slate-100"
+                  ? "text-slate-100 font-bold"
+                  : "text-slate-400 hover:text-slate-200"
               }`}
             >
               <span>{cat.name}</span>
-              <span
-                className={`text-[11px] ${
-                  isSelected ? "text-slate-300 font-normal" : "text-slate-400"
-                }`}
-              >
+              <span className={isSelected ? "text-slate-100 font-normal" : "text-slate-400"}>
                 {cat.count}
               </span>
             </button>

@@ -8,7 +8,11 @@ import { LayoutGrid, GitFork, Monitor, Check, Play } from "lucide-react";
 export function DashboardSidebar(): React.ReactElement {
   const pathname = usePathname();
 
-  const isDashboard = pathname === "/" || pathname === "/projects/new";
+  const isDashboard =
+    pathname === "/" ||
+    pathname === "/projects/new" ||
+    pathname === "/library" ||
+    pathname === "/brand-kit";
   const isWorkflow = pathname.startsWith("/workflow");
   const isStoryboard =
     pathname.startsWith("/storyboard") ||
