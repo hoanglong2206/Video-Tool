@@ -3,13 +3,12 @@ from typing import AsyncGenerator
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from server.backend.src.core.config import settings
-from server.backend.src.api.routers import health, dashboard, projects
+from server.backend.src.api.routers import health, dashboard, projects, workflow
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Startup and shutdown lifecycle events."""
-    # Place database engine connection & Valkey cache initialization here
     yield
 
 
@@ -35,6 +34,7 @@ app.add_middleware(
 app.include_router(health.router)
 app.include_router(dashboard.router)
 app.include_router(projects.router)
+app.include_router(workflow.router)
 
 
 if __name__ == "__main__":
@@ -46,4 +46,3 @@ if __name__ == "__main__":
         port=settings.API_PORT,
         reload=settings.DEBUG,
     )
-
