@@ -12,6 +12,7 @@ from server.backend.src.infrastructure.database.session import async_session_mak
 from server.backend.src.infrastructure.ffmpeg.compositor import ffmpeg_compositor
 from worker.config import worker_settings
 from worker.pipeline.stages import execute_stage
+from server.backend.src.infrastructure.events.bus import event_bus
 
 class ProductionWorkflowDaemon:
     """Orchestration daemon for executing the 10-stage video production pipeline."""
@@ -56,6 +57,18 @@ class ProductionWorkflowDaemon:
             
             await session.commit()
 
+            # Broadcast real-time stage progression event
+            await event_bus.publish(
+                "workflow:stage_changed",
+                {
+                    "projectId": project_id,
+                    "stage": target_stage.stage_number,
+                    "stageName": target_stage.name,
+                    "status": target_stage.status,
+                    "projectProgress": project.progress,
+                },
+            )
+
             return {
                 "status": "success",
                 "stage": target_stage.stage_number,
@@ -79,6 +92,7 @@ class ProductionWorkflowDaemon:
                 f"{now} · Synced keyframes, camera curves, and typography layers",
             ]
             await session.commit()
+            await event_bus.publish("render:progress", {"jobId": job_id, "percentage": 25, "status": "rendering"})
 
         # Step 1: Synthesize motion passes
         await asyncio.sleep(1.0)
@@ -90,6 +104,7 @@ class ProductionWorkflowDaemon:
                     f"{datetime.now(timezone.utc).strftime('%H:%M:%S')} · Remotion 60 FPS motion graphics passes completed",
                 ]
                 await session.commit()
+                await event_bus.publish("render:progress", {"jobId": job_id, "percentage": 60, "status": "rendering"})
 
         # Step 2: Build master video file via FFmpeg
         out_mp4 = worker_settings.render_out_dir / f"{job_id}.mp4"
@@ -110,6 +125,7 @@ class ProductionWorkflowDaemon:
                     f"{datetime.now(timezone.utc).strftime('%H:%M:%S')} · Render finished with status: COMPLETED",
                 ]
                 await session.commit()
+                await event_bus.publish("render:progress", {"jobId": job_id, "percentage": 100, "status": "completed"})
 
         return {
             "status": "completed" if ok else "failed",

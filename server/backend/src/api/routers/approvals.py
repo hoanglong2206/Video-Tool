@@ -10,6 +10,7 @@ from server.backend.src.api.dtos.approval import (
 )
 from server.backend.src.infrastructure.database.models import ApprovalModel, ProjectModel
 from server.backend.src.infrastructure.database.session import get_db_session
+from server.backend.src.infrastructure.events.bus import event_bus
 
 router = APIRouter(prefix="/api/v1/projects", tags=["Approvals"])
 
@@ -74,6 +75,16 @@ async def record_approval_decision(
     approval.decided_at = datetime.now(timezone.utc)
 
     await session.commit()
+
+    await event_bus.publish(
+        "approval:decision",
+        {
+            "projectId": project_id,
+            "itemId": item_id,
+            "decision": payload.decision,
+            "stageName": approval.stage_name,
+        },
+    )
 
     return {
         "status": "success",

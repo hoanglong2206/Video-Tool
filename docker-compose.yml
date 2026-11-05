@@ -1,0 +1,58 @@
+version: "3.8"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: motion_studio_web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8000
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: .
+      dockerfile: server/backend/Dockerfile
+    container_name: motion_studio_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+      - VALKEY_HOST=valkey
+      - VALKEY_PORT=6379
+    volumes:
+      - ./storage:/app/storage
+    depends_on:
+      - valkey
+
+  worker:
+    build:
+      context: .
+      dockerfile: worker/Dockerfile
+    container_name: motion_studio_worker
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    volumes:
+      - ./storage:/app/storage
+    depends_on:
+      - backend
+
+  valkey:
+    image: valkey/valkey:7.2-alpine
+    container_name: motion_studio_valkey
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - valkey_cache:/data
+
+volumes:
+  valkey_cache:
