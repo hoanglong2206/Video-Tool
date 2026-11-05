@@ -17,3 +17,4 @@ export interface StoryboardData {
   totalDurationSeconds: number;
   scenes: StoryboardScene[];
 }
+

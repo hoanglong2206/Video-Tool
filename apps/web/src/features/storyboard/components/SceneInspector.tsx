@@ -93,3 +93,4 @@ export function SceneInspector({
     </aside>
   );
 }
+
