@@ -29,3 +29,4 @@ export interface WorkflowDetails {
   stages: PipelineStage[];
   logs: ExecutionLogEntry[];
 }
+

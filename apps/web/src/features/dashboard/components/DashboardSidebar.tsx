@@ -24,12 +24,13 @@ export function DashboardSidebar(): React.ReactElement {
           <GitFork className="w-4 h-4 rotate-180" />
         </Link>
 
-        <button
-          aria-label="Studio View"
+        <Link
+          href="/storyboard"
+          aria-label="Storyboard Studio"
           className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-500 hover:text-slate-300 hover:bg-[#161D2B] transition-colors"
         >
           <Monitor className="w-4 h-4" />
-        </button>
+        </Link>
 
         <button
           aria-label="Editor"
