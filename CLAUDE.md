@@ -1,167 +1,151 @@
-# AI AGENT CODING INSTRUCTIONS & REPOSITORY CONVENTIONS
+# AI CODING INSTRUCTIONS & REPOSITORY CONVENTIONS
 
-> **Document Version:** 2.0.0  
-> **Target Audience:** AI Coding Assistants (Claude, Antigravity, Copilot), Engineers  
-> **Toolchain:** Bun (v1.1+), Next.js 16 (React 19), FastAPI (Python 3.11+)  
-> **Parent Context:** [PROJECT.md](PROJECT.md)
+> **Document Version:** 3.0.0  
+> **Target Audience:** AI Coding Assistants (Claude, Antigravity, GitHub Copilot), Software Engineers  
+> **Architecture Baseline:** Next.js (TypeScript), FastAPI (Python 3.11+), Temporal, PostgreSQL, Valkey, Blender 4.x, Remotion, FFmpeg  
+> **Parent Context:** [PROJECT.md](PROJECT.md) | [SYSTEM_ARCHITECTURE.md](docs/architecture/SYSTEM_ARCHITECTURE.md)
 
 ---
 
 ## 1. Golden Directives for AI Agents
 
-1.  **Honesty in Implementation Status:** Never claim an unwritten feature, API endpoint, or component exists. The repository is a **greenfield workspace**; treat the codebase as the sole source of truth.
-2.  **No Unnecessary Microservices or Heavy Databases:** Do not introduce PostgreSQL, pgvector, Alembic migrations, or S3/MinIO setups. Projects use a clean **File-Based Project Workspace** architecture (`projects/<id>/project.json`, `scenes.json`, `assets/`, `renders/`).
-3.  **No Authentication Overhead:** This is a dedicated internal studio tool for the creator. Do not write login, register, OAuth2, or JWT authorization screens or middleware.
-4.  **Strict Frontend Directory Structure in `apps/web` (Next.js `src/` Convention):**
-    Using the standard Next.js `src/` directory convention:
-    *   `src/app/` holds purely the App Router routing tree:
-        ```text
-        src/app/
-        ├── layout.tsx                 # Global Root Shell (Theme, Providers)
-        ├── page.tsx                   # Project Showcase & Studio Dashboard
-        └── projects/
-            ├── new/page.tsx           # New Project Creation & Brief intake
-            └── [projectId]/
-                ├── layout.tsx         # Project Context & WebSocket Bridge
-                └── page.tsx           # Studio Workspace (Mounts Feature Containers)
-        ```
-    *   All UI features reside in `src/features/<feature-name>/`:
-        ```text
-        src/features/<feature-name>/
-        ├── <FeatureName>.tsx          # Container Component (only wires hooks & layout)
-        ├── index.ts                   # Public API (exports FeatureName and public types)
-        ├── types.ts                   # Internal feature types
-        ├── hooks/                     # Feature custom hooks & business logic
-        └── components/                # Sub-components grouped by function
-            ├── <group-a>/
-            └── <group-b>/
-        ```
-    *   All external network calls, AI generation triggers, and render API clients reside in modular service folders under:
-        ```text
-        src/services/<service-name>/
-        ├── index.ts                   # Public API (export service instance & public types)
-        ├── types.ts                   # Kiểu dữ liệu / types của service
-        └── <các file nghiệp vụ>       # client.ts, handlers.ts, utils.ts, etc.
-        ```
-    *   Global state stores live in `src/stores/`.
-5.  **Declarative Scene DSL Primacy:** Video compositions are modeled strictly via `@video-ai/scene-dsl`. Never write ad-hoc imperative rendering scripts.
-6.  **Toolchain Standard:** Always use **Bun** for all TypeScript/Node workspaces (`bun install`, `bun run dev`, `bun test`).
-7.  **Strict File Length Budget (Max 250–300 Lines):** Never generate monolithic files. All source code files must adhere to strict line count budgets:
-    *   Container components (`<FeatureName>.tsx`): $\le 150$ lines.
-    *   Presentational UI components & custom hooks: $\le 200$ lines.
-    *   Client services & Python use cases / routers: $\le 220$ lines.
-    *   **Absolute Hard Ceiling: 300 lines.** Whenever a file approaches 200 lines, decompose it immediately into focused sub-components, composed hooks, or helper modules.
+1. **Honesty Regarding Implementation Status:**
+   Never state or assume that an unwritten API route, database table, UI view, or worker activity is implemented. The repository is currently in a **greenfield architectural scaffolding** state. Treat the codebase on disk as the sole source of truth.
+2. **Process Separation Discipline:**
+   Do not collapse workloads into a monolithic process.
+   * `apps/web`: Pure frontend presentation, WebGL preview, and user state.
+   * `server`: Lightweight API gateway, database operations, and Temporal workflow client.
+   * `worker`: Long-running Temporal workflows and activities (AI diffusion, Blender, FFmpeg).
+   * `apps/video-engine`: Remotion compositions and GSAP motion definitions.
+3. **Strict Adherence to Technology Choices:**
+   Do not introduce alternative or competing frameworks (e.g., do not replace Temporal with Celery, do not replace Valkey/PostgreSQL with ad-hoc flat files, do not replace FastAPI with Flask).
+4. **Strict File Length Budget (Max 200–300 Lines):**
+   Monolithic files are strictly forbidden. All source files must target $\le 200$ lines with an absolute hard ceiling of **300 lines**. Proactively decompose files into sub-components, custom hooks, or utility modules.
+5. **Human-in-the-Loop Workflow Primacy:**
+   Production pipelines orchestrated in `worker` must implement Temporal approval signals at critical stages (Storyboard, Assets, Final Master). Never bypass approval gates in production workflows.
+6. **Provider Adapter Pattern:**
+   External AI models and storage systems must be consumed through abstract interfaces (`IAIProvider`, `IStorageService`) to guarantee zero friction between local and cloud runtimes.
 
 ---
 
-## 2. Essential Development Commands
+## 2. Monorepo Structure & Architectural Boundaries
 
-### 2.1 Workspace Orchestration with Bun
-```bash
-# Install all dependencies across Bun workspaces
-bun install
-
-# Run all packages and apps in development mode
-bun run dev
-
-# Run unit and contract tests across all workspaces
-bun test
-
-# Run type checks across all workspaces
-bun run check
+```text
+video-ai-demo/
+├── apps/
+│   ├── web/                     # Next.js 15+ frontend (TypeScript, Tailwind, shadcn/ui, Remotion Player)
+│   └── video-engine/            # Remotion motion graphics, GSAP springs, WebGL compositions
+├── server/                      # FastAPI API Gateway (Pydantic v2, SQLAlchemy 2.0 Async, Alembic)
+├── worker/                      # Temporal Worker Daemon (Workflows, Activities, Ollama, ComfyUI, Blender)
+├── packages/                    # Shared contracts, DTO schemas, and helper utilities
+├── scripts/                     # Operational, testing, and deployment automation scripts
+├── docs/                        # Architectural, API, and development documentation
+├── docker-compose.infra.yml     # Local supporting infrastructure (PostgreSQL, Valkey, Temporal)
+├── .env.example                 # Standardized environment configuration template
+├── CLAUDE.md                    # Project-level AI coding guidelines (this document)
+├── PROJECT.md                   # Master product specification
+└── README.md                    # Repository overview & quickstart guide
 ```
 
-### 2.2 Frontend Studio (`apps/web` with Next.js 16)
+---
+
+## 3. Coding Standards & Conventions
+
+### 3.1 Python & FastAPI Standards (`server`, `worker`)
+* **Python Runtime:** Python 3.11+ using native type hints (`list[str]`, `dict[str, Any]`, `T | None`).
+* **Clean Architecture:** Keep domain entities completely pure (zero framework imports). Routers call Application Use Cases; Use Cases interface with repositories and Temporal clients via abstract ports.
+* **Database Access:** Always use asynchronous SQLAlchemy 2.0 (`asyncpg`). Manage all schema mutations through Alembic migration scripts in `server/alembic/versions/`.
+* **Subprocess Security:** When invoking Blender (`bpy`) or FFmpeg via subprocesses in worker activities:
+  * Never pass raw un-sanitized user strings into `shell=True`.
+  * Always use list-based arguments: `subprocess.run(["blender", "-b", "-P", script_path, "--", ...], check=True)`.
+  * Guard all file system paths against directory traversal (`Path(file_path).resolve()`).
+
+### 3.2 TypeScript & Next.js Standards (`apps/web`, `apps/video-engine`)
+* **Strict Typing:** `"strict": true`, `"noImplicitAny": true`. Zero use of `any`.
+* **Feature-Sliced Architecture:** Organize all UI features under `apps/web/src/features/<feature-name>/`:
+  * `<FeatureName>.tsx`: Container component only wiring hooks to layouts ($\le 150$ lines).
+  * `index.ts`: Public API export.
+  * `hooks/`: Isolated business logic and state hooks.
+  * `components/`: Modular presentation components ($\le 200$ lines).
+* **Zustand Selectors:** Never destructure entire stores. Use atomic selectors (`useTimelineStore(s => s.currentFrame)`) to maintain 60fps playback performance.
+* **Component Primitives:** Build UI using `shadcn/ui` components and Tailwind CSS utility classes.
+
+---
+
+## 4. Testing Requirements for Generated Code
+
+Whenever creating or updating codebase features, follow these testing rules:
+1. **Unit Tests (Pytest / Bun Test):**
+   * Every new domain entity or use case must have accompanying unit tests in `server/tests/unit/` or `worker/tests/unit/`.
+   * Unit tests must run fast ($< 5\text{s}$) with zero external network or database calls.
+2. **Temporal Workflow Tests:**
+   * Test workflow choreography and approval signals using `temporalio.testing.WorkflowEnvironment.start_time_skipping()`.
+   * Test both approval and rejection-with-feedback code paths.
+3. **Render Determinism Verification:**
+   * Any change to Scene DSL compilers or shader logic must pass the OpenCV SSIM verification test ($\text{SSIM} \ge 0.999$).
+4. **No Live External AI Calls in CI:**
+   * Always use mocked adapter fixtures for Ollama and ComfyUI in automated tests to prevent GPU resource contention and test flakiness.
+
+---
+
+## 5. Security & Hygiene Rules
+
+1. **Zero Secret Leakage:**
+   * Never hardcode API keys, database passwords, or JWT secrets. Always read from environment variables via Pydantic Settings (`server/src/core/config.py`).
+2. **Local Storage Sandboxing:**
+   * Media assets must be written exclusively within designated directories (`storage/projects/{project_id}/...`).
+   * Validate that all user-supplied filenames are sanitized and do not contain relative traversal paths (`../`).
+3. **Resource Guardrails:**
+   * Guard GPU-intensive activity execution with concurrency semaphores to prevent CUDA Out-Of-Memory system crashes.
+
+---
+
+## 6. Rules for Modifying Existing Code & Documentation
+
+1. **Preserve Documentation Integrity:**
+   * When modifying existing files, preserve all unrelated comments, docstrings, and license headers.
+   * If an architectural decision changes, update all cross-referenced documents simultaneously.
+2. **Avoid Overengineering & Premature Abstraction:**
+   * Do not introduce micro-libraries, extra RPC protocols, or bespoke state machines when standard tools (FastAPI, Pydantic, SQLAlchemy, Temporal, Zustand) natively solve the problem.
+3. **Maintain Valid Relative Links:**
+   * All markdown links must be valid relative paths (e.g. `[SYSTEM_ARCHITECTURE.md](docs/architecture/SYSTEM_ARCHITECTURE.md)`).
+
+---
+
+## 7. Essential Development Commands Quick Reference
+
 ```bash
-# Run Next.js 16 development server with Turbopack
+# Start local infrastructure dependencies (Postgres, Valkey, Temporal)
+docker compose -f docker-compose.infra.yml up -d
+
+# Backend API server (FastAPI)
+cd server && uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+
+# Run Alembic migrations
+cd server && alembic upgrade head
+
+# Run Temporal worker daemon
+python -m worker.src.main
+
+# Frontend studio (Next.js)
 cd apps/web && bun run dev
 
-# Build production bundle
-cd apps/web && bun run build
+# Standalone Remotion motion preview
+cd apps/video-engine && bun run preview
 
-# Run Playwright visual regression tests
-cd apps/web && bun run test:e2e
-```
-
-### 2.3 Backend API (`apps/server` with FastAPI)
-```bash
-# Run FastAPI server with auto-reload
-cd apps/server && uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
-
-# Run Python linting and type checks
-cd apps/server && ruff check . && mypy src/
-
-# Run backend pytest suite
-cd apps/server && pytest -v
-```
-
-### 2.4 Render Engine (`apps/render`)
-```bash
-# Run local render worker daemon
-cd apps/render && bun run dev
-
-# Run Remotion standalone preview
-cd apps/render && bun run preview
-
-# Execute NVENC test render with local project directory
-cd apps/render && bun run test:render -- --project-dir ../../projects/demo-test
+# Run backend test suite
+pytest server/tests worker/tests -v
 ```
 
 ---
 
-## 3. Code Standards & Architecture Guidelines
+## 8. Cross-Document Architecture Sitemap
 
-### 3.1 TypeScript & React (Next.js 16)
-*   **Container Component Rule:** The top-level `<FeatureName>.tsx` must never contain raw fetch calls, inline styling clutter, or complex calculations. It only connects hooks from `hooks/` to components in `components/`.
-*   **Public API Boundary:** Always import features via their public index:
-    ```typescript
-    // Correct
-    import { AssetGenerator } from '@/features/asset-generator';
-    // Forbidden
-    import { AssetGenerator } from '@/features/asset-generator/AssetGenerator';
-    ```
-*   **Zustand Atomic Selectors:** Never use global store destructuring. Always use fine-grained selectors:
-    ```typescript
-    // Correct
-    const currentFrame = usePlaybackStore((s) => s.currentFrame);
-    // Incorrect
-    const { currentFrame } = usePlaybackStore();
-    ```
-
-### 3.2 Python Clean Architecture (`apps/server`)
-*   Domain entities (`src/domain/`) have zero external library dependencies.
-*   File-based repositories must handle asynchronous disk I/O cleanly using `aiofiles` or `pathlib`.
-*   AI generation tasks must be structured as pluggable adapters implementing `IAIEngine`.
-
-### 3.3 Git Commit Conventions
-All commit messages must strictly follow **Conventional Commits**:
-`<type>(<scope>): <short description>`
-*   **Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`, `ci`.
-*   **Scopes:** `web`, `server`, `render`, `contracts`, `scene-dsl`, `animation`, `preset-apple`, `assets`, `docs`, `repo`.
-*   **Rules:** Imperative mood, no trailing period, $\le 72$ characters, atomic commits.
-    *   *Example:* `feat(web/timeline): add spring physics curve inspector`
-    *   *Example:* `fix(render/nvenc): prevent pipe buffer starvation on 4K60 encode`
-    *   *Example:* `docs(api): add customer photo img2img payload examples`
-
----
-
-## 4. Verification Checklists for AI Agents
-
-Before submitting code:
-*   [ ] Commit messages adhere to Conventional Commits format with appropriate monorepo scope.
-*   [ ] No created or modified source code file exceeds the 250–300 line budget.
-*   [ ] No references to deleted `IMPLEMENTATION_ROADMAP.md`.
-*   [ ] No unnecessary database dependencies (PostgreSQL/pgvector) or auth middleware added.
-*   [ ] All web UI components live within `src/features/<feature-name>/` or `src/services/`.
-*   [ ] Commands use `bun` instead of `pnpm` or `npm`.
-*   [ ] Scene DSL updates validate against `@video-ai/scene-dsl` schemas.
-*   [ ] All Markdown documentation cross-references use valid relative links.
-
----
-
-## 5. Documentation Sitemap
-
-*   **Architecture & Systems:** [PROJECT.md](PROJECT.md), [SYSTEM_OVERVIEW.md](docs/architecture/SYSTEM_OVERVIEW.md), [DATA_FLOW.md](docs/architecture/DATA_FLOW.md)
-*   **Applications:** [apps/web](apps/web/ARCHITECTURE.md), [apps/server](apps/server/ARCHITECTURE.md), [apps/render](apps/render/ARCHITECTURE.md), [packages](packages/ARCHITECTURE.md)
-*   **API & Workflows:** [API_CONTRACTS.md](docs/api/API_CONTRACTS.md), [AI_WORKFLOWS.md](docs/workflows/AI_WORKFLOWS.md), [RENDERING_PIPELINE.md](docs/architecture/RENDERING_PIPELINE.md)
-*   **Decisions & Standards:** [ARCHITECTURE_DECISIONS.md](docs/architecture/ARCHITECTURE_DECISIONS.md), [CODING_STANDARDS.md](docs/development/CODING_STANDARDS.md)
+* **Master Specification:** [PROJECT.md](PROJECT.md)
+* **System Architecture & Data Flow:** [SYSTEM_ARCHITECTURE.md](docs/architecture/SYSTEM_ARCHITECTURE.md)
+* **Technology Stack & Rationale:** [TECH_STACK.md](docs/architecture/TECH_STACK.md)
+* **Coding Standards & Limits:** [CODING_STANDARDS.md](docs/development/CODING_STANDARDS.md)
+* **Local Setup Guide:** [LOCAL_SETUP.md](docs/development/LOCAL_SETUP.md)
+* **Environment Variables Reference:** [ENVIRONMENT_VARIABLES.md](docs/development/ENVIRONMENT_VARIABLES.md)
+* **Testing Strategy:** [TESTING_STRATEGY.md](docs/development/TESTING_STRATEGY.md)
+* **Repository Readme:** [README.md](README.md)

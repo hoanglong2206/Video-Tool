@@ -1,314 +1,253 @@
-# PROJECT SPECIFICATION: AI-POWERED CINEMATIC VIDEO PRODUCTION STUDIO
+# PROJECT SPECIFICATION: AI MOTION STUDIO
 
-> **Document Version:** 2.0.0  
+> **Document Version:** 3.0.0  
 > **Status:** Specification Complete / Greenfield Repository  
-> **Target Frameworks:** Next.js 16 (React 19), Bun Workspaces, FastAPI (Python 3.11+)  
-> **Target Audience:** System Architects, Software Engineers, AI/ML Engineers, Motion Designers  
+> **Target Frameworks:** Next.js (TypeScript, Tailwind, shadcn/ui), FastAPI (Python 3.11+, Pydantic v2), Temporal, PostgreSQL, Valkey, Blender 4.x, Remotion, FFmpeg  
+> **Target Audience:** System Architects, AI Engineers, Fullstack Developers, Motion Designers  
 > **Project Root:** `video-ai-demo`
 
 ---
 
-## 1. Executive Summary & Product Vision
+## 1. Product Vision & Executive Summary
 
-### 1.1 Vision Statement
-The **AI Video Production Studio** is a specialized, pro-grade internal desktop/web studio tool engineered to generate high-end, cinematic product presentation videos, promotional trailers, brand teasers, and motion graphics inspired by the minimalist, ultra-sleek aesthetic of **Apple iPhone and Mac launch trailers**.
+The **AI Motion Studio** is an automated video production platform engineered to produce premium, broadcast-grade cinematic product introduction videos, promotional trailers, brand teasers, and motion graphics inspired by the minimalist, ultra-sleek aesthetic of **Apple keynote presentations and hardware launch trailers**.
 
-The studio enables creators and video professionals to take client requests and creative briefs—alongside optional customer product photos—and transform them into polished, broadcast-quality 60fps MP4 product trailers through a seamless hybrid pipeline:
-1.  **AI Image & Asset Synthesis:** Generating initial visuals from scratch (text-to-image) or restyling customer product photos (image-to-image), extracting transparent product cutouts, generating 3D models/mockups, and producing studio lighting backdrops.
-2.  **Item & Frame Composition:** Assembling visual elements, kinetic typography, dynamic lighting, and camera paths into declarative scenes using a structured Scene DSL.
-3.  **Interactive Dual Editing:** Fine-tuning spatial layout and 3D positioning in the **Scene Editor**, and sequencing timing, transitions, audio beats, and keyframe spring physics in the **Timeline Editor**.
-4.  **Hardware-Accelerated Rendering:** Previewing in real time in the browser via `@remotion/player`, and exporting final 4K60 master videos via headless Chromium and **NVIDIA NVENC hardware encoding**.
+The platform bridges the gap between unstructured client requests and polished 60fps 4K MP4 deliverables through a cohesive hybrid pipeline combining:
+* **Generative AI & LLM Planning:** Automated brief analysis, creative concept expansion, and structured storyboard scene planning.
+* **Local Diffusion & Computer Vision:** Text-to-image synthesis, product photo restyling, transparent background isolation, and texture generation.
+* **Programmatic 3D Staging:** Automated lighting rigs, camera sweeps, and material raytracing via **Blender** headless Python scripting.
+* **Procedural 2D Motion Graphics:** Kinetic typography, physical spring oscillations, and real-time canvas overlays via **GSAP** and **Remotion**.
+* **Audio Synchronization:** Automated sound design, beat-aligned transition cuts, and audio ducking.
+* **Human-in-the-Loop (HITL) Governance:** Mandatory human review and approval gates at critical production milestones.
 
 ```mermaid
 flowchart LR
-    A["Customer Request & Photos"] --> B["AI Asset & Image Gen (txt2img / img2img)"]
-    B --> C["Asset Extraction (Cutout / Items / 3D)"]
-    C --> D["Scene DSL Frame Composition"]
-    D --> E["Dual Editor (Scene & Timeline)"]
-    E --> F["Remotion Real-time Preview"]
-    F --> G["NVIDIA NVENC 4K60 Export"]
+    A["Client Brief & Raw Assets"] --> B["AI Creative Direction & Storyboarding"]
+    B --> C["HITL Gate 1: Storyboard Signoff"]
+    C --> D["Asset Gen (ComfyUI / Pillow / CV)"]
+    D --> E["HITL Gate 2: Asset Signoff"]
+    E --> F["3D Staging (Blender) & Motion (Remotion/GSAP)"]
+    F --> G["Audio Sync & Post-Processing (FFmpeg)"]
+    G --> H["HITL Gate 3: Final Master Approval"]
+    H --> I["4K60 Broadcast Master MP4"]
 ```
-
-### 1.2 Core Design Aesthetic: "Apple-Style" Cinematic Trailer
-Apple keynote presentations and hardware trailers feature a distinctive visual language that generic video generators cannot replicate:
-*   **Minimalist, High-Contrast Staging:** Pure black (#000000 / #050505) or pristine studio gray backdrops with precise negative space and zero visual clutter.
-*   **Organic Spring Physics:** Buttery smooth animations driven by physical spring dynamics (`mass`, `stiffness`, `damping`) rather than standard ease-in/ease-out curves.
-*   **Studio Lighting & Specular Edge Sweeps:** High-intensity directional rim lights tracing product bevels, metallic anodized surfaces, subtle glass refractions, and contact ambient occlusion shadows.
-*   **Macro Focal Sweeps & 3D Depth:** Virtual camera focal transitions, shallow depth-of-field, subtle parallax drifts, and orbital camera arcs around 3D hero assets.
-*   **Kinetic Micro-Staggered Typography:** Restrained, bold typographic headlines revealing word-by-word with tracking expansion and masked vertical wipe reveals.
-
-#### Apple-Style Mathematical Motion Specifications
-1.  **Second-Order Spring Solver:**
-    $$F(t) = -k(x - x_0) - c\dot{x}$$
-    *   Stiffness $k \in [150, 240]$, Damping $c \in [14, 20]$, Mass $m = 1.0$.
-    *   Target damping ratio $\zeta = \frac{c}{2\sqrt{km}} \approx 0.85$ (snappy response, natural organic settling without unnatural oscillation).
-2.  **Kinetic Stagger Intervals:**
-    $$t_{\text{start}}(i) = t_0 + i \cdot \Delta t, \quad \Delta t \in [3, 5]\text{ frames at } 60\text{ fps}$$
-3.  **Rim Light Reflection Formulation:**
-    $$\mathbf{I}_{\text{rim}} = I_0 \cdot \max(0, \mathbf{n} \cdot \mathbf{v})^2 \cdot (1 - \mathbf{n} \cdot \mathbf{l})$$
-
-### 1.3 Architecture Simplification & Technology Rationalization
-To serve as an efficient, high-velocity internal studio tool without unnecessary enterprise friction:
-*   **Zero Authentication Overhead:** No login screens, OAuth2, or JWT tokens. The tool runs directly for the user on local workstation or private internal network.
-*   **No Heavyweight Database Server:** Heavy PostgreSQL, pgvector, and Alembic migrations are eliminated. Instead, projects use a clean **File-Based Project Workspace** architecture with local JSON and SQLite indexing:
-    *   Each project is a self-contained directory (`projects/<project-id>/`).
-    *   `project.json` stores metadata, brief parameters, and color palettes.
-    *   `scenes.json` stores the declarative Scene DSL AST.
-    *   `assets/` holds raw customer uploads, AI-generated images, transparent cutouts, 3D `.glb` files, and audio tracks.
-    *   `renders/` holds cached frame chunks and exported master MP4 videos.
-    *   Projects can be backed up as zip archives, versioned with git, or moved seamlessly across machines.
-*   **Bun as Universal Runtime & Package Manager:** Bun replaces pnpm/npm across all TypeScript workspaces, providing ultra-fast installation, native TypeScript execution, and rapid build times.
-*   **Next.js 16 (React 19):** Next.js 16 App Router with Turbopack powers the frontend studio UI using a clean **Feature-Sliced Architecture**.
 
 ---
 
-## 2. Truth in Documentation: Implementation Status
+## 2. Target Users & Business Use Cases
+
+### 2.1 Target Audiences
+1. **Brand & Product Marketing Teams:** Rapidly generating high-converting product launch trailers from raw product photography and bulleted feature lists without requiring 6-figure agency retainers.
+2. **Motion Designers & Creative Directors:** Using AI-assisted layout, automated lighting rigs, and spring physics templates as a multiplier to bypass tedious keyframing.
+3. **E-Commerce & DTC Brands:** Programmatically transforming catalog product listings into cinematic video advertisements tailored for social feeds and product landing pages.
+4. **Agencies & Video Production Houses:** Accelerating pitch deck visualization and client review loops through instant storyboard mockups and rough-cut renders.
+
+### 2.2 Primary Use Cases
+* **Cinematic Hardware & Product Reveals:** Dramatic dark studio staging (#050505 backdrop), high-intensity rim light bevel sweeps, floating 3D perspective rotations, and macro focal depth-of-field zooms.
+* **Feature Highlight Teasers:** Kinetic staggered typography revealing key technical specifications synchronized to musical beats and transition snaps.
+* **Multi-Platform Aspect Ratio Re-targeting:** Automated re-composition from 16:9 widescreen master into 9:16 vertical reels and 1:1 square formats.
+
+---
+
+## 3. Implementation Status: Truth in Documentation
 
 To maintain architectural integrity, this document explicitly distinguishes between what is currently implemented in code and the planned production architecture.
 
 | Component / Layer | Target Architecture | Current Repository Status | Verification Source |
 | :--- | :--- | :--- | :--- |
-| **Monorepo Structure** | Bun workspaces (`apps/*`, `packages/*`) | **Scaffolded (Empty Directories)** | Repository file tree |
-| **`apps/web`** | Next.js 16, Feature Slices, Zustand, Remotion | **Planned (Not Implemented)** | No source files present |
-| **`apps/server`** | FastAPI, File-Based Project Store, AI Adapters | **Planned (Not Implemented)** | No source files present |
-| **`apps/render`** | Remotion CLI, Headless Chromium, NVENC | **Planned (Not Implemented)** | No source files present |
-| **`packages/contracts`** | Zod schemas, shared TypeScript interfaces | **Planned (Not Implemented)** | Directory unpopulated |
-| **`packages/scene-dsl`** | Scene AST, parser, validator, interpolation runtime | **Planned (Not Implemented)** | Directory unpopulated |
-| **`packages/animation`** | Spring physics curves, camera rigs, easing algorithms | **Planned (Not Implemented)** | Directory unpopulated |
-| **`packages/preset-apple`** | Studio lighting, sleek typography, metallic shaders | **Planned (Not Implemented)** | Directory unpopulated |
+| **Workspace Scaffold** | Monorepo layout (`apps/*`, `server`, `worker`, `docs`, `packages`) | **Scaffolded (Empty Directories)** | Repository file tree |
+| **API Gateway (`server`)** | FastAPI, Pydantic v2, SQLAlchemy 2.0 Async, Alembic | **Planned (Specification Complete)** | Directory scaffolded; no API code written |
+| **Worker Daemon (`worker`)** | Temporal Python Worker, Ollama, ComfyUI, Blender CLI, FFmpeg | **Planned (Specification Complete)** | Directory scaffolded; no worker code written |
+| **Web Studio (`apps/web`)** | Next.js 15+, Tailwind, shadcn/ui, Zustand, Remotion Player | **Planned (Specification Complete)** | Directory scaffolded; no frontend code written |
+| **Motion Engine (`apps/video-engine`)** | Remotion v4, GSAP 3.12+, Three.js canvas compositions | **Planned (Specification Complete)** | Directory scaffolded; no comps written |
+| **Database & Cache** | PostgreSQL 16 (Relational state), Valkey 7 (Cache/PubSub) | **Planned (Specification Complete)** | Configured in `docker-compose.infra.yml` |
+| **Orchestration** | Temporal Server & Web UI | **Planned (Specification Complete)** | Configured in `docker-compose.infra.yml` |
 
 > [!IMPORTANT]
-> **Implementation Baseline:** The repository is currently a **greenfield workspace**. No application source code, API routes, or package configurations have been committed yet. All architectural specifications define the definitive target implementation.
+> **Implementation Baseline:** The repository is currently a **greenfield architectural workspace**. All architectural specifications, data models, and workflow descriptions represent the authoritative blueprint for development.
 
 ---
 
-## 3. Core Functional & Non-Functional Requirements
+## 4. Architectural Principles & System Baseline
 
-### 3.1 Functional Requirements (FR)
-*   **FR-01: Brief & Customer Input Ingestion:** Direct intake of client goals, USPs, target duration, color codes, and customer product imagery.
-*   **FR-02: AI Image-to-Image & Text-to-Image Generation:** 
-    *   Generate visual assets from text prompts (e.g. dramatic dark studio backdrops, macro device parts).
-    *   Transform customer product photos via image-to-image pipelines (restyling lighting, matching camera angles, placing products in Apple-style rigs).
-*   **FR-03: Asset Cutout & Item Creation:** Automatic alpha background extraction (`rembg` / `BiRefNet`) to isolate product cutouts, generate texture maps, and produce 3D `.glb` product mockups.
-*   **FR-04: Declarative Scene DSL Composition:** Automated and manual assembly of scenes, layers, typography, camera trajectories, and spring keyframes into a structured JSON AST.
-*   **FR-05: Dual-Mode Interactive Editing:**
-    *   *Scene Editor:* Spatial 3D/2D canvas inspector, transform gizmos, lighting rig controls, and real-time typography kerning.
-    *   *Timeline Editor:* Multi-track temporal sequencer, keyframe curves, transition spans, audio waveforms, and playhead synchronization.
-*   **FR-06: Real-Time In-Browser Preview:** Low-latency playback via `@remotion/player` and Three.js / React Three Fiber at 60fps.
-*   **FR-07: Hardware-Accelerated NVENC Export:** Headless Chromium frame execution piped directly into NVIDIA NVENC (`h264_nvenc`, `hevc_nvenc`) for rapid 4K60 MP4 exports.
-
-### 3.2 Non-Functional Requirements (NFR)
-*   **NFR-01: Deterministic Frame Synthesis:** Repeated renders of an identical Scene DSL must produce pixel-identical frame outputs.
-*   **NFR-02: Zero Server Complexity:** No mandatory external database or object storage services required to run the studio. Runs natively with local filesystem storage.
-*   **NFR-03: Ultra-Fast Startup & Local Latency:** Bun-powered client dev server startup in $< 1\text{s}$, backend startup in $< 2\text{s}$.
-*   **NFR-04: GPU Resource Efficiency:** Dedicated GPU memory guardrails and semaphore queuing to eliminate CUDA Out-Of-Memory exceptions during concurrent renders.
-*   **NFR-05: Modularity & File Length Budget:** Strict maximum 300 - 500 lines per source code file (`.tsx`, `.ts`, `.py`). Monolithic files are strictly forbidden; UI components and business use cases must be decomposed into focused sub-components and pure utilities.
-
----
-
-## 4. High-Level Architecture & Workspace Topology
+The platform architecture is built upon three foundational pillars and two operational disciplines:
 
 ```mermaid
 graph TD
-    subgraph ClientTier ["Client Tier"]
-        Web["apps/web (Next.js 16 + Bun)"]
-        WebFeatures["Feature Slices: brief, asset-gen, scene-editor, timeline-editor, preview"]
-        WebServices["Client Services: api, ai, render, asset, scene"]
-        Web --- WebFeatures
-        Web --- WebServices
+    subgraph Pillars ["Core Architectural Pillars"]
+        P1["1. Local-First<br>Fully functional offline on developer workstation with local GPU"]
+        P2["2. Open-Source-First<br>PostgreSQL, Valkey, Temporal, Ollama, ComfyUI, Blender, FFmpeg"]
+        P3["3. Cloud-Ready<br>Provider Adapter Pattern for S3, Cloud LLMs, and distributed workers"]
     end
 
-    subgraph BackendTier ["Backend & Execution Tier"]
-        Server["apps/server (FastAPI)"]
-        ProjectsDir[("Local File Workspace: projects/[project-id]/")]
-        RenderWorker["apps/render (Remotion + Chromium + NVENC)"]
-        AI_Bridge["AI Generation Adapters (Flux, SDXL, ComfyUI, APIs)"]
+    subgraph Disciplines ["Operational Disciplines"]
+        D1["Process Separation<br>Decouple API, Temporal workflows, background workers, and rendering nodes"]
+        D2["Human-in-the-Loop<br>First-class approval gates with Temporal signals and UI visual diffs"]
     end
-
-    subgraph SharedCoreTier ["Shared Core Tier"]
-        Contracts["packages/contracts"]
-        DSL["packages/scene-dsl"]
-        Animation["packages/animation"]
-        Presets["packages/preset-apple"]
-    end
-
-    Web --> Contracts
-    Web --> DSL
-    Web --> Animation
-    Server --> Contracts
-    Server --> DSL
-    RenderWorker --> Contracts
-    RenderWorker --> DSL
-    RenderWorker --> Animation
-    RenderWorker --> Presets
-
-    Web -->|REST & WebSocket| Server
-    Server -->|Read / Write| ProjectsDir
-    Server --> AI_Bridge
-    Server --> RenderWorker
-    RenderWorker -->|Read Assets & Write MP4| ProjectsDir
 ```
 
-### 4.1 Monorepo Structure
-```text
-video-ai-demo/
-├── apps/
-│   ├── web/                    # Next.js 16 frontend (Bun, Feature-Sliced UI, Remotion Player)
-│   ├── server/                 # FastAPI backend (File-based workspace repo, AI orchestration)
-│   └── render/                 # Remotion headless worker + Chromium + NVENC encoder
-├── packages/
-│   ├── contracts/              # Shared TypeScript types, Zod schemas, DTOs
-│   ├── scene-dsl/              # Declarative Scene DSL specification & AST parser
-│   ├── animation/              # Spring physics solvers, bezier curves, camera math
-│   └── preset-apple/           # Apple-style typography presets, lighting rigs, shaders
-├── projects/                   # Local file-based project workspaces ([project-id]/project.json, assets/)
-├── docs/
-│   ├── architecture/           # System, Data Flow, Render Pipeline, ADRs
-│   ├── api/                    # REST contracts and WebSocket protocol specs
-│   ├── workflows/              # Customer photo, img2img, asset cutout, and render flows
-│   └── development/            # Coding standards and AI agent directives
-├── CLAUDE.md                   # AI agent operational guidelines
-├── PROJECT.md                  # Central project specification
-└── README.md                   # Quickstart guide & repository index
-```
+### 4.1 Process Separation Model
+The system enforces strict operational boundaries across separate processes:
+1. **API Process (`server`):** High-throughput, stateless FastAPI gateway handling HTTP/WebSocket ingress, authentication, project CRUD, and Temporal workflow triggering. Zero CPU-intensive video or AI processing occurs in this process.
+2. **Orchestration Cluster (Temporal):** Manages workflow state machines, timers, approval signals, and execution history across restarts.
+3. **Worker Daemons (`worker`):** Independent Python processes polling Temporal task queues, executing activities (Ollama prompts, ComfyUI tasks, Pillow/OpenCV transforms, Blender CLI scripts, and FFmpeg transcoding).
+4. **Motion Engine Node (`apps/video-engine`):** Remotion WebGL rendering instances executed via headless Chromium subprocesses.
 
 ---
 
-## 5. End-to-End Production Workflow
+## 5. Functional Requirements (FR) by Workflow Stage
 
-The platform streamlines the creation of cinematic trailers from client inputs to final MP4:
+### Stage 1: Client Brief Analysis & Creative Direction
+* **FR-1.1:** The system shall accept unstructured client briefs (text prompts, target audience, brand color palettes, font specifications, and duration constraints).
+* **FR-1.2:** The system shall expand the client brief using an LLM (Ollama `llama3:8b` or cloud fallback) into a structured creative concept comprising visual themes, lighting styles, typography hierarchy, and emotional pacing.
+
+### Stage 2: AI-Generated Storyboard & Scene Planning
+* **FR-2.1:** The system shall generate a structured multi-scene storyboard JSON schema defining scene duration, camera trajectories, lighting parameters, headline copy, and visual asset requirements.
+* **FR-2.2 (HITL Gate 1):** The system shall pause execution and present the storyboard to the creator in a visual card matrix. The creator can approve, edit scene timing and copy directly, or reject with natural language feedback.
+
+### Stage 3: Image Generation, Editing & Asset Processing
+* **FR-3.1:** The system shall generate high-resolution scene background plates, textures, and product environments using diffusion models via **ComfyUI**.
+* **FR-3.2:** The system shall process uploaded customer product photos using **OpenCV** and **Pillow** (automated background removal, color-grading adjustments, contrast curve harmonization).
+* **FR-3.3 (HITL Gate 2):** The creator shall review processed assets in the UI, with options to regenerate specific layers or upload manual cutout overrides.
+
+### Stage 4: Scene Composition & Layer Management
+* **FR-4.1:** The system shall maintain a declarative Scene Composition DSL representing visual layers (3D models, 2D raster cutouts, text layers, lighting rigs, and camera views).
+* **FR-4.2:** The creator shall be able to reorder layers, adjust depth coordinates ($z$-index and 3D spatial offsets), and toggle visibility in the web studio.
+
+### Stage 5: Motion Design, Keyframes & Visual Effects
+* **FR-5.1:** The motion engine shall synthesize organic motion curves using second-order physical spring equations ($F = -kx - c\dot{x}$) powered by **GSAP** and **Remotion**.
+* **FR-5.2:** Typography layers shall support micro-staggered word-by-word wipe reveals, letter-spacing expansions, and camera parallax tracking.
+
+### Stage 6: 3D Production Using Blender
+* **FR-6.1:** The worker shall execute headless Blender Python (`bpy`) scripts to instantiate 3D product geometries (`.glb`/`.gltf`), configure Apple-style studio lighting rigs (key, fill, and specular rim sweeps), and render 3D multi-pass sequences.
+* **FR-6.2:** The web studio shall provide a real-time Three.js / WebGL preview canvas allowing creators to inspect 3D object rotation and camera angles interactively.
+
+### Stage 7: Sound Design & Audio Synchronization
+* **FR-7.1:** The system shall support multi-track audio sequencing (voiceover, background music, interface SFX, and transition swooshes).
+* **FR-7.2:** The system shall detect audio beats and automatically duck background music during voiceover segments.
+
+### Stage 8: Video Rendering, Post-Processing & Export
+* **FR-8.1:** The compositor shall merge 3D Blender sequences, Remotion kinetic typography layers, and audio tracks using **FFmpeg**.
+* **FR-8.2:** The export pipeline shall leverage **NVIDIA NVENC** (`h264_nvenc` / `hevc_nvenc`) for hardware-accelerated 4K60 encoding, with automatic fallback to high-quality CPU `libx264`.
+
+### Stage 9: Human-in-the-Loop Signoff & Delivery
+* **FR-9.1 (HITL Gate 3):** The completed master video shall be presented in the web player with frame-accurate scrubbing. The creator signs off on delivery or triggers localized scene revisions.
+
+---
+
+## 6. Non-Functional Requirements (NFR)
+
+* **NFR-1 (Determinism):** Identical Scene DSL ASTs and seed parameters must yield pixel-identical video outputs ($\text{SSIM} \ge 0.999$).
+* **NFR-2 (GPU Safety & Resource Management):** The worker daemon must enforce a concurrency semaphore (`GPU_CONCURRENCY_LIMIT`) to eliminate CUDA Out-Of-Memory exceptions during simultaneous diffusion and 3D rendering.
+* **NFR-3 (Extensibility & Provider Adapters):** All AI and storage subsystems must implement abstract interfaces (`IAIProvider`, `IStorageService`) allowing zero-downtime provider substitution.
+* **NFR-4 (Fault Tolerance & Durability):** Workflow state must be persisted across worker restarts and network drops using Temporal event sourcing.
+* **NFR-5 (Modularity & File Length Budget):** All source code files must adhere to the 200-line modularity target, with a strict maximum limit of 300 lines per file.
+
+---
+
+## 7. Core Production Sequence Diagram
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Creator as Studio Creator
-    participant Web as apps/web (Next.js 16)
-    participant API as apps/server (FastAPI)
-    participant AI as AI Engine (Diffusion/LLM)
-    participant FS as Local Filesystem (projects/)
-    participant Render as apps/render (NVENC)
+    actor Creator as Creative Director
+    participant Web as Next.js Studio (apps/web)
+    participant API as FastAPI Gateway (server)
+    participant Temporal as Temporal Cluster
+    participant Worker as Temporal Worker Daemon
+    participant AI as Local AI (Ollama / ComfyUI)
+    participant Blender as Blender 4.x (3D)
+    participant Motion as Remotion & FFmpeg
+    participant Storage as Media Storage (Local / S3)
 
-    Creator->>Web: Provide Brief & Upload Customer Product Images
-    Web->>API: POST /api/projects/{id}/brief
-    API->>FS: Save brief & customer raw assets in projects/[project-id]/assets/
-    
-    Creator->>Web: Trigger AI Image Generation (txt2img or img2img)
-    Web->>API: POST /api/projects/{id}/assets/generate
-    API->>AI: Execute Diffusion (restyling customer photo / generating backdrop)
-    AI-->>API: Generated visual frames & textures
-    API->>AI: Execute Background Cutout (BiRefNet/Rembg)
-    AI-->>API: Transparent product cutouts
-    API->>FS: Store in projects/[project-id]/assets/
+    Creator->>Web: Input Creative Brief & Upload Photos
+    Web->>API: POST /api/v1/projects
+    API->>Storage: Store raw assets
+    API->>Temporal: Start Workflow: VideoProductionWorkflow
+    Temporal->>Worker: Activity: ExpandBriefAndStoryboard
+    Worker->>AI: Ollama LLM Scene Planning Prompt
+    AI-->>Worker: Storyboard Scene AST
+    Worker-->>Temporal: Storyboard Generated
 
-    API->>API: Generate Initial Scene DSL (scenes.json)
-    API-->>Web: Push Scene Graph (WebSocket: 'scene:ready')
-    Web-->>Creator: Load Scene in Dual Editor & Remotion Player
+    Note over Temporal,Creator: HITL Gate 1: Storyboard Approval
+    Temporal->>Temporal: Wait for Signal: 'ApproveStoryboard'
+    API-->>Web: WS Notification: 'gate:storyboard_ready'
+    Web-->>Creator: Display Scene Cards & Pacing
+    Creator->>Web: Approve Storyboard
+    Web->>API: POST /api/v1/workflows/{id}/signal (approve)
+    API->>Temporal: Signal 'ApproveStoryboard'
 
-    Creator->>Web: Refine in Scene Editor (3D, lighting) & Timeline Editor (timing, curves)
-    Web->>API: PUT /api/projects/{id}/scenes (Save scenes.json)
-    
-    Creator->>Web: Click 'Export Master Video' (4K60 Apple Preset)
-    Web->>API: POST /api/projects/{id}/render
-    API->>Render: Dispatch Render Job with project directory path
-    Render->>FS: Read scenes.json and local assets
-    Render->>Render: Chromium WebGL stepping & FFmpeg NVENC encode
-    Render->>FS: Write output video to projects/[project-id]/renders/master.mp4
-    Render-->>API: Emit Render Complete
-    API-->>Web: WebSocket 'render:complete'
-    Web-->>Creator: Display Final 4K Video for Instant Playback & Export
+    Temporal->>Worker: Activity: GenerateAssetsAndCutouts
+    Worker->>AI: ComfyUI Diffusion + Pillow/OpenCV Cutout
+    AI-->>Worker: High-Res Backdrops & Product PNGs
+    Worker->>Storage: Save to storage/projects/{id}/assets/
+    Worker-->>Temporal: Assets Ready
+
+    Note over Temporal,Creator: HITL Gate 2: Asset Visual Review
+    Temporal->>Temporal: Wait for Signal: 'ApproveAssets'
+    API-->>Web: WS Notification: 'gate:assets_ready'
+    Creator->>Web: Review & Approve Assets
+    Web->>API: POST /api/v1/workflows/{id}/signal (approve)
+    API->>Temporal: Signal 'ApproveAssets'
+
+    Temporal->>Worker: Activity: RenderBlender3DPasses
+    Worker->>Blender: Execute Python Script (Lights, Camera, Materials)
+    Blender->>Storage: Output 3D Frame Sequences
+    Worker-->>Temporal: 3D Passes Complete
+
+    Temporal->>Worker: Activity: Render2DMotionAndComposite
+    Worker->>Motion: Remotion Render (GSAP Springs + Typography)
+    Worker->>Motion: FFmpeg NVENC (Composite 3D + 2D + Audio Mux)
+    Motion->>Storage: Output master_4k60.mp4
+    Worker-->>Temporal: Master Render Complete
+
+    Note over Temporal,Creator: HITL Gate 3: Final Review & Delivery
+    API-->>Web: WS Notification: 'workflow:completed'
+    Web-->>Creator: Deliver Broadcast-Ready 4K Video
 ```
 
 ---
 
-## 6. File-Based Project Workspace & Domain Model
+## 8. MVP Scope vs. Future Roadmap
 
-### 6.1 Project Directory Structure
-Every project is completely self-contained on the local filesystem:
-```text
-projects/
-└── iphone16-cinematic-intro/
-    ├── project.json            # Project metadata, brand palette, target aspect ratio
-    ├── scenes.json             # Complete Declarative Scene DSL AST
-    ├── assets/
-    │   ├── raw/                # Customer supplied source photos, logos
-    │   ├── generated/          # AI text-to-image and image-to-image visuals
-    │   ├── cutouts/            # Transparent PNG product cutouts
-    │   ├── models3d/           # glTF / GLB 3D product models
-    │   └── audio/              # BGM, voiceover, and SFX clips
-    └── renders/
-        ├── chunks/             # Intermediate rendered chunk MP4s (for caching)
-        └── master_4k60.mp4     # Final exported master video
-```
+```mermaid
+flowchart LR
+    subgraph MVP ["Phase 1: MVP Scope"]
+        M1["Local-First Single Node Deployment"]
+        M2["Ollama (Llama 3) Brief & Storyboard"]
+        M3["ComfyUI Asset Gen & OpenCV Cutouts"]
+        M4["Blender Headless 3D Studio Lighting"]
+        M5["Remotion 2D Kinetic Typography"]
+        M6["Temporal HITL 3-Stage Approval Gates"]
+        M7["FFmpeg NVENC 4K60 Master Export"]
+    end
 
-### 6.2 Declarative Scene DSL Schema
-```typescript
-export interface SceneCompositionDSL {
-  version: "2.0.0";
-  meta: {
-    title: string;
-    targetFps: 60;
-    canvas: { width: 3840; height: 2160; aspectRatio: "16:9" };
-    durationInFrames: number;
-  };
-  globalTheme: {
-    palette: { background: "#050505"; primaryText: "#F5F5F7"; accent: "#2997FF" };
-    lightingPreset: "studio-apple-dark";
-  };
-  scenes: SceneNode[];
-  audioTracks: AudioTrackNode[];
-}
+    subgraph Phase2 ["Phase 2: Studio Enhancements"]
+        P1["Multi-Track Audio Ducking & Waveforms"]
+        P2["Interactive Spatial Transform Gizmos in Web"]
+        P3["Procedural Glass & Anodized Metal Shader Presets"]
+        P4["Cloud AI Provider Adapters (OpenAI / Claude)"]
+    end
 
-export interface SceneNode {
-  id: string;
-  name: string;
-  durationInFrames: number;
-  transitionOut: {
-    type: "lens-blur" | "fade-black" | "slide-spatial";
-    durationInFrames: 24;
-    springConfig: { mass: 1; stiffness: 180; damping: 14 };
-  };
-  camera: {
-    type: "perspective";
-    fov: 35;
-    keyframes: { frame: number; position: [number, number, number]; target: [number, number, number] }[];
-  };
-  lighting: {
-    preset: "apple-rim-spotlight";
-    rimIntensity: 2.5;
-    keyColor: "#FFFFFF";
-    rimColor: "#4E95FF";
-  };
-  layers: (ImageLayerNode | TextLayerNode | Model3DLayerNode | ShapeLayerNode)[];
-}
+    subgraph Phase3 ["Phase 3: Cloud Scale"]
+        C1["Distributed Multi-GPU Worker Cluster"]
+        C2["AWS S3 / Cloudflare R2 Object Storage"]
+        C3["Real-time Multi-User Collaborative Editing"]
+        C4["Template Marketplace & Custom Plugin SDK"]
+    end
+
+    MVP --> Phase2 --> Phase3
 ```
 
 ---
 
-## 7. Technology Stack Summary
+## 9. Cross-Document Architecture Sitemap
 
-| Responsibility | Technology Choice | Architectural Justification |
-| :--- | :--- | :--- |
-| **Runtime & Workspaces** | **Bun (v1.1+)** | Unified package manager, fast install, native TS execution, zero config workspace management. |
-| **Frontend Framework** | **Next.js 16 (React 19)** | App Router, Turbopack, Feature-Sliced modular architecture, modern UI. |
-| **Video Playback** | **`@remotion/player` + Three.js** | Frame-accurate browser preview, WebGL shaders, synchronized audio. |
-| **Client State** | **Zustand + Immer** | Decoupled atomic stores, zero playhead scrub lag, undo/redo temporal history. |
-| **Backend API** | **FastAPI (Python 3.11+)** | High-performance async I/O, seamless integration with PyTorch/Diffusion/ComfyUI libraries. |
-| **Project Storage** | **Local File-Based Workspaces** | Eliminates external DBs (Postgres/pgvector/MinIO); zero maintenance, portable projects. |
-| **Hardware Video Encode** | **FFmpeg + NVIDIA NVENC** | Hardware-accelerated 4K60 encoding (`h264_nvenc`) directly from Chromium frame streams. |
-
----
-
-## 8. Cross-Document Architecture Sitemap
-
-*   **Frontend Studio Architecture:** [apps/web/ARCHITECTURE.md](apps/web/ARCHITECTURE.md)
-*   **Backend Server Architecture:** [apps/server/ARCHITECTURE.md](apps/server/ARCHITECTURE.md)
-*   **Render Engine Architecture:** [apps/render/ARCHITECTURE.md](apps/render/ARCHITECTURE.md)
-*   **Shared Packages:** [packages/ARCHITECTURE.md](packages/ARCHITECTURE.md)
-*   **System Overview:** [docs/architecture/SYSTEM_OVERVIEW.md](docs/architecture/SYSTEM_OVERVIEW.md)
-*   **End-to-End Data Flow:** [docs/architecture/DATA_FLOW.md](docs/architecture/DATA_FLOW.md)
-*   **Rendering Pipeline:** [docs/architecture/RENDERING_PIPELINE.md](docs/architecture/RENDERING_PIPELINE.md)
-*   **Architecture Decisions (ADRs):** [docs/architecture/ARCHITECTURE_DECISIONS.md](docs/architecture/ARCHITECTURE_DECISIONS.md)
-*   **API Contracts & Protocols:** [docs/api/API_CONTRACTS.md](docs/api/API_CONTRACTS.md)
-*   **AI Workflows & Image Pipelines:** [docs/workflows/AI_WORKFLOWS.md](docs/workflows/AI_WORKFLOWS.md)
-*   **Coding Standards:** [docs/development/CODING_STANDARDS.md](docs/development/CODING_STANDARDS.md)
-*   **AI Agent Directives:** [CLAUDE.md](CLAUDE.md)
+* **System Architecture & Service Topology:** [SYSTEM_ARCHITECTURE.md](docs/architecture/SYSTEM_ARCHITECTURE.md)
+* **Technology Stack & Licensing:** [TECH_STACK.md](docs/architecture/TECH_STACK.md)
+* **AI Agent Operational Conventions:** [CLAUDE.md](CLAUDE.md)
+* **Engineering & Coding Standards:** [CODING_STANDARDS.md](docs/development/CODING_STANDARDS.md)
+* **Local Development Setup:** [LOCAL_SETUP.md](docs/development/LOCAL_SETUP.md)
+* **Environment Variables Reference:** [ENVIRONMENT_VARIABLES.md](docs/development/ENVIRONMENT_VARIABLES.md)
+* **Comprehensive Testing Strategy:** [TESTING_STRATEGY.md](docs/development/TESTING_STRATEGY.md)
+* **Repository Readme:** [README.md](README.md)

@@ -1,179 +1,254 @@
-# ENGINEERING & CODING STANDARDS SPECIFICATION
+# ENGINEERING & CODING STANDARDS
 
-> **Document Version:** 2.0.0  
-> **Toolchain:** Bun (v1.1+), Next.js 16 (React 19), FastAPI, TypeScript Strict  
+> **Document Version:** 2.1.0  
 > **Status:** Specification Complete / Greenfield Repository  
-> **Parent Context:** [PROJECT.md](../../PROJECT.md)
+> **Toolchain:** Python 3.11+, FastAPI, Pydantic v2, SQLAlchemy 2.0, Alembic, Next.js (React 19), TypeScript Strict, Temporal SDK  
+> **Parent Context:** [PROJECT.md](../../PROJECT.md) | [SYSTEM_ARCHITECTURE.md](../architecture/SYSTEM_ARCHITECTURE.md)
 
 ---
 
-## 1. Codebase Philosophy & Engineering Tenets
+## 1. General Software Engineering Principles
 
-1.  **Deterministic Over Ad-Hoc:** All video compositions and animations must be mathematically reproducible. Avoid non-deterministic algorithms or unversioned local assets.
-2.  **Feature-Sliced Web Architecture:** All frontend UI logic belongs strictly in `src/features/<feature-name>/`, while external I/O belongs in `src/services/<service-name>/`.
-3.  **Local Filesystem Primacy:** Project data lives in `projects/<id>/`. Do not introduce heavyweight external database servers (PostgreSQL/pgvector) or external object stores.
-4.  **Zero Hallucinated Implementation:** Code and documentation must reflect only verified, working implementations.
-5.  **Strict File Length & Complexity Budget:** Files must remain compact, modular, and single-responsibility. Never allow source files to grow into unmaintainable monoliths.
+1. **Clean Architecture & Separation of Concerns:**
+   Code is structured into concentric layers: **Domain**, **Application (Use Cases/Ports)**, **Infrastructure (Adapters)**, and **Presentation/API**. Inner layers have zero dependencies on outer frameworks.
+2. **Deterministic Video Synthesis:**
+   All rendering algorithms, scene compilers, and asset transformation scripts must produce mathematically reproducible outputs when supplied identical inputs.
+3. **Explicit Over Implicit:**
+   Avoid magic globals, monkey-patching, or untyped dynamic dictionaries. Leverage strict static typing across both Python and TypeScript.
+4. **Single Responsibility & Modularity:**
+   Every class, function, module, and React component must have one, and only one, reason to change.
+5. **Fail Fast with Structured Errors:**
+   Validate all inputs at the perimeter (using Pydantic in Python and Zod in TypeScript). Emit RFC 7807 compliant Problem Details for API failures.
 
 ---
 
-## 2. File Length & Modularity Budgets (Line Limits)
+## 2. File Length & Modularity Budgets
 
-To prevent code bloat, maintain readability, and facilitate AI agent pair-programming, the repository enforces strict line count limits across all workspaces:
+To preserve maintainability, simplify code reviews, and optimize AI-assisted pair programming, all source code files must adhere to strict line count limits:
 
-### 2.1 Line Count Budget Table
-
-| File Type / Role | Location Pattern | Target Line Count | Strict Hard Limit | Action on Limit Exceeded |
+| File Type / Role | Location Pattern | Target Line Count | Strict Hard Limit | Action on Exceeding Limit |
 | :--- | :--- | :--- | :--- | :--- |
-| **Container Components** | `src/features/*/*.tsx` | $\le 100$ lines | **150 lines** | Move inline logic to custom hooks |
-| **Presentational Components**| `src/features/*/components/**/*.tsx` | $\le 120$ lines | **200 lines** | Split into sub-components in subfolders |
-| **Custom Hooks** | `src/features/*/hooks/*.ts` | $\le 120$ lines | **180 lines** | Decompose into composed hooks or pure utils |
-| **Client Services** | `src/services/*/*.ts` | $\le 150$ lines | **220 lines** | Split into specialized handlers / clients |
-| **Zustand State Stores** | `src/stores/*.ts` | $\le 100$ lines | **160 lines** | Separate store into modular slices |
-| **Python Domain Entities** | `apps/server/src/domain/entities/*.py`| $\le 100$ lines | **150 lines** | Separate aggregate roots / value objects |
-| **Python Use Cases** | `apps/server/src/application/use_cases/*.py` | $\le 120$ lines | **180 lines** | Enforce Single Responsibility Principle |
-| **Python API Routers** | `apps/server/src/api/routers/*.py` | $\le 150$ lines | **220 lines** | Split into nested resource sub-routers |
-| **Infrastructure Adapters**| `apps/server/src/infrastructure/**/*.py`| $\le 180$ lines | **250 lines** | Extract helper utilities or sub-clients |
-| **Render Pipelines & Compilers**| `apps/render/src/**/*.ts` | $\le 180$ lines | **250 lines** | Modularize chunking, IPC, and NVENC runners |
-| **Shared Contracts & AST** | `packages/**/*.ts` | $\le 150$ lines | **200 lines** | Group schemas by domain entity |
+| **Next.js Page / Shell** | `apps/web/src/app/**/page.tsx` | $\le 100$ lines | **150 lines** | Delegate layout and state to feature containers |
+| **Feature Container** | `apps/web/src/features/*/*.tsx` | $\le 120$ lines | **180 lines** | Extract UI regions into sub-components; extract hooks |
+| **Presentational Component**| `apps/web/src/features/*/components/**/*.tsx` | $\le 120$ lines | **200 lines** | Decompose into atomic sub-components |
+| **Custom Hooks** | `apps/web/src/features/*/hooks/*.ts` | $\le 100$ lines | **160 lines** | Split into composed single-purpose hooks |
+| **Client Services / API Clients**| `apps/web/src/services/*/*.ts` | $\le 150$ lines | **220 lines** | Split by entity or domain operation |
+| **Python Domain Entities** | `server/src/domain/entities/*.py` | $\le 100$ lines | **150 lines** | Separate value objects from entity roots |
+| **Python Use Cases** | `server/src/application/use_cases/*.py` | $\le 120$ lines | **180 lines** | Enforce one use case per file |
+| **FastAPI Routers** | `server/src/api/routers/*.py` | $\le 150$ lines | **220 lines** | Decompose into sub-routers by resource |
+| **SQLAlchemy Repositories** | `server/src/infrastructure/database/repositories/*.py` | $\le 160$ lines | **240 lines** | Separate queries into dedicated query classes |
+| **Temporal Workflows** | `worker/src/workflows/*.py` | $\le 150$ lines | **220 lines** | Decompose complex flows into child workflows |
+| **Temporal Activities** | `worker/src/activities/*.py` | $\le 150$ lines | **220 lines** | Extract utility helpers or provider SDK clients |
+| **Remotion Compositions** | `apps/video-engine/src/compositions/*.tsx` | $\le 150$ lines | **220 lines** | Separate scene sequences into individual scene components |
 
 > [!IMPORTANT]
 > **Universal Absolute Ceiling: 300 Lines**  
-> No source code file (`.ts`, `.tsx`, `.py`) may exceed **300 lines** under any circumstances. When any file approaches $200$ lines, engineers and AI agents must actively plan its decomposition.
-
-### 2.2 Decomposition & Refactoring Triggers
-1.  **Component Decomposition Trigger:** A component must be split if:
-    *   It contains more than 150 lines of code.
-    *   It renders more than 2 distinct functional UI regions.
-    *   It manages multiple unrelated `useState` or `useEffect` hooks.
-2.  **Hook Decomposition Trigger:** A custom hook must be split if:
-    *   It manages more than one distinct state machine or network lifecycle.
-    *   It contains more than 120 lines of procedural logic.
-3.  **Router Decomposition Trigger:** A FastAPI router must be split into sub-routers if it handles more than 5 distinct HTTP endpoints.
+> Under no circumstances may any single source code file (`.py`, `.ts`, `.tsx`) exceed **300 lines**. When any file crosses $200$ lines, engineers and AI agents must proactively plan its refactoring and modularization.
 
 ---
 
-## 3. Language-Specific Standards
+## 3. Python & FastAPI Conventions (`server`, `worker`)
 
-### 3.1 TypeScript & Next.js 16 (`apps/web`, `apps/render`, `packages/*`)
-*   **Package Manager & Runner:** Always use **Bun** (`bun install`, `bun test`, `bun run dev`).
-*   **TypeScript Strictness:** `"strict": true`, `"noImplicitAny": true`, `"noUnusedLocals": true`.
-*   **Feature Anatomy Standard:**
-    Every feature in `apps/web/src/features/` must follow this structure:
-    ```text
-    src/features/<feature-name>/
-    ├── <FeatureName>.tsx       # Container Component (only connects hooks & layout)
-    ├── index.ts                # Public API (export FeatureName and public types)
-    ├── types.ts                # Internal feature types
-    ├── hooks/                  # Custom hooks & business logic
-    └── components/             # Presentational components grouped by function
-    ```
-*   **Services Layer Anatomy:** All REST calls, WebSocket listeners, and file upload clients must live in modular service folders in `apps/web/src/services/<service-name>/`:
-    ```text
-    src/services/<service-name>/
-    ├── index.ts                # Public API (export service instance & public types)
-    ├── types.ts                # Kiểu dữ liệu / types của service
-    └── <các file nghiệp vụ>    # client.ts, handlers.ts, utils.ts
-    ```
-*   **Atomic Zustand Selectors:** Always use fine-grained selectors to prevent re-render thrashing during 60fps playback:
-    ```typescript
-    // Correct
-    const currentFrame = usePlaybackStore((state) => state.currentFrame);
-    // Forbidden
-    const { currentFrame } = usePlaybackStore();
-    ```
+### 3.1 Python Version & Type Annotations
+* **Python Runtime:** Python 3.11+.
+* **Native Type Hints:** Use modern standard library type hints (`list[str]`, `dict[str, Any]`, `tuple[int, ...]`, `T | None` instead of `typing.Optional` or `typing.Union`).
+* **Strict Type Checking:** Code must pass `mypy --strict`. Dynamic typing (`Any`) is strictly prohibited unless interacting with un-typed third-party libraries.
+
+### 3.2 FastAPI Route Design & Clean Architecture
+* **Controller Cleanliness:** FastAPI route handlers must act strictly as HTTP adapters. They validate inputs (via Pydantic), call an Application Use Case, and return a response DTO.
+* **No Database Queries in Routers:** Routers must never execute raw SQL or call SQLAlchemy `session.execute()` directly.
+* **Asynchronous Execution:** All route handlers and repository operations must be defined with `async def` and use non-blocking asynchronous calls (`await`).
+
+```python
+# Example: Correct FastAPI Router Pattern
+from fastapi import APIRouter, Depends, status, HTTPException
+from server.src.application.use_cases.create_project import CreateProjectUseCase
+from server.src.api.dependencies import get_create_project_use_case
+from server.src.api.dtos.project import CreateProjectRequestDTO, ProjectResponseDTO
+
+router = APIRouter(prefix="/projects", tags=["Projects"])
+
+@router.post("", response_model=ProjectResponseDTO, status_code=status.HTTP_201_CREATED)
+async def create_project(
+    payload: CreateProjectRequestDTO,
+    use_case: CreateProjectUseCase = Depends(get_create_project_use_case),
+) -> ProjectResponseDTO:
+    result = await use_case.execute(payload.to_command())
+    return ProjectResponseDTO.from_domain(result)
+```
+
+### 3.3 Dependency Injection
+* Use FastAPI's `Depends` system for injecting database sessions, repository implementations, storage providers, and use cases.
+* Define dependency providers in `server/src/api/dependencies.py` to allow seamless swapping with test doubles during testing.
+
+### 3.4 Pydantic v2 & SQLAlchemy 2.0 Mapping
+* **Pydantic Models:** Use `BaseModel` with `model_config = ConfigDict(from_attributes=True, extra="forbid")`.
+* **SQLAlchemy 2.0 Declarative:** Use `Mapped[...]` and `mapped_column(...)` for all ORM models.
+
+```python
+# Example: SQLAlchemy 2.0 Model
+from datetime import datetime, timezone
+from uuid import UUID, uuid4
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import String, DateTime
+
+class Base(DeclarativeBase):
+    pass
+
+class ProjectModel(Base):
+    __tablename__ = "projects"
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    status: Mapped[str] = mapped_column(String(50), default="DRAFT", nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+```
+
+### 3.5 Error Handling & Structured Logging
+* Use **RFC 7807 Problem Details** for HTTP error envelopes:
+  ```json
+  {
+    "type": "https://api.motionstudio.internal/errors/invalid-scene-dsl",
+    "title": "Invalid Scene Composition",
+    "status": 422,
+    "detail": "Scene 3 duration (12 frames) is shorter than transition duration (24 frames).",
+    "instance": "/api/v1/projects/550e8400-e29b/scenes"
+  }
+  ```
+* Use structured JSON logging (`structlog` or standard library logging with JSON formatting). Never output raw unstructured `print()` statements.
 
 ---
 
-### 3.2 Python Standards (`apps/server`)
-*   **Python Version:** Python 3.11+ using native type hints (`list[str]`, `dict[str, Any]`, `T | None`).
-*   **Formatting & Linting:** `ruff format` and `ruff check --fix`.
-*   **Clean Architecture Decoupling:**
-    *   `src/domain/`: Pure standard library Python entities. Zero framework dependencies.
-    *   `src/application/`: Orchestrators and use cases.
-    *   `src/infrastructure/`: Houses `FileSystemProjectRepository` (reading/writing to `projects/[project-id]/`), AI diffusion clients, and render IPC handlers.
-    *   `src/api/`: FastAPI route controllers.
+## 4. TypeScript & React Conventions (`apps/web`, `apps/video-engine`)
+
+### 4.1 Strict TypeScript Standards
+* **Configuration:** `"strict": true`, `"noImplicitAny": true`, `"noUnusedLocals": true`.
+* **Explicit Function Return Types:** All exported functions and hooks must declare explicit return types.
+* **No `any` Policy:** Use `unknown` with type guards or Zod schemas instead of `any`.
+
+### 4.2 Feature-Sliced UI Architecture
+All frontend code in `apps/web` is organized into self-contained feature slices:
+
+```text
+apps/web/src/features/<feature-name>/
+├── <FeatureName>.tsx          # Container component (wires hooks to UI)
+├── index.ts                   # Public entry point (exports container & public types)
+├── types.ts                   # Internal feature domain types
+├── hooks/                     # Custom hooks and business logic
+│   └── use<FeatureName>.ts
+└── components/                # Presentational components
+    ├── <SubComponentA>.tsx
+    └── <SubComponentB>.tsx
+```
+
+* **Container Rule:** `<FeatureName>.tsx` must never contain raw fetch calls, heavy math, or inline styles. Its sole responsibility is wiring custom hooks to presentation components.
+* **Public Boundary:** Other parts of the app must import solely from the feature's `index.ts`:
+  ```typescript
+  // Correct
+  import { StoryboardReview } from "@/features/storyboard-review";
+  // Prohibited
+  import { StoryboardReview } from "@/features/storyboard-review/StoryboardReview";
+  ```
+
+### 4.3 Atomic Zustand Selectors
+To prevent re-rendering the entire canvas during 60fps playback or scrubbing:
+```typescript
+// Correct: Only re-renders when currentFrame changes
+const currentFrame = useTimelineStore((state) => state.currentFrame);
+
+// Prohibited: Re-renders on any store property change!
+const { currentFrame } = useTimelineStore();
+```
 
 ---
 
-## 4. Testing Strategy
+## 5. Temporal Workflow & Activity Conventions (`worker`)
+
+1. **Workflow Determinism Rules:**
+   * Workflows must be completely deterministic.
+   * **Prohibited in Workflows:** `datetime.now()`, `random()`, network I/O, disk writes, threading, or global state mutation. (Use `workflow.now()`, `workflow.random()`, or delegate to activities).
+2. **Activity Design:**
+   * All external interactions (Ollama, ComfyUI, Blender, Remotion, FFmpeg, S3) must execute inside an **Activity**.
+   * Activities must specify timeouts (`start_to_close_timeout`) and a retry policy (`RetryPolicy(maximum_attempts=3)`).
+   * Heartbeat long-running activities (`activity.heartbeat(...)`) every 10–30 seconds during 3D/video rendering.
+3. **Idempotency:**
+   * Activities must be idempotent so that automatic retries do not produce duplicate assets or corrupt database records.
+
+---
+
+## 6. Project Naming Conventions
+
+| Entity | Convention | Example |
+| :--- | :--- | :--- |
+| **Python Files / Modules** | `snake_case.py` | `create_project.py`, `storage_service.py` |
+| **Python Classes** | `PascalCase` | `ProjectRepository`, `VideoProductionWorkflow` |
+| **Python Functions / Methods** | `snake_case` | `execute()`, `render_scene_frame()` |
+| **Python Constants** | `UPPER_SNAKE_CASE` | `MAX_CONCURRENT_RENDERS`, `DEFAULT_FPS` |
+| **Database Tables** | `plural_snake_case` | `projects`, `scenes`, `approval_gates` |
+| **Database Columns** | `snake_case` | `created_at`, `duration_in_frames` |
+| **TypeScript Files (Components)**| `PascalCase.tsx` | `TimelineRuler.tsx`, `AssetCard.tsx` |
+| **TypeScript Files (Hooks/Utils)**| `camelCase.ts` | `useTimelineScrub.ts`, `formatTime.ts` |
+| **TypeScript Interfaces / Types** | `PascalCase` | `SceneNode`, `AssetMetadata` |
+| **REST Endpoints** | `kebab-case` nouns | `/api/v1/projects/{id}/render-jobs` |
+| **Temporal Task Queues** | `kebab-case` | `video-production-queue`, `render-queue` |
+
+---
+
+## 7. Testing & Code Quality Gates
 
 ```mermaid
-graph TD
-    Unit["Unit Tests (Bun Test & Pytest)"]
-    Contract["Contract Validation Tests (Zod & Pydantic)"]
-    Visual["Visual Regression Tests (Playwright)"]
-    Determinism["Render Determinism Tests (Frame SSIM >= 0.999)"]
-
-    Unit --> Contract
-    Contract --> Visual
-    Visual --> Determinism
+flowchart LR
+    Lint["1. Lint & Format<br>(Ruff, Biome / ESLint)"] --> Type["2. Type Check<br>(mypy --strict, tsc)"]
+    Type --> Unit["3. Unit Tests<br>(pytest, bun test)"]
+    Unit --> Integration["4. Integration & Workflows<br>(TestDB, Temporal Env)"]
+    Integration --> Determinism["5. Render Determinism<br>(SSIM >= 0.999)"]
 ```
 
-### 4.1 Render Determinism Testing
-*   A fixed Scene DSL fixture is rendered twice in succession on the GPU.
-*   Extracted frames are compared using **Structural Similarity Index Measure (SSIM)**:
-    $$\text{SSIM}(\text{Frame}_A, \text{Frame}_B) \ge 0.999$$
-*   Any deviation flags non-deterministic shader math or driver inconsistencies.
+* **Code Coverage Goal:** $\ge 80\%$ on application use cases, domain entities, and data adapters.
+* **Pre-commit Automation:** Code must pass `ruff check`, `ruff format --check`, and `mypy` before pushing commits.
 
 ---
 
-## 5. Git Commit Standards & Conventions
+## 8. Git & Commit Conventions
 
-The repository enforces **Conventional Commits (v1.0.0)** with monorepo-aware scopes to maintain a clean, auditable history and support automated changelog generation.
-
-### 5.1 Commit Message Format
+The repository strictly enforces **Conventional Commits (v1.0.0)**:
 ```text
-<type>(<scope>): <short description>
+<type>(<scope>): <short description in imperative mood>
 
-[optional body: explain WHAT and WHY, not HOW]
+[optional body explaining WHAT and WHY, not HOW]
 
-[optional footer(s): BREAKING CHANGE, Closes #123]
+[optional footer(s): BREAKING CHANGE, Closes #42]
 ```
 
-### 5.2 Standard Types
-| Type | Description | Example |
-| :--- | :--- | :--- |
-| `feat` | New feature or capability | `feat(web): add kinetic typography stagger control` |
-| `fix` | Bug fix for broken behavior | `fix(render): resolve NVENC pipe buffer starvation` |
-| `docs` | Documentation only changes | `docs(api): update img2img request examples` |
-| `style` | Formatting, whitespace, lint fixes (no logic change) | `style(server): run ruff format on storage adapters` |
-| `refactor` | Code restructuring without adding features or fixing bugs | `refactor(scene-dsl): simplify AST node visitor logic` |
-| `perf` | Performance improvement or memory optimization | `perf(web): use atomic selectors in timeline ruler` |
-| `test` | Adding or updating unit/integration/determinism tests | `test(animation): add spring physics overshoot test` |
-| `chore` | Toolchain, dependencies, Bun workspace configs | `chore(repo): update Bun workspace dependencies` |
-| `ci` | CI/CD pipelines, GitHub Actions workflows | `ci: add automated Playwright visual regression check` |
+### 8.1 Allowed Types
+* `feat`: New feature or user-facing capability.
+* `fix`: Bug fix in application or pipeline logic.
+* `docs`: Documentation updates or additions.
+* `style`: Code style, formatting, or missing semicolons (no logic change).
+* `refactor`: Restructuring code without fixing bugs or adding features.
+* `perf`: Performance improvement or GPU memory optimization.
+* `test`: Adding or updating unit, integration, or rendering tests.
+* `chore`: Maintenance tasks, dependencies, Docker configurations.
+* `ci`: CI/CD pipelines and automated workflow scripts.
 
-### 5.3 Monorepo Scopes
-Scopes must accurately reflect the affected workspace or domain package:
-*   `web` or `web/<feature>` (e.g., `web/scene-editor`, `web/services`)
-*   `server` or `server/<module>` (e.g., `server/api`, `server/storage`)
-*   `render` (e.g., `render/nvenc`, `render/chromium`)
-*   `contracts`: `@video-ai/contracts`
-*   `scene-dsl`: `@video-ai/scene-dsl`
-*   `animation`: `@video-ai/animation`
-*   `preset-apple`: `@video-ai/preset-apple`
-*   `assets`: `@video-ai/assets`
-*   `docs`: Documentation files (`docs/*`, `PROJECT.md`, `README.md`)
-*   `repo`: Root repository configurations
-
-### 5.4 Golden Rules for Commit Messages
-1.  **Imperative Mood:** Use the imperative mood in the subject line (`add`, `fix`, `refactor`, not `added`, `fixes`).
-2.  **No Trailing Period:** Do not end the subject line with a period `.`.
-3.  **Length Limit:** Keep the subject line under 72 characters.
-4.  **Atomic Commits:** Each commit must represent a single logical change. Do not mix unrelated refactors with bug fixes.
-5.  **Breaking Changes:** Indicate breaking changes with `!` before the colon and describe details in the footer:
-    ```text
-    feat(scene-dsl)!: redesign camera trajectory schema
-
-    BREAKING CHANGE: camera.keyframes now uses 3D vector coordinates [x, y, z] instead of spherical coordinates.
-    ```
+### 8.2 Standard Monorepo Scopes
+* `web`: Next.js frontend (`apps/web`).
+* `server`: FastAPI API Gateway (`server`).
+* `worker`: Temporal worker daemon (`worker`).
+* `video-engine`: Remotion and GSAP motion engine (`apps/video-engine`).
+* `packages`: Shared libraries or contracts.
+* `infra`: Docker, Docker Compose, Valkey, PostgreSQL, Temporal configs.
+* `docs`: Documentation files (`docs/*`, `README.md`, `PROJECT.md`).
 
 ---
 
-## 6. Cross-Document References
+## 9. Cross-Document Sitemap
 
-*   [PROJECT.md](../../PROJECT.md)
-*   [CLAUDE.md](../../CLAUDE.md)
-*   [apps/web/ARCHITECTURE.md](../../apps/web/ARCHITECTURE.md)
-*   [apps/server/ARCHITECTURE.md](../../apps/server/ARCHITECTURE.md)
+* **System Topology & Architecture:** [SYSTEM_ARCHITECTURE.md](../architecture/SYSTEM_ARCHITECTURE.md)
+* **Technology Stack & Rationale:** [TECH_STACK.md](../architecture/TECH_STACK.md)
+* **Local Setup Guide:** [LOCAL_SETUP.md](LOCAL_SETUP.md)
+* **Environment Variables Reference:** [ENVIRONMENT_VARIABLES.md](ENVIRONMENT_VARIABLES.md)
+* **Testing Strategy:** [TESTING_STRATEGY.md](TESTING_STRATEGY.md)
+* **AI Agent Directives:** [CLAUDE.md](../../CLAUDE.md)
