@@ -26,3 +26,4 @@ export interface CategoryCount {
   label: string;
   count: number;
 }
+

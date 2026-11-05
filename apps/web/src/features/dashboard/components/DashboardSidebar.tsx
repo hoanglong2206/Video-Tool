@@ -32,12 +32,13 @@ export function DashboardSidebar(): React.ReactElement {
           <Monitor className="w-4 h-4" />
         </Link>
 
-        <button
-          aria-label="Editor"
+        <Link
+          href="/editor"
+          aria-label="Scene & Motion Editor"
           className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-500 hover:text-slate-300 hover:bg-[#161D2B] transition-colors"
         >
           <ChevronRight className="w-4 h-4 rotate-90" />
-        </button>
+        </Link>
 
         <button
           aria-label="Render Engine"

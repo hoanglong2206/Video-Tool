@@ -53,3 +53,4 @@ export function AssetJourneyBar(): React.ReactElement {
     </div>
   );
 }
+
