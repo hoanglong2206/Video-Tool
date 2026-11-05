@@ -33,10 +33,11 @@ To preserve maintainability, simplify code reviews, and optimize AI-assisted pai
 | **Presentational Component**| `apps/web/src/features/*/components/**/*.tsx` | $\le 120$ lines | **200 lines** | Decompose into atomic sub-components |
 | **Custom Hooks** | `apps/web/src/features/*/hooks/*.ts` | $\le 100$ lines | **160 lines** | Split into composed single-purpose hooks |
 | **Client Services / API Clients**| `apps/web/src/services/*/*.ts` | $\le 150$ lines | **220 lines** | Split by entity or domain operation |
-| **Python Domain Entities** | `server/src/domain/entities/*.py` | $\le 100$ lines | **150 lines** | Separate value objects from entity roots |
-| **Python Use Cases** | `server/src/application/use_cases/*.py` | $\le 120$ lines | **180 lines** | Enforce one use case per file |
-| **FastAPI Routers** | `server/src/api/routers/*.py` | $\le 150$ lines | **220 lines** | Decompose into sub-routers by resource |
-| **SQLAlchemy Repositories** | `server/src/infrastructure/database/repositories/*.py` | $\le 160$ lines | **240 lines** | Separate queries into dedicated query classes |
+| **Python Domain Entities** | `server/backend/src/domain/entities/*.py` | $\le 100$ lines | **150 lines** | Separate value objects from entity roots |
+| **Python Use Cases** | `server/backend/src/application/use_cases/*.py` | $\le 120$ lines | **180 lines** | Enforce one use case per file |
+| **FastAPI Routers** | `server/backend/src/api/routers/*.py` | $\le 150$ lines | **220 lines** | Decompose into sub-routers by resource |
+| **SQLAlchemy Repositories** | `server/backend/src/infrastructure/database/repositories/*.py` | $\le 160$ lines | **240 lines** | Separate queries into dedicated query classes |
+| **AI Engine Adapters & Vision**| `server/ai-engine/src/**/*.py` | $\le 150$ lines | **220 lines** | Modularize prompts, node graphs, and OpenCV filters |
 | **Temporal Workflows** | `worker/src/workflows/*.py` | $\le 150$ lines | **220 lines** | Decompose complex flows into child workflows |
 | **Temporal Activities** | `worker/src/activities/*.py` | $\le 150$ lines | **220 lines** | Extract utility helpers or provider SDK clients |
 | **Remotion Compositions** | `apps/video-engine/src/compositions/*.tsx` | $\le 150$ lines | **220 lines** | Separate scene sequences into individual scene components |
@@ -47,14 +48,14 @@ To preserve maintainability, simplify code reviews, and optimize AI-assisted pai
 
 ---
 
-## 3. Python & FastAPI Conventions (`server`, `worker`)
+## 3. Python & FastAPI Conventions (`server/backend`, `server/ai-engine`, `worker`)
 
 ### 3.1 Python Version & Type Annotations
 * **Python Runtime:** Python 3.11+.
 * **Native Type Hints:** Use modern standard library type hints (`list[str]`, `dict[str, Any]`, `tuple[int, ...]`, `T | None` instead of `typing.Optional` or `typing.Union`).
 * **Strict Type Checking:** Code must pass `mypy --strict`. Dynamic typing (`Any`) is strictly prohibited unless interacting with un-typed third-party libraries.
 
-### 3.2 FastAPI Route Design & Clean Architecture
+### 3.2 FastAPI Route Design & Clean Architecture (`server/backend`)
 * **Controller Cleanliness:** FastAPI route handlers must act strictly as HTTP adapters. They validate inputs (via Pydantic), call an Application Use Case, and return a response DTO.
 * **No Database Queries in Routers:** Routers must never execute raw SQL or call SQLAlchemy `session.execute()` directly.
 * **Asynchronous Execution:** All route handlers and repository operations must be defined with `async def` and use non-blocking asynchronous calls (`await`).
@@ -62,9 +63,9 @@ To preserve maintainability, simplify code reviews, and optimize AI-assisted pai
 ```python
 # Example: Correct FastAPI Router Pattern
 from fastapi import APIRouter, Depends, status, HTTPException
-from server.src.application.use_cases.create_project import CreateProjectUseCase
-from server.src.api.dependencies import get_create_project_use_case
-from server.src.api.dtos.project import CreateProjectRequestDTO, ProjectResponseDTO
+from server.backend.src.application.use_cases.create_project import CreateProjectUseCase
+from server.backend.src.api.dependencies import get_create_project_use_case
+from server.backend.src.api.dtos.project import CreateProjectRequestDTO, ProjectResponseDTO
 
 router = APIRouter(prefix="/projects", tags=["Projects"])
 
@@ -79,7 +80,7 @@ async def create_project(
 
 ### 3.3 Dependency Injection
 * Use FastAPI's `Depends` system for injecting database sessions, repository implementations, storage providers, and use cases.
-* Define dependency providers in `server/src/api/dependencies.py` to allow seamless swapping with test doubles during testing.
+* Define dependency providers in `server/backend/src/api/dependencies.py` to allow seamless swapping with test doubles during testing.
 
 ### 3.4 Pydantic v2 & SQLAlchemy 2.0 Mapping
 * **Pydantic Models:** Use `BaseModel` with `model_config = ConfigDict(from_attributes=True, extra="forbid")`.
@@ -235,7 +236,8 @@ The repository strictly enforces **Conventional Commits (v1.0.0)**:
 
 ### 8.2 Standard Monorepo Scopes
 * `web`: Next.js frontend (`apps/web`).
-* `server`: FastAPI API Gateway (`server`).
+* `server/backend`: FastAPI API Gateway (`server/backend`).
+* `server/ai-engine`: AI models, ComfyUI, Ollama, OpenCV (`server/ai-engine`).
 * `worker`: Temporal worker daemon (`worker`).
 * `video-engine`: Remotion and GSAP motion engine (`apps/video-engine`).
 * `packages`: Shared libraries or contracts.

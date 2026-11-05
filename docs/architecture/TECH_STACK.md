@@ -104,7 +104,8 @@ The platform integrates several powerful open-source components with distinct li
 flowchart LR
     subgraph ProprietaryCore ["Application Core (MIT / Proprietary Safe)"]
         WebCode["apps/web (Next.js)"]
-        ServerCode["server (FastAPI)"]
+        BackendCode["server/backend (FastAPI Gateway)"]
+        AIEngineCode["server/ai-engine (AI Services)"]
         WorkerCode["worker (Python Orchestrator)"]
     end
 
@@ -121,10 +122,13 @@ flowchart LR
         FFmpegBin["FFmpeg (LGPL / GPL Binary)"]
     end
 
-    ProprietaryCore -->|Standard Database Drivers| PermissiveServices
-    ProprietaryCore -->|HTTP REST API Boundary| ComfyUIBin
-    ProprietaryCore -->|OS Process Exec / CLI Scripts| BlenderBin
-    ProprietaryCore -->|Named Pipe / CLI Invocation| FFmpegBin
+    BackendCode -->|Standard Database Drivers| PostgresService
+    BackendCode -->|Async Protocol| ValkeyService
+    BackendCode -->|gRPC Client| TemporalService
+    AIEngineCode -->|HTTP REST API Boundary| ComfyUIBin
+    AIEngineCode -->|HTTP REST API Boundary| OllamaService
+    WorkerCode -->|OS Process Exec / CLI Scripts| BlenderBin
+    WorkerCode -->|Named Pipe / CLI Invocation| FFmpegBin
 ```
 
 ### 4.1 Blender GPL-3.0 Compliance Boundary

@@ -34,9 +34,9 @@ flowchart TD
 * **Guarantees:** Must run in $< 5\text{s}$ across the entire repository. Zero network or database dependencies.
 
 ```python
-# Example: Domain Unit Test (server/tests/unit/test_scene_dsl.py)
+# Example: Domain Unit Test (server/backend/tests/unit/test_scene_dsl.py)
 import pytest
-from server.src.domain.entities.scene import SceneNode, TransitionConfig
+from server.backend.src.domain.entities.scene import SceneNode, TransitionConfig
 
 def test_scene_node_validates_minimum_duration():
     with pytest.raises(ValueError, match="durationInFrames must be greater than transition duration"):
@@ -55,10 +55,10 @@ def test_scene_node_validates_minimum_duration():
 * **AI Provider Mocking:** Local diffusion (ComfyUI) and LLM (Ollama) endpoints must never be hit during standard integration tests. Providers implement mock responses via pytest fixtures:
 
 ```python
-# Example: Mocking AI Provider in Integration Tests
+# Example: Mocking AI Provider in Integration Tests (server/ai-engine/tests/test_ollama.py)
 import pytest
 from unittest.mock import AsyncMock
-from server.src.infrastructure.ai.ollama_adapter import OllamaProvider
+from server.ai_engine.src.adapters.ollama_adapter import OllamaProvider
 
 @pytest.fixture
 def mock_ollama_provider():
@@ -159,17 +159,17 @@ def assert_frames_are_identical(frame_path_a: str, frame_path_b: str):
 
 ### 3.1 Backend & Worker Testing (Pytest)
 ```bash
-# Run all unit tests
-pytest server/tests/unit worker/tests/unit -v
+# Run all unit tests across backend, ai-engine, and worker
+pytest server/backend/tests/unit server/ai-engine/tests/unit worker/tests/unit -v
 
 # Run integration tests (requires Docker infra running)
-pytest server/tests/integration -v
+pytest server/backend/tests/integration -v
 
 # Run Temporal workflow tests with time-skipping
 pytest worker/tests/workflows -v
 
 # Generate test coverage report
-pytest --cov=server/src --cov=worker/src --cov-report=html
+pytest --cov=server/backend/src --cov=server/ai-engine/src --cov=worker/src --cov-report=html
 ```
 
 ### 3.2 Frontend & Motion Engine Testing (Bun / Playwright)

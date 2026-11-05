@@ -1,8 +1,8 @@
 # AI CODING INSTRUCTIONS & REPOSITORY CONVENTIONS
 
-> **Document Version:** 3.0.0  
+> **Document Version:** 3.1.0  
 > **Target Audience:** AI Coding Assistants (Claude, Antigravity, GitHub Copilot), Software Engineers  
-> **Architecture Baseline:** Next.js (TypeScript), FastAPI (Python 3.11+), Temporal, PostgreSQL, Valkey, Blender 4.x, Remotion, FFmpeg  
+> **Architecture Baseline:** Next.js (TypeScript), FastAPI (Python 3.11+, Pydantic v2), Temporal, PostgreSQL, Valkey, Blender 4.x, Remotion, FFmpeg  
 > **Parent Context:** [PROJECT.md](PROJECT.md) | [SYSTEM_ARCHITECTURE.md](docs/architecture/SYSTEM_ARCHITECTURE.md)
 
 ---
@@ -10,12 +10,13 @@
 ## 1. Golden Directives for AI Agents
 
 1. **Honesty Regarding Implementation Status:**
-   Never state or assume that an unwritten API route, database table, UI view, or worker activity is implemented. The repository is currently in a **greenfield architectural scaffolding** state. Treat the codebase on disk as the sole source of truth.
+   Never state or assume that an unwritten API route, database table, UI view, or worker activity is implemented. The repository is currently in a **greenfield architectural scaffolding** state with directory scaffolds (`apps/web`, `apps/video-engine`, `server/backend`, `server/ai-engine`, `worker`). Treat the codebase on disk as the sole source of truth.
 2. **Process Separation Discipline:**
    Do not collapse workloads into a monolithic process.
    * `apps/web`: Pure frontend presentation, WebGL preview, and user state.
-   * `server`: Lightweight API gateway, database operations, and Temporal workflow client.
-   * `worker`: Long-running Temporal workflows and activities (AI diffusion, Blender, FFmpeg).
+   * `server/backend`: Lightweight API gateway, database operations, Alembic migrations, and Temporal workflow client.
+   * `server/ai-engine`: Dedicated AI inference abstractions (Ollama LLM client, ComfyUI diffusion wrappers, OpenCV/Pillow image processing).
+   * `worker`: Long-running Temporal workflows and activities coordinating calls to `server/ai-engine`, Blender, and FFmpeg.
    * `apps/video-engine`: Remotion compositions and GSAP motion definitions.
 3. **Strict Adherence to Technology Choices:**
    Do not introduce alternative or competing frameworks (e.g., do not replace Temporal with Celery, do not replace Valkey/PostgreSQL with ad-hoc flat files, do not replace FastAPI with Flask).
@@ -34,11 +35,14 @@
 video-ai-demo/
 ├── apps/
 │   ├── web/                     # Next.js 15+ frontend (TypeScript, Tailwind, shadcn/ui, Remotion Player)
-│   └── video-engine/            # Remotion motion graphics, GSAP springs, WebGL compositions
-├── server/                      # FastAPI API Gateway (Pydantic v2, SQLAlchemy 2.0 Async, Alembic)
-├── worker/                      # Temporal Worker Daemon (Workflows, Activities, Ollama, ComfyUI, Blender)
+│   └── video-engine/            # Remotion video motion compositions, GSAP springs, WebGL compositions
+├── server/
+│   ├── backend/                 # FastAPI API Gateway (Pydantic v2, SQLAlchemy 2.0 Async, Alembic, Temporal client)
+│   └── ai-engine/               # AI Engine services (Ollama LLM adapter, ComfyUI diffusion, OpenCV/Pillow)
+├── worker/                      # Temporal Worker Daemon (Workflows, Activities, Blender CLI, FFmpeg NVENC)
 ├── packages/                    # Shared contracts, DTO schemas, and helper utilities
 ├── scripts/                     # Operational, testing, and deployment automation scripts
+├── UI Design/                   # 11 Production UI screen specifications & visual studio mockups
 ├── docs/                        # Architectural, API, and development documentation
 ├── docker-compose.infra.yml     # Local supporting infrastructure (PostgreSQL, Valkey, Temporal)
 ├── .env.example                 # Standardized environment configuration template
@@ -51,10 +55,11 @@ video-ai-demo/
 
 ## 3. Coding Standards & Conventions
 
-### 3.1 Python & FastAPI Standards (`server`, `worker`)
+### 3.1 Python Standards (`server/backend`, `server/ai-engine`, `worker`)
 * **Python Runtime:** Python 3.11+ using native type hints (`list[str]`, `dict[str, Any]`, `T | None`).
-* **Clean Architecture:** Keep domain entities completely pure (zero framework imports). Routers call Application Use Cases; Use Cases interface with repositories and Temporal clients via abstract ports.
-* **Database Access:** Always use asynchronous SQLAlchemy 2.0 (`asyncpg`). Manage all schema mutations through Alembic migration scripts in `server/alembic/versions/`.
+* **Clean Architecture in `server/backend`:** Keep domain entities completely pure (zero framework imports). Routers call Application Use Cases; Use Cases interface with repositories and Temporal clients via abstract ports.
+* **AI Abstraction in `server/ai-engine`:** Encapsulate all prompt construction, ComfyUI node graphs, and OpenCV image filters in clean service classes implementing abstract provider interfaces.
+* **Database Access:** Always use asynchronous SQLAlchemy 2.0 (`asyncpg`). Manage all schema mutations through Alembic migration scripts in `server/backend/alembic/versions/`.
 * **Subprocess Security:** When invoking Blender (`bpy`) or FFmpeg via subprocesses in worker activities:
   * Never pass raw un-sanitized user strings into `shell=True`.
   * Always use list-based arguments: `subprocess.run(["blender", "-b", "-P", script_path, "--", ...], check=True)`.
@@ -68,7 +73,7 @@ video-ai-demo/
   * `hooks/`: Isolated business logic and state hooks.
   * `components/`: Modular presentation components ($\le 200$ lines).
 * **Zustand Selectors:** Never destructure entire stores. Use atomic selectors (`useTimelineStore(s => s.currentFrame)`) to maintain 60fps playback performance.
-* **Component Primitives:** Build UI using `shadcn/ui` components and Tailwind CSS utility classes.
+* **UI Design Fidelity:** Align component structures with the 11 design blueprints in `UI Design/` (Dashboard, Storyboard Studio, Asset Studio, 3D Scene Studio, Scene & Motion Editor, Approval Center, Render & Export Center).
 
 ---
 
@@ -76,7 +81,7 @@ video-ai-demo/
 
 Whenever creating or updating codebase features, follow these testing rules:
 1. **Unit Tests (Pytest / Bun Test):**
-   * Every new domain entity or use case must have accompanying unit tests in `server/tests/unit/` or `worker/tests/unit/`.
+   * Every new domain entity or use case must have accompanying unit tests in `server/backend/tests/unit/`, `server/ai-engine/tests/unit/`, or `worker/tests/unit/`.
    * Unit tests must run fast ($< 5\text{s}$) with zero external network or database calls.
 2. **Temporal Workflow Tests:**
    * Test workflow choreography and approval signals using `temporalio.testing.WorkflowEnvironment.start_time_skipping()`.
@@ -91,7 +96,7 @@ Whenever creating or updating codebase features, follow these testing rules:
 ## 5. Security & Hygiene Rules
 
 1. **Zero Secret Leakage:**
-   * Never hardcode API keys, database passwords, or JWT secrets. Always read from environment variables via Pydantic Settings (`server/src/core/config.py`).
+   * Never hardcode API keys, database passwords, or JWT secrets. Always read from environment variables via Pydantic Settings (`server/backend/src/core/config.py`).
 2. **Local Storage Sandboxing:**
    * Media assets must be written exclusively within designated directories (`storage/projects/{project_id}/...`).
    * Validate that all user-supplied filenames are sanitized and do not contain relative traversal paths (`../`).
@@ -118,14 +123,14 @@ Whenever creating or updating codebase features, follow these testing rules:
 # Start local infrastructure dependencies (Postgres, Valkey, Temporal)
 docker compose -f docker-compose.infra.yml up -d
 
-# Backend API server (FastAPI)
-cd server && uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+# Backend API server (FastAPI in server/backend)
+cd server/backend && uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
 
 # Run Alembic migrations
-cd server && alembic upgrade head
+cd server/backend && alembic upgrade head
 
 # Run Temporal worker daemon
-python -m worker.src.main
+cd worker && python -m src.main
 
 # Frontend studio (Next.js)
 cd apps/web && bun run dev
@@ -133,8 +138,8 @@ cd apps/web && bun run dev
 # Standalone Remotion motion preview
 cd apps/video-engine && bun run preview
 
-# Run backend test suite
-pytest server/tests worker/tests -v
+# Run backend & worker test suites
+pytest server/backend/tests server/ai-engine/tests worker/tests -v
 ```
 
 ---

@@ -1,6 +1,6 @@
 # PROJECT SPECIFICATION: AI MOTION STUDIO
 
-> **Document Version:** 3.0.0  
+> **Document Version:** 3.1.0  
 > **Status:** Specification Complete / Greenfield Repository  
 > **Target Frameworks:** Next.js (TypeScript, Tailwind, shadcn/ui), FastAPI (Python 3.11+, Pydantic v2), Temporal, PostgreSQL, Valkey, Blender 4.x, Remotion, FFmpeg  
 > **Target Audience:** System Architects, AI Engineers, Fullstack Developers, Motion Designers  
@@ -55,20 +55,40 @@ To maintain architectural integrity, this document explicitly distinguishes betw
 
 | Component / Layer | Target Architecture | Current Repository Status | Verification Source |
 | :--- | :--- | :--- | :--- |
-| **Workspace Scaffold** | Monorepo layout (`apps/*`, `server`, `worker`, `docs`, `packages`) | **Scaffolded (Empty Directories)** | Repository file tree |
-| **API Gateway (`server`)** | FastAPI, Pydantic v2, SQLAlchemy 2.0 Async, Alembic | **Planned (Specification Complete)** | Directory scaffolded; no API code written |
-| **Worker Daemon (`worker`)** | Temporal Python Worker, Ollama, ComfyUI, Blender CLI, FFmpeg | **Planned (Specification Complete)** | Directory scaffolded; no worker code written |
-| **Web Studio (`apps/web`)** | Next.js 15+, Tailwind, shadcn/ui, Zustand, Remotion Player | **Planned (Specification Complete)** | Directory scaffolded; no frontend code written |
-| **Motion Engine (`apps/video-engine`)** | Remotion v4, GSAP 3.12+, Three.js canvas compositions | **Planned (Specification Complete)** | Directory scaffolded; no comps written |
-| **Database & Cache** | PostgreSQL 16 (Relational state), Valkey 7 (Cache/PubSub) | **Planned (Specification Complete)** | Configured in `docker-compose.infra.yml` |
-| **Orchestration** | Temporal Server & Web UI | **Planned (Specification Complete)** | Configured in `docker-compose.infra.yml` |
+| **Monorepo Structure** | Multi-workspace layout (`apps/*`, `server/*`, `worker`, `docs`, `packages`) | **Scaffolded (Empty Directories)** | Repository file tree |
+| **API Gateway (`server/backend`)** | FastAPI, Pydantic v2, SQLAlchemy 2.0 Async, Alembic | **Scaffolded (Empty Directory)** | `server/backend/` |
+| **AI Engine Services (`server/ai-engine`)** | Ollama LLM client, ComfyUI adapter, OpenCV, Pillow | **Scaffolded (Empty Directory)** | `server/ai-engine/` |
+| **Worker Daemon (`worker`)** | Temporal Python Worker, Blender CLI, FFmpeg | **Scaffolded (Empty Directory)** | `worker/` |
+| **Web Studio (`apps/web`)** | Next.js 15+, Tailwind, shadcn/ui, Zustand, Remotion Player | **Planned (Specification Complete)** | `apps/web/` |
+| **Motion Engine (`apps/video-engine`)** | Remotion v4, GSAP 3.12+, Three.js canvas compositions | **Planned (Specification Complete)** | `apps/video-engine/` |
+| **UI Design System** | 11 Production screen mockups | **Available as Visual Specs** | `UI Design/` |
+| **Database & Cache** | PostgreSQL 16 (Relational state), Valkey 7 (Cache/PubSub) | **Configured** | `docker-compose.infra.yml` |
+| **Orchestration** | Temporal Server & Web UI | **Configured** | `docker-compose.infra.yml` |
 
 > [!IMPORTANT]
 > **Implementation Baseline:** The repository is currently a **greenfield architectural workspace**. All architectural specifications, data models, and workflow descriptions represent the authoritative blueprint for development.
 
 ---
 
-## 4. Architectural Principles & System Baseline
+## 4. UI Design System & Visual Blueprint (`UI Design/`)
+
+The platform's frontend experience is grounded in 11 production UI mockups located in the `UI Design/` directory:
+
+1. **Dashboard (`Dashboard.png`):** Studio overview, recent video projects, pipeline status, and performance metrics.
+2. **Project Creation & Client Brief (`Project Creation & Client Brief.png`):** Client intake, USP input, aspect ratio, duration, and brand kit selection.
+3. **Storyboard Studio (`Storyboard Studio.png`):** Multi-scene card matrix with visual pacing, camera prompts, and copy editing (HITL Gate 1).
+4. **Asset Studio (`Asset Studio.png`):** AI image generation, prompt tuning, ComfyUI diffusion outputs, and transparent cutout controls (HITL Gate 2).
+5. **Asset Library & Brand Kit (`Asset Library & Brand Kit.png`):** Reusable logos, product photos, 3D models, fonts, and brand color palettes.
+6. **3D Scene Studio (`3D Scene Studio.png`):** WebGL/Three.js spatial viewport for inspecting 3D model orientation, materials, and camera paths.
+7. **Scene & Motion Editor (`Scene & Motion Editor.png`):** Multi-track timeline, kinetic typography controls, and GSAP spring curves.
+8. **Production Workflow (`Production Workflow.png`):** Visual trace of Temporal workflows, active activities, and execution logs.
+9. **Approval Center (`Approval Center.png`):** Centralized Human-in-the-Loop review deck for side-by-side revision approvals.
+10. **Render & Export Center (`Render & Export Center.png`):** Hardware NVENC encoding settings, bitrates, audio tracks, and 4K60 export (HITL Gate 3).
+11. **Global AI Assistant (`Global AI Assistant.png`):** Persistent creative copilot for conversational brief expansion and styling tips.
+
+---
+
+## 5. Architectural Principles & System Baseline
 
 The platform architecture is built upon three foundational pillars and two operational disciplines:
 
@@ -81,46 +101,47 @@ graph TD
     end
 
     subgraph Disciplines ["Operational Disciplines"]
-        D1["Process Separation<br>Decouple API, Temporal workflows, background workers, and rendering nodes"]
+        D1["Process Separation<br>Decouple API backend, AI engine, Temporal workflows, and video renderers"]
         D2["Human-in-the-Loop<br>First-class approval gates with Temporal signals and UI visual diffs"]
     end
 ```
 
-### 4.1 Process Separation Model
-The system enforces strict operational boundaries across separate processes:
-1. **API Process (`server`):** High-throughput, stateless FastAPI gateway handling HTTP/WebSocket ingress, authentication, project CRUD, and Temporal workflow triggering. Zero CPU-intensive video or AI processing occurs in this process.
-2. **Orchestration Cluster (Temporal):** Manages workflow state machines, timers, approval signals, and execution history across restarts.
-3. **Worker Daemons (`worker`):** Independent Python processes polling Temporal task queues, executing activities (Ollama prompts, ComfyUI tasks, Pillow/OpenCV transforms, Blender CLI scripts, and FFmpeg transcoding).
-4. **Motion Engine Node (`apps/video-engine`):** Remotion WebGL rendering instances executed via headless Chromium subprocesses.
+### 5.1 Process Separation Model
+The system enforces strict operational boundaries across separate components:
+1. **API Gateway (`server/backend`):** High-throughput, stateless FastAPI gateway handling HTTP/WebSocket ingress, authentication, project CRUD, PostgreSQL transactions, and Temporal workflow triggering.
+2. **AI Processing Services (`server/ai-engine`):** Dedicated AI abstraction layer encapsulating Ollama LLM brief expansion, ComfyUI diffusion execution, and OpenCV/Pillow image processing.
+3. **Orchestration Cluster (Temporal):** Manages durable workflow state machines, timers, approval signals, and execution history across restarts.
+4. **Worker Daemons (`worker`):** Independent Python processes polling Temporal task queues, executing activities (calling `server/ai-engine`, Blender CLI scripts, and FFmpeg transcoding).
+5. **Motion Engine Node (`apps/video-engine`):** Remotion WebGL rendering instances executed via headless Chromium subprocesses.
 
 ---
 
-## 5. Functional Requirements (FR) by Workflow Stage
+## 6. Functional Requirements (FR) by Workflow Stage
 
 ### Stage 1: Client Brief Analysis & Creative Direction
 * **FR-1.1:** The system shall accept unstructured client briefs (text prompts, target audience, brand color palettes, font specifications, and duration constraints).
-* **FR-1.2:** The system shall expand the client brief using an LLM (Ollama `llama3:8b` or cloud fallback) into a structured creative concept comprising visual themes, lighting styles, typography hierarchy, and emotional pacing.
+* **FR-1.2:** The system shall expand the client brief using an LLM (Ollama `llama3:8b` or cloud fallback via `server/ai-engine`) into a structured creative concept comprising visual themes, lighting styles, typography hierarchy, and emotional pacing.
 
 ### Stage 2: AI-Generated Storyboard & Scene Planning
 * **FR-2.1:** The system shall generate a structured multi-scene storyboard JSON schema defining scene duration, camera trajectories, lighting parameters, headline copy, and visual asset requirements.
-* **FR-2.2 (HITL Gate 1):** The system shall pause execution and present the storyboard to the creator in a visual card matrix. The creator can approve, edit scene timing and copy directly, or reject with natural language feedback.
+* **FR-2.2 (HITL Gate 1):** The system shall pause execution and present the storyboard to the creator in a visual card matrix (`Storyboard Studio.png`). The creator can approve, edit scene timing and copy directly, or reject with natural language feedback.
 
 ### Stage 3: Image Generation, Editing & Asset Processing
-* **FR-3.1:** The system shall generate high-resolution scene background plates, textures, and product environments using diffusion models via **ComfyUI**.
+* **FR-3.1:** The system shall generate high-resolution scene background plates, textures, and product environments using diffusion models via **ComfyUI** (`server/ai-engine`).
 * **FR-3.2:** The system shall process uploaded customer product photos using **OpenCV** and **Pillow** (automated background removal, color-grading adjustments, contrast curve harmonization).
-* **FR-3.3 (HITL Gate 2):** The creator shall review processed assets in the UI, with options to regenerate specific layers or upload manual cutout overrides.
+* **FR-3.3 (HITL Gate 2):** The creator shall review processed assets in the UI (`Asset Studio.png`), with options to regenerate specific layers or upload manual cutout overrides.
 
 ### Stage 4: Scene Composition & Layer Management
 * **FR-4.1:** The system shall maintain a declarative Scene Composition DSL representing visual layers (3D models, 2D raster cutouts, text layers, lighting rigs, and camera views).
 * **FR-4.2:** The creator shall be able to reorder layers, adjust depth coordinates ($z$-index and 3D spatial offsets), and toggle visibility in the web studio.
 
 ### Stage 5: Motion Design, Keyframes & Visual Effects
-* **FR-5.1:** The motion engine shall synthesize organic motion curves using second-order physical spring equations ($F = -kx - c\dot{x}$) powered by **GSAP** and **Remotion**.
+* **FR-5.1:** The motion engine shall synthesize organic motion curves using second-order physical spring equations ($F = -kx - c\dot{x}$) powered by **GSAP** and **Remotion** (`apps/video-engine`).
 * **FR-5.2:** Typography layers shall support micro-staggered word-by-word wipe reveals, letter-spacing expansions, and camera parallax tracking.
 
 ### Stage 6: 3D Production Using Blender
 * **FR-6.1:** The worker shall execute headless Blender Python (`bpy`) scripts to instantiate 3D product geometries (`.glb`/`.gltf`), configure Apple-style studio lighting rigs (key, fill, and specular rim sweeps), and render 3D multi-pass sequences.
-* **FR-6.2:** The web studio shall provide a real-time Three.js / WebGL preview canvas allowing creators to inspect 3D object rotation and camera angles interactively.
+* **FR-6.2:** The web studio shall provide a real-time Three.js / WebGL preview canvas (`3D Scene Studio.png`) allowing creators to inspect 3D object rotation and camera angles interactively.
 
 ### Stage 7: Sound Design & Audio Synchronization
 * **FR-7.1:** The system shall support multi-track audio sequencing (voiceover, background music, interface SFX, and transition swooshes).
@@ -131,11 +152,11 @@ The system enforces strict operational boundaries across separate processes:
 * **FR-8.2:** The export pipeline shall leverage **NVIDIA NVENC** (`h264_nvenc` / `hevc_nvenc`) for hardware-accelerated 4K60 encoding, with automatic fallback to high-quality CPU `libx264`.
 
 ### Stage 9: Human-in-the-Loop Signoff & Delivery
-* **FR-9.1 (HITL Gate 3):** The completed master video shall be presented in the web player with frame-accurate scrubbing. The creator signs off on delivery or triggers localized scene revisions.
+* **FR-9.1 (HITL Gate 3):** The completed master video shall be presented in the web player with frame-accurate scrubbing (`Render & Export Center.png`). The creator signs off on delivery or triggers localized scene revisions.
 
 ---
 
-## 6. Non-Functional Requirements (NFR)
+## 7. Non-Functional Requirements (NFR)
 
 * **NFR-1 (Determinism):** Identical Scene DSL ASTs and seed parameters must yield pixel-identical video outputs ($\text{SSIM} \ge 0.999$).
 * **NFR-2 (GPU Safety & Resource Management):** The worker daemon must enforce a concurrency semaphore (`GPU_CONCURRENCY_LIMIT`) to eliminate CUDA Out-Of-Memory exceptions during simultaneous diffusion and 3D rendering.
@@ -145,17 +166,17 @@ The system enforces strict operational boundaries across separate processes:
 
 ---
 
-## 7. Core Production Sequence Diagram
+## 8. Core Production Sequence Diagram
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor Creator as Creative Director
     participant Web as Next.js Studio (apps/web)
-    participant API as FastAPI Gateway (server)
+    participant API as FastAPI Gateway (server/backend)
     participant Temporal as Temporal Cluster
     participant Worker as Temporal Worker Daemon
-    participant AI as Local AI (Ollama / ComfyUI)
+    participant AI as AI Engine (server/ai-engine)
     participant Blender as Blender 4.x (3D)
     participant Motion as Remotion & FFmpeg
     participant Storage as Media Storage (Local / S3)
@@ -208,13 +229,13 @@ sequenceDiagram
 
 ---
 
-## 8. MVP Scope vs. Future Roadmap
+## 9. MVP Scope vs. Future Roadmap
 
 ```mermaid
 flowchart LR
     subgraph MVP ["Phase 1: MVP Scope"]
         M1["Local-First Single Node Deployment"]
-        M2["Ollama (Llama 3) Brief & Storyboard"]
+        M2["Ollama (Llama 3) Brief & Storyboard via ai-engine"]
         M3["ComfyUI Asset Gen & OpenCV Cutouts"]
         M4["Blender Headless 3D Studio Lighting"]
         M5["Remotion 2D Kinetic Typography"]
@@ -241,7 +262,7 @@ flowchart LR
 
 ---
 
-## 9. Cross-Document Architecture Sitemap
+## 10. Cross-Document Architecture Sitemap
 
 * **System Architecture & Service Topology:** [SYSTEM_ARCHITECTURE.md](docs/architecture/SYSTEM_ARCHITECTURE.md)
 * **Technology Stack & Licensing:** [TECH_STACK.md](docs/architecture/TECH_STACK.md)

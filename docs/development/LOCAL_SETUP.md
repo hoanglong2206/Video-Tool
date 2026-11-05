@@ -81,7 +81,7 @@ docker compose -f docker-compose.infra.yml ps
 
 ---
 
-### Step 3.3: Set Up Backend Server (`server`)
+### Step 3.3: Set Up Backend Server (`server/backend`)
 1. Create and activate a Python virtual environment:
    ```bash
    python -m venv .venv
@@ -90,26 +90,36 @@ docker compose -f docker-compose.infra.yml ps
    # Linux / macOS:
    source .venv/bin/activate
    ```
-2. Install Python dependencies:
+2. Install Backend Python dependencies:
    ```bash
    pip install --upgrade pip
-   pip install -r server/requirements.txt
+   pip install -r server/backend/requirements.txt
    ```
 3. Run Alembic database migrations:
    ```bash
-   cd server
+   cd server/backend
    alembic upgrade head
-   cd ..
+   cd ../..
    ```
 4. Start the FastAPI development server with auto-reload:
    ```bash
-   uvicorn server.src.main:app --host 0.0.0.0 --port 8000 --reload
+   cd server/backend
+   uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
    ```
    *FastAPI Interactive Docs:* [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ---
 
-### Step 3.4: Set Up Temporal Worker Daemon (`worker`)
+### Step 3.4: Set Up AI Engine Services (`server/ai-engine`)
+In a separate terminal or virtual environment:
+1. Install AI Engine dependencies (Pillow, OpenCV, Ollama client, ComfyUI client):
+   ```bash
+   pip install -r server/ai-engine/requirements.txt
+   ```
+
+---
+
+### Step 3.5: Set Up Temporal Worker Daemon (`worker`)
 In a separate terminal (with the virtual environment activated):
 1. Install worker dependencies:
    ```bash
@@ -117,14 +127,15 @@ In a separate terminal (with the virtual environment activated):
    ```
 2. Start the Temporal worker daemon:
    ```bash
-   python -m worker.src.main
+   cd worker
+   python -m src.main
    ```
 3. Open the Temporal Web UI to confirm worker polling on `video-production-queue`:
    *Temporal Web Dashboard:* [http://localhost:8233](http://localhost:8233)
 
 ---
 
-### Step 3.5: Set Up Frontend Studio (`apps/web`)
+### Step 3.6: Set Up Frontend Studio (`apps/web`)
 In a separate terminal:
 1. Navigate to the web application:
    ```bash
@@ -145,7 +156,7 @@ In a separate terminal:
 
 ---
 
-### Step 3.6: Launch Video Motion Engine Preview (`apps/video-engine`)
+### Step 3.7: Launch Video Motion Engine Preview (`apps/video-engine`)
 To preview or develop Remotion and GSAP compositions independently:
 ```bash
 cd apps/video-engine
@@ -156,7 +167,7 @@ bun run preview
 
 ---
 
-### Step 3.7: Launch Local AI Engines (Ollama & ComfyUI)
+### Step 3.8: Launch Local AI Engines (Ollama & ComfyUI)
 1. **Ollama:**
    Pull the default reasoning model:
    ```bash
