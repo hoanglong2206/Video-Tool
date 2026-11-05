@@ -41,8 +41,8 @@ export function DashboardSidebar(): React.ReactElement {
         </Link>
 
         <Link
-          href="/editor"
-          aria-label="Render Engine / Editor"
+          href="/render"
+          aria-label="Render & Export Center"
           className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-500 hover:text-slate-300 hover:bg-[#161D2B] transition-colors"
         >
           <Play className="w-4 h-4" />
