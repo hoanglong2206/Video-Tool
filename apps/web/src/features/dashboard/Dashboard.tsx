@@ -6,7 +6,8 @@ import { useDashboard } from "./hooks/useDashboard";
 import { DashboardSidebar } from "./components/DashboardSidebar";
 import { DashboardHeader } from "./components/DashboardHeader";
 import { StatsOverview } from "./components/StatsOverview";
-import { RecentProjectsGrid } from "./components/RecentProjectsGrid";
+import { AnalysisChart } from "./components/AnalysisChart";
+import { RecentTwoProjects } from "./components/RecentTwoProjects";
 import { ApprovalPanel } from "./components/ApprovalPanel";
 import { RenderQueuePanel } from "./components/RenderQueuePanel";
 
@@ -16,40 +17,45 @@ export function Dashboard(): React.ReactElement {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#0B0F17] text-slate-100 antialiased select-none">
-      {/* Left Icon Rail Navigation */}
+      {/* 1. Left Sidebar Navigation */}
       <DashboardSidebar />
 
-      {/* Main View Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Top Header */}
+      {/* 2. Main View Area (Strictly 1-Screen No-Scroll Viewport) */}
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+        {/* Top Header Bar */}
         <DashboardHeader
           onNewProject={() => router.push("/projects/new")}
-          onRenderHistory={() => console.log("Render history clicked")}
+          onRenderHistory={() => router.push("/projects/proj-e6240645/render")}
         />
 
-        {/* Dashboard Body Content */}
-        <main className="flex-1 overflow-y-auto p-6 space-y-6">
-          {/* Top 4 Metrics Cards */}
+        {/* Overview Body (Fits 100% of remaining viewport) */}
+        <main className="flex-1 min-h-0 p-3.5 flex flex-col gap-3 overflow-hidden">
+          {/* Top Row: 4 Compact Metrics Cards */}
           <StatsOverview stats={stats} />
 
-          {/* Main 2-Column Split: Recent Projects (Left) vs Right Sidebars */}
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 items-start">
-            {/* Left 3 Cols: Recent Projects Grid */}
-            <div className="xl:col-span-3">
-              <RecentProjectsGrid
-                projects={projects}
-                onOpenProject={(proj) => router.push(`/projects/${proj.id}/workflow`)}
-              />
+          {/* Bottom Row: 2-Column Balanced Dashboard Grid */}
+          <div className="flex-1 min-h-0 grid grid-cols-12 gap-3 overflow-hidden">
+            {/* Left 7 Columns: Analysis Chart + 2 Recent Projects */}
+            <div className="col-span-12 lg:col-span-7 xl:col-span-8 flex flex-col gap-3 min-h-0 h-full overflow-hidden">
+              {/* Biểu đồ Analysis liên quan */}
+              <AnalysisChart />
+
+              {/* 2 Dự án gần đây */}
+              <RecentTwoProjects projects={projects} />
             </div>
 
-            {/* Right 1 Col: Approvals & Render Queue */}
-            <div className="xl:col-span-1 flex flex-col">
+            {/* Right 5 Columns: Render Queue & Live Approvals / Milestones */}
+            <div className="col-span-12 lg:col-span-5 xl:col-span-4 flex flex-col gap-3 min-h-0 h-full overflow-hidden">
+              {/* Tiến độ hàng đợi render */}
+              <RenderQueuePanel queueItem={renderQueue} />
+
+              {/* Cần phê duyệt & Nhật ký sự kiện */}
               <ApprovalPanel
                 approvals={approvals}
-                onSelectApproval={() => router.push("/projects/proj-1/approvals")}
+                onSelectApproval={(item) =>
+                  router.push(`/projects/proj-e6240645/approvals`)
+                }
               />
-
-              <RenderQueuePanel queueItem={renderQueue} />
             </div>
           </div>
         </main>

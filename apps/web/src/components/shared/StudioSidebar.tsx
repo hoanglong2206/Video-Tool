@@ -2,143 +2,263 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import {
-  LayoutGrid,
-  GitFork,
-  Monitor,
-  Check,
-  Play,
-  Layers,
+  LayoutDashboard,
+  FolderKanban,
+  Plus,
+  Settings,
   Sparkles,
+  Film,
+  Layers,
+  ChevronRight,
+  Activity,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { dashboardService } from "@/services/dashboard";
+import { QUERY_KEYS } from "@/constants/query-keys";
+import { Button } from "@/components/ui";
+
+import { ProjectItem } from "@/services/dashboard";
 
 export interface StudioSidebarProps {
   className?: string;
 }
 
+const FALLBACK_RECENT_PROJECTS: ProjectItem[] = [
+  {
+    id: "proj-e6240645",
+    name: "Aurora X1 Launch",
+    stageDescription: "Stage 01 · Brief analysis",
+    progress: 10,
+    status: "in_progress",
+  },
+  {
+    id: "proj-3b38d3ac",
+    name: "Nike Cyber Air Max",
+    stageDescription: "Stage 03 · 3D Assets",
+    progress: 35,
+    status: "in_progress",
+  },
+  {
+    id: "proj-7f89b1c2",
+    name: "Sony Alpha Cine TVC",
+    stageDescription: "Stage 02 · Storyboard",
+    progress: 20,
+    status: "waiting_approval",
+  },
+  {
+    id: "proj-9d41a8e5",
+    name: "Tesla Cyberpunk Spot",
+    stageDescription: "Stage 09 · Render",
+    progress: 100,
+    status: "completed",
+  },
+  {
+    id: "proj-1c22d43e",
+    name: "Cosmic Kinetic Audio",
+    stageDescription: "Stage 05 · Composition",
+    progress: 50,
+    status: "in_progress",
+  },
+];
+
 export function StudioSidebar({ className }: StudioSidebarProps): React.ReactElement {
   const pathname = usePathname();
+  const router = useRouter();
 
-  const projectMatch = pathname.match(/^\/projects\/([^/]+)/);
-  const currentProjectId =
-    projectMatch && projectMatch[1] !== "new" ? projectMatch[1] : null;
+  const { data } = useQuery({
+    queryKey: QUERY_KEYS.dashboard.stats(),
+    queryFn: () => dashboardService.getOverview(),
+    staleTime: 10000,
+  });
 
-  const getHref = (route: string) => {
-    const pId = currentProjectId || "proj-1";
-    switch (route) {
-      case "workflow":
-        return `/projects/${pId}/workflow`;
-      case "storyboard":
-        return `/projects/${pId}/storyboard`;
-      case "assets":
-        return `/projects/${pId}/assets`;
-      case "approvals":
-        return `/projects/${pId}/approvals`;
-      case "render":
-        return `/projects/${pId}/render`;
-      case "assistant":
-        return `/projects/${pId}/assistant`;
-      default:
-        return `/${route}`;
+  // Extract up to 5 recent projects, combining live API projects with fallback seeds
+  const recentProjects: ProjectItem[] = React.useMemo(() => {
+    const live = data?.projects || [];
+    const combined = [...live];
+    for (const fb of FALLBACK_RECENT_PROJECTS) {
+      if (!combined.some((p) => p.id === fb.id || p.name === fb.name)) {
+        combined.push(fb);
+      }
     }
-  };
+    return combined.slice(0, 5);
+  }, [data?.projects]);
 
-  const isDashboard =
-    pathname === "/" ||
-    pathname === "/projects/new" ||
-    pathname === "/library" ||
-    pathname === "/brand-kit";
-  const isWorkflow = pathname.includes("/workflow");
-  const isStoryboard =
-    pathname.includes("/storyboard") ||
-    pathname.includes("/editor") ||
-    pathname.includes("/scenes") ||
-    pathname.includes("/threed") ||
-    pathname.includes("/3d");
-  const isAssets = pathname.includes("/assets");
-  const isApprovals = pathname.includes("/approvals");
-  const isRender = pathname.includes("/render");
-  const isAssistant = pathname.includes("/assistant");
-
-  const getItemClass = (isActive: boolean) =>
-    cn(
-      "w-9 h-9 rounded-lg flex items-center justify-center transition-all",
-      isActive
-        ? "text-slate-100 bg-[#141B29] border border-[#28354D] shadow-sm"
-        : "text-slate-500 hover:text-slate-300 hover:bg-[#161D2B]"
-    );
+  const isOverview = pathname === "/" || pathname === "/overview";
+  const isProjects = pathname === "/projects";
+  const isSettings = pathname === "/settings";
 
   return (
     <aside
       className={cn(
-        "w-14 border-r border-[#1E2638] bg-[#0A0E17] flex flex-col items-center py-4 select-none shrink-0",
+        "w-64 border-r border-[#1E2638] bg-[#0A0E17] flex flex-col justify-between py-4 px-3 select-none shrink-0 h-screen overflow-hidden",
         className
       )}
     >
-      {/* Dashboard Top Link */}
-      <Link href="/" aria-label="Dashboard" className={getItemClass(isDashboard)}>
-        <LayoutGrid className="w-5 h-5" />
-      </Link>
-
-      {/* Main Studio Navigation */}
-      <div className="flex flex-col items-center gap-4 mt-6">
+      {/* Top Header & Brand Identity */}
+      <div className="flex flex-col gap-4">
+        {/* Brand Bar */}
         <Link
-          href={getHref("workflow")}
-          aria-label="Production Workflow"
-          className={getItemClass(isWorkflow)}
-          title="Workflow Pipeline"
+          href="/"
+          className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-[#141B29] transition-colors group"
         >
-          <GitFork className="w-4 h-4 rotate-180" />
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 via-indigo-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform shrink-0">
+            <Film className="w-4 h-4 text-white" />
+          </div>
+          <div className="flex flex-col min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-bold tracking-wider text-slate-100 uppercase">
+                Motion AI
+              </span>
+              <span className="text-[10px] font-semibold text-blue-400 bg-blue-950/80 border border-blue-800/50 px-1 rounded">
+                PRO
+              </span>
+            </div>
+            <span className="text-[10px] text-slate-400 truncate">
+              Video Production Studio
+            </span>
+          </div>
         </Link>
 
-        <Link
-          href={getHref("storyboard")}
-          aria-label="Storyboard Studio"
-          className={getItemClass(isStoryboard)}
-          title="Storyboard Studio"
+        {/* Primary Action Button: New Project */}
+        <Button
+          onClick={() => router.push("/projects/new")}
+          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-medium text-xs h-9 shadow-md shadow-blue-600/20 flex items-center justify-center gap-2 rounded-lg border border-blue-400/20 transition-all hover:scale-[1.01]"
         >
-          <Monitor className="w-4 h-4" />
+          <Plus className="w-4 h-4" />
+          <span>Tạo mới dự án</span>
+        </Button>
+
+        {/* Primary Navigation Menu */}
+        <nav className="flex flex-col gap-1 mt-1">
+          {/* 1. Overview */}
+          <Link
+            href="/"
+            className={cn(
+              "flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all group relative",
+              isOverview
+                ? "bg-[#141B29] text-blue-400 border border-[#28354D] shadow-sm font-semibold"
+                : "text-slate-400 hover:text-slate-200 hover:bg-[#121723]"
+            )}
+          >
+            <LayoutDashboard className={cn("w-4 h-4", isOverview ? "text-blue-400" : "text-slate-400")} />
+            <span className="flex-1">Overview</span>
+            {isOverview && (
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
+            )}
+          </Link>
+
+          {/* 2. Projects List */}
+          <Link
+            href="/projects"
+            className={cn(
+              "flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all group relative",
+              isProjects
+                ? "bg-[#141B29] text-blue-400 border border-[#28354D] shadow-sm font-semibold"
+                : "text-slate-400 hover:text-slate-200 hover:bg-[#121723]"
+            )}
+          >
+            <FolderKanban className={cn("w-4 h-4", isProjects ? "text-blue-400" : "text-slate-400")} />
+            <span className="flex-1">Danh sách dự án</span>
+            <span className="text-[10px] bg-[#1A2234] text-slate-400 px-1.5 py-0.5 rounded-full font-mono">
+              {recentProjects.length}
+            </span>
+          </Link>
+        </nav>
+
+        {/* Recent Projects Section (4 - 5 items) */}
+        <div className="flex flex-col mt-2 pt-3 border-t border-[#1C2436]/60">
+          <div className="flex items-center justify-between px-2 mb-2">
+            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+              Dự án gần đây
+            </span>
+            <span className="text-[10px] text-slate-400 font-mono">
+              {recentProjects.length}/5
+            </span>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            {recentProjects.map((project) => {
+              const isCurrent = pathname.includes(project.id);
+              const isCompleted = project.status === "completed";
+              const isWaiting = project.status === "waiting_approval";
+
+              return (
+                <Link
+                  key={project.id}
+                  href={`/projects/${project.id}/workflow`}
+                  className={cn(
+                    "flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs transition-all group relative",
+                    isCurrent
+                      ? "bg-[#151D2C] text-slate-100 border border-[#2D3C57]"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-[#111722]"
+                  )}
+                  title={`${project.name} (${project.stageDescription || "Pipeline"})`}
+                >
+                  {/* Status Indicator Dot */}
+                  <span
+                    className={cn(
+                      "w-2 h-2 rounded-full shrink-0",
+                      isCompleted
+                        ? "bg-emerald-400"
+                        : isWaiting
+                        ? "bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.6)]"
+                        : "bg-blue-400"
+                    )}
+                  />
+
+                  {/* Project Info */}
+                  <div className="flex flex-col min-w-0 flex-1">
+                    <span className="truncate font-medium text-slate-200 group-hover:text-white leading-tight">
+                      {project.name}
+                    </span>
+                    <span className="text-[10px] text-slate-400 truncate mt-0.5 font-mono">
+                      {project.stageDescription ? project.stageDescription.split("·")[0].trim() : "Stage 01"} · {project.progress}%
+                    </span>
+                  </div>
+
+                  <ChevronRight className="w-3 h-3 text-slate-600 group-hover:text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Section: Settings & Workspace Pill */}
+      <div className="flex flex-col gap-2 pt-3 border-t border-[#1C2436]/60">
+        {/* Settings Link */}
+        <Link
+          href="/settings"
+          className={cn(
+            "flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all group",
+            isSettings
+              ? "bg-[#141B29] text-blue-400 border border-[#28354D] font-semibold"
+              : "text-slate-400 hover:text-slate-200 hover:bg-[#121723]"
+          )}
+        >
+          <Settings className={cn("w-4 h-4", isSettings ? "text-blue-400" : "text-slate-400")} />
+          <span className="flex-1">Cài đặt hệ thống</span>
         </Link>
 
-        <Link
-          href={getHref("assets")}
-          aria-label="Asset Studio"
-          className={getItemClass(isAssets)}
-          title="Asset Studio"
-        >
-          <Layers className="w-4 h-4" />
-        </Link>
-
-        <Link
-          href={getHref("approvals")}
-          aria-label="Approval Center"
-          className={getItemClass(isApprovals)}
-          title="Approval Center"
-        >
-          <Check className="w-4 h-4" />
-        </Link>
-
-        <Link
-          href={getHref("render")}
-          aria-label="Render & Export"
-          className={getItemClass(isRender)}
-          title="Render & Export"
-        >
-          <Play className="w-4 h-4" />
-        </Link>
-
-        <Link
-          href={getHref("assistant")}
-          aria-label="AI Copilot Assistant"
-          className={getItemClass(isAssistant)}
-          title="AI Assistant"
-        >
-          <Sparkles className="w-4 h-4 text-cyan-400" />
-        </Link>
+        {/* User Workspace Info Pill */}
+        <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg bg-[#0F1420] border border-[#1C2436] mt-1">
+          <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-cyan-600 to-blue-500 flex items-center justify-center text-[11px] font-bold text-white shrink-0 shadow">
+            AD
+          </div>
+          <div className="flex flex-col min-w-0 flex-1">
+            <span className="text-[11px] font-semibold text-slate-200 truncate">
+              Studio Workspace
+            </span>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[9px] text-emerald-400 font-medium">GPU Online</span>
+            </div>
+          </div>
+        </div>
       </div>
     </aside>
   );
 }
-
