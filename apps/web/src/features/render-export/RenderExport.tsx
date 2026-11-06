@@ -10,10 +10,12 @@ import { RenderPreviewPanel } from "./components/RenderPreviewPanel";
 
 interface RenderExportProps {
   projectName?: string;
+  projectId?: string;
 }
 
 export function RenderExport({
   projectName = "Aurora X1 Launch",
+  projectId = "proj-1",
 }: RenderExportProps): React.ReactElement {
   const {
     settings,
@@ -25,7 +27,7 @@ export function RenderExport({
     downloadMasterVideo,
     cancelRender,
     retryFailed,
-  } = useRenderExport(projectName);
+  } = useRenderExport(projectName, projectId);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#0B0F17] text-slate-100 antialiased select-none">
@@ -63,4 +65,3 @@ export function RenderExport({
     </div>
   );
 }
-

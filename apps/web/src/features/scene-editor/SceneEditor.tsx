@@ -12,10 +12,14 @@ import { MotionInspector } from "./components/MotionInspector";
 
 interface SceneEditorProps {
   projectName?: string;
+  projectId?: string;
+  sceneId?: string;
 }
 
 export function SceneEditor({
   projectName = "Aurora X1 Launch",
+  projectId = "proj-1",
+  sceneId = "scene-3",
 }: SceneEditorProps): React.ReactElement {
   const {
     sceneName,
@@ -32,7 +36,7 @@ export function SceneEditor({
     togglePlay,
     applySuggestion,
     handleApproveScene,
-  } = useSceneEditor(projectName);
+  } = useSceneEditor(projectName, projectId, sceneId);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#0B0F17] text-slate-100 antialiased select-none">
@@ -85,4 +89,3 @@ export function SceneEditor({
     </div>
   );
 }
-

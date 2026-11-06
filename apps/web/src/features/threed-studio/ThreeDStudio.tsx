@@ -12,10 +12,12 @@ import { ThreeDInspector } from "./components/ThreeDInspector";
 
 interface ThreeDStudioProps {
   projectName?: string;
+  projectId?: string;
 }
 
 export function ThreeDStudio({
   projectName = "Aurora X1 Launch",
+  projectId = "proj-1",
 }: ThreeDStudioProps): React.ReactElement {
   const {
     sceneTitle,
@@ -33,7 +35,7 @@ export function ThreeDStudio({
     setMaterial,
     handleRenderPreview,
     handleApproveScene,
-  } = useThreeDStudio(projectName);
+  } = useThreeDStudio(projectName, projectId);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#0B0F17] text-slate-100 antialiased select-none">
@@ -89,4 +91,3 @@ export function ThreeDStudio({
     </div>
   );
 }
-

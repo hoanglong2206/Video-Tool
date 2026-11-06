@@ -11,6 +11,7 @@ export default async function ProjectAssetsPage({
   const resolvedParams = await params;
   return (
     <AssetStudio
+      projectId={resolvedParams.id}
       projectName={
         resolvedParams.id === "proj-1"
           ? "Aurora X1 Launch"
@@ -19,4 +20,3 @@ export default async function ProjectAssetsPage({
     />
   );
 }
-

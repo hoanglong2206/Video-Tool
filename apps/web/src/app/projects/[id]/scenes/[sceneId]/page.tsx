@@ -11,6 +11,8 @@ export default async function ProjectSceneEditorPage({
   const resolvedParams = await params;
   return (
     <SceneEditor
+      projectId={resolvedParams.id}
+      sceneId={resolvedParams.sceneId}
       projectName={
         resolvedParams.id === "proj-1"
           ? "Aurora X1 Launch"
@@ -19,4 +21,3 @@ export default async function ProjectSceneEditorPage({
     />
   );
 }
-

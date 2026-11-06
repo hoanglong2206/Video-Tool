@@ -11,10 +11,12 @@ import { AssetInspector } from "./components/AssetInspector";
 
 interface AssetStudioProps {
   projectName?: string;
+  projectId?: string;
 }
 
 export function AssetStudio({
   projectName = "Aurora X1 Launch",
+  projectId = "proj-1",
 }: AssetStudioProps): React.ReactElement {
   const {
     categories,
@@ -29,7 +31,7 @@ export function AssetStudio({
     setSourceFilter,
     setSearchQuery,
     setSelectedAssetId,
-  } = useAssetStudio(projectName);
+  } = useAssetStudio(projectName, projectId);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#0B0F17] text-slate-100 antialiased select-none">
@@ -80,4 +82,3 @@ export function AssetStudio({
     </div>
   );
 }
-

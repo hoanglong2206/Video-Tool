@@ -1,5 +1,5 @@
 import React from "react";
-import { ThreeDStudio } from "@/features/threed-studio";
+import { PipelineStageView } from "@/features/pipeline";
 
 interface ThreeDPageProps {
   params: Promise<{ id: string }>;
@@ -10,13 +10,10 @@ export default async function ProjectThreeDPage({
 }: ThreeDPageProps): Promise<React.ReactElement> {
   const resolvedParams = await params;
   return (
-    <ThreeDStudio
-      projectName={
-        resolvedParams.id === "proj-1"
-          ? "Aurora X1 Launch"
-          : `Project ${resolvedParams.id}`
-      }
+    <PipelineStageView
+      projectId={resolvedParams.id}
+      stageId="3d"
+      projectName="Aurora X1 Launch"
     />
   );
 }
-

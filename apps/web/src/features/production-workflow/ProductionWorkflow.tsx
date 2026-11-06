@@ -10,10 +10,12 @@ import { StageInspector } from "./components/StageInspector";
 
 interface ProductionWorkflowProps {
   projectName?: string;
+  projectId?: string;
 }
 
 export function ProductionWorkflow({
   projectName = "Aurora X1 Launch",
+  projectId = "proj-1",
 }: ProductionWorkflowProps): React.ReactElement {
   const {
     overallProgress,
@@ -25,7 +27,7 @@ export function ProductionWorkflow({
     setSelectedStageId,
     handleApprove,
     handleRequestRevision,
-  } = useProductionWorkflow(projectName);
+  } = useProductionWorkflow(projectName, projectId);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#0B0F17] text-slate-100 antialiased select-none">
@@ -49,22 +51,25 @@ export function ProductionWorkflow({
           <div className="flex-1 p-6 overflow-y-auto">
             <StageGrid
               stages={stages}
-              selectedStageId={selectedStage.id}
+              selectedStageId={selectedStage?.id || ""}
               onSelectStage={setSelectedStageId}
             />
 
-            <ExecutionLogPanel logs={logs} />
+            <div className="mt-6">
+              <ExecutionLogPanel logs={logs} />
+            </div>
           </div>
 
           {/* Right Stage Inspector */}
-          <StageInspector
-            stage={selectedStage}
-            onApprove={handleApprove}
-            onRequestRevision={handleRequestRevision}
-          />
+          {selectedStage && (
+            <StageInspector
+              stage={selectedStage}
+              onApprove={handleApprove}
+              onRequestRevision={handleRequestRevision}
+            />
+          )}
         </main>
       </div>
     </div>
   );
 }
-

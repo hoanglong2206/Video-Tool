@@ -10,10 +10,12 @@ import { ApprovalDecisionPanel } from "./components/ApprovalDecisionPanel";
 
 interface ApprovalCenterProps {
   projectName?: string;
+  projectId?: string;
 }
 
 export function ApprovalCenter({
   projectName = "Aurora X1 Launch",
+  projectId = "proj-1",
 }: ApprovalCenterProps): React.ReactElement {
   const {
     items,
@@ -22,7 +24,7 @@ export function ApprovalCenter({
     setComment,
     setSelectedItemId,
     handleDecision,
-  } = useApprovalCenter(projectName);
+  } = useApprovalCenter(projectName, projectId);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#0B0F17] text-slate-100 antialiased select-none">
@@ -57,14 +59,14 @@ export function ApprovalCenter({
               )}
             </>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
-              <span className="text-3xl mb-3">✓</span>
-              <h2 className="text-base font-semibold text-slate-200">
-                All Approvals Complete
-              </h2>
-              <p className="text-xs text-slate-400 mt-1">
-                Zero items pending review. Video pipeline is progressing forward.
-              </p>
+            <div className="flex-1 flex flex-col items-center justify-center text-slate-500">
+              <div className="w-16 h-16 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <p className="text-sm font-medium">All review gates are clear.</p>
+              <p className="text-xs text-slate-600 mt-1">No items currently awaiting Creative Director signoff.</p>
             </div>
           )}
         </main>
@@ -72,4 +74,3 @@ export function ApprovalCenter({
     </div>
   );
 }
-
