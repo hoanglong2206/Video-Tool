@@ -21,20 +21,46 @@ export interface StudioSidebarProps {
 export function StudioSidebar({ className }: StudioSidebarProps): React.ReactElement {
   const pathname = usePathname();
 
+  const projectMatch = pathname.match(/^\/projects\/([^/]+)/);
+  const currentProjectId =
+    projectMatch && projectMatch[1] !== "new" ? projectMatch[1] : null;
+
+  const getHref = (route: string) => {
+    const pId = currentProjectId || "proj-1";
+    switch (route) {
+      case "workflow":
+        return `/projects/${pId}/workflow`;
+      case "storyboard":
+        return `/projects/${pId}/storyboard`;
+      case "assets":
+        return `/projects/${pId}/assets`;
+      case "approvals":
+        return `/projects/${pId}/approvals`;
+      case "render":
+        return `/projects/${pId}/render`;
+      case "assistant":
+        return `/projects/${pId}/assistant`;
+      default:
+        return `/${route}`;
+    }
+  };
+
   const isDashboard =
     pathname === "/" ||
     pathname === "/projects/new" ||
     pathname === "/library" ||
     pathname === "/brand-kit";
-  const isWorkflow = pathname.startsWith("/workflow");
+  const isWorkflow = pathname.includes("/workflow");
   const isStoryboard =
-    pathname.startsWith("/storyboard") ||
-    pathname.startsWith("/editor") ||
-    pathname.startsWith("/threed");
-  const isAssets = pathname.startsWith("/assets");
-  const isApprovals = pathname.startsWith("/approvals");
-  const isRender = pathname.startsWith("/render");
-  const isAssistant = pathname.startsWith("/assistant");
+    pathname.includes("/storyboard") ||
+    pathname.includes("/editor") ||
+    pathname.includes("/scenes") ||
+    pathname.includes("/threed") ||
+    pathname.includes("/3d");
+  const isAssets = pathname.includes("/assets");
+  const isApprovals = pathname.includes("/approvals");
+  const isRender = pathname.includes("/render");
+  const isAssistant = pathname.includes("/assistant");
 
   const getItemClass = (isActive: boolean) =>
     cn(
@@ -59,7 +85,7 @@ export function StudioSidebar({ className }: StudioSidebarProps): React.ReactEle
       {/* Main Studio Navigation */}
       <div className="flex flex-col items-center gap-4 mt-6">
         <Link
-          href="/workflow"
+          href={getHref("workflow")}
           aria-label="Production Workflow"
           className={getItemClass(isWorkflow)}
           title="Workflow Pipeline"
@@ -68,7 +94,7 @@ export function StudioSidebar({ className }: StudioSidebarProps): React.ReactEle
         </Link>
 
         <Link
-          href="/storyboard"
+          href={getHref("storyboard")}
           aria-label="Storyboard Studio"
           className={getItemClass(isStoryboard)}
           title="Storyboard Studio"
@@ -77,7 +103,7 @@ export function StudioSidebar({ className }: StudioSidebarProps): React.ReactEle
         </Link>
 
         <Link
-          href="/assets"
+          href={getHref("assets")}
           aria-label="Asset Studio"
           className={getItemClass(isAssets)}
           title="Asset Studio"
@@ -86,7 +112,7 @@ export function StudioSidebar({ className }: StudioSidebarProps): React.ReactEle
         </Link>
 
         <Link
-          href="/approvals"
+          href={getHref("approvals")}
           aria-label="Approval Center"
           className={getItemClass(isApprovals)}
           title="Approval Center"
@@ -95,7 +121,7 @@ export function StudioSidebar({ className }: StudioSidebarProps): React.ReactEle
         </Link>
 
         <Link
-          href="/render"
+          href={getHref("render")}
           aria-label="Render & Export"
           className={getItemClass(isRender)}
           title="Render & Export"
@@ -104,7 +130,7 @@ export function StudioSidebar({ className }: StudioSidebarProps): React.ReactEle
         </Link>
 
         <Link
-          href="/assistant"
+          href={getHref("assistant")}
           aria-label="AI Copilot Assistant"
           className={getItemClass(isAssistant)}
           title="AI Assistant"

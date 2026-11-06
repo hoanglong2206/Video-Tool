@@ -1,7 +1,5 @@
-import React from "react";
-import { ThreeDStudio } from "@/features/threed-studio";
+import { redirect } from "next/navigation";
 
-export default function ThreeDPage(): React.ReactElement {
-  return <ThreeDStudio />;
+export default function ThreeDPage(): never {
+  redirect("/projects/proj-1/3d");
 }
-

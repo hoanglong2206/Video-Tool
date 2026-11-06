@@ -1,7 +1,5 @@
-import React from "react";
-import { StoryboardStudio } from "@/features/storyboard";
+import { redirect } from "next/navigation";
 
-export default function StoryboardPage(): React.ReactElement {
-  return <StoryboardStudio />;
+export default function StoryboardPage(): never {
+  redirect("/projects/proj-1/storyboard");
 }
-

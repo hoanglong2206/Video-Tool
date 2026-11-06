@@ -1,7 +1,5 @@
-import React from "react";
-import { ProductionWorkflow } from "@/features/production-workflow";
+import { redirect } from "next/navigation";
 
-export default function WorkflowPage(): React.ReactElement {
-  return <ProductionWorkflow />;
+export default function WorkflowPage(): never {
+  redirect("/projects/proj-1/workflow");
 }
-

@@ -46,7 +46,7 @@ export function Dashboard(): React.ReactElement {
             <div className="xl:col-span-1 flex flex-col">
               <ApprovalPanel
                 approvals={approvals}
-                onSelectApproval={() => router.push("/approvals")}
+                onSelectApproval={() => router.push("/projects/proj-1/approvals")}
               />
 
               <RenderQueuePanel queueItem={renderQueue} />

@@ -1,7 +1,5 @@
-import React from "react";
-import { ApprovalCenter } from "@/features/approval-center";
+import { redirect } from "next/navigation";
 
-export default function ApprovalsPage(): React.ReactElement {
-  return <ApprovalCenter />;
+export default function ApprovalsPage(): never {
+  redirect("/projects/proj-1/approvals");
 }
-

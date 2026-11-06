@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui";
 import { StudioHeader } from "@/components/shared";
 
@@ -20,6 +21,11 @@ export function WorkflowHeader({
   onOpenApprovals,
   onStartPipeline,
 }: WorkflowHeaderProps): React.ReactElement {
+  const pathname = usePathname();
+  const projectMatch = pathname?.match(/^\/projects\/([^/]+)/);
+  const currentProjectId =
+    projectMatch && projectMatch[1] !== "new" ? projectMatch[1] : null;
+
   return (
     <StudioHeader
       rootTitle={projectName}
@@ -43,7 +49,13 @@ export function WorkflowHeader({
       )}
 
       <Button size="sm" asChild>
-        <Link href="/approvals">
+        <Link
+          href={
+            currentProjectId
+              ? `/projects/${currentProjectId}/approvals`
+              : "/approvals"
+          }
+        >
           Open approvals ({pendingApprovalsCount})
         </Link>
       </Button>

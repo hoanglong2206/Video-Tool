@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 export type StudioStageId =
@@ -49,6 +52,60 @@ export function StudioJourneyBar({
   nextStage,
   className,
 }: StudioJourneyBarProps): React.ReactElement {
+  const pathname = usePathname();
+  const projectMatch = pathname?.match(/^\/projects\/([^/]+)/);
+  const currentProjectId =
+    projectMatch && projectMatch[1] !== "new" ? projectMatch[1] : null;
+
+  const resolveStageHref = (stageId: StudioStageId, fallbackHref?: string) => {
+    if (!currentProjectId) return fallbackHref;
+    switch (stageId) {
+      case "brief":
+        return `/projects/${currentProjectId}/workflow`;
+      case "storyboard":
+        return `/projects/${currentProjectId}/storyboard`;
+      case "assets":
+        return `/projects/${currentProjectId}/assets`;
+      case "composition":
+        return `/projects/${currentProjectId}/workflow`;
+      case "motion":
+        return `/projects/${currentProjectId}/scenes/scene-01`;
+      case "threed":
+        return `/projects/${currentProjectId}/3d`;
+      case "render":
+        return `/projects/${currentProjectId}/render`;
+      default:
+        return fallbackHref;
+    }
+  };
+
+  const resolveNavHref = (href?: string) => {
+    if (!href || !currentProjectId) return href;
+    if (href.startsWith("/projects/")) return href;
+    const cleanRoute = href.replace(/^\//, "");
+    switch (cleanRoute) {
+      case "workflow":
+      case "composition":
+        return `/projects/${currentProjectId}/workflow`;
+      case "storyboard":
+        return `/projects/${currentProjectId}/storyboard`;
+      case "assets":
+        return `/projects/${currentProjectId}/assets`;
+      case "editor":
+      case "motion":
+        return `/projects/${currentProjectId}/scenes/scene-01`;
+      case "threed":
+      case "3d":
+        return `/projects/${currentProjectId}/3d`;
+      case "render":
+        return `/projects/${currentProjectId}/render`;
+      case "approvals":
+        return `/projects/${currentProjectId}/approvals`;
+      default:
+        return href;
+    }
+  };
+
   return (
     <div
       className={cn(
@@ -62,6 +119,7 @@ export function StudioJourneyBar({
 
         {DEFAULT_JOURNEY_STAGES.map((stage) => {
           const isActive = stage.id === currentStageId;
+          const stageHref = resolveStageHref(stage.id, stage.href);
 
           if (isActive) {
             return (
@@ -80,11 +138,11 @@ export function StudioJourneyBar({
             );
           }
 
-          if (stage.href && stage.isCompleted) {
+          if (stageHref && stage.isCompleted) {
             return (
               <Link
                 key={stage.id}
-                href={stage.href}
+                href={stageHref}
                 className="text-emerald-400 hover:underline shrink-0"
               >
                 ✓ {stage.label}
@@ -92,11 +150,11 @@ export function StudioJourneyBar({
             );
           }
 
-          if (stage.href) {
+          if (stageHref) {
             return (
               <Link
                 key={stage.id}
-                href={stage.href}
+                href={stageHref}
                 className="text-slate-400 hover:text-slate-200 hover:underline shrink-0"
               >
                 {stage.isAttention ? "! " : "- "}
@@ -128,7 +186,7 @@ export function StudioJourneyBar({
       <div className="flex items-center gap-2 shrink-0 ml-4">
         {previousStage && (
           <Link
-            href={previousStage.href}
+            href={resolveNavHref(previousStage.href) || previousStage.href}
             className="h-7 px-2.5 rounded text-[11px] font-medium text-slate-300 bg-[#141A27] border border-[#242D40] hover:bg-[#1C2538] hover:text-white flex items-center justify-center transition-all shadow-sm"
           >
             ← {previousStage.label}
@@ -142,7 +200,7 @@ export function StudioJourneyBar({
             </span>
           ) : (
             <Link
-              href={nextStage.href}
+              href={resolveNavHref(nextStage.href) || nextStage.href}
               className="h-7 px-3 rounded text-[11px] font-medium text-white bg-[#3B82F6] hover:bg-[#2563EB] flex items-center justify-center active:scale-[0.98] transition-all shadow-sm"
             >
               {nextStage.label} →

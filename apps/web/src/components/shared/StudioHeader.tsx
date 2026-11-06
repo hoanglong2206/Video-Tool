@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 export interface StudioHeaderProps {
@@ -13,12 +16,24 @@ export interface StudioHeaderProps {
 
 export function StudioHeader({
   rootTitle = "Aurora X1 Launch",
-  rootHref = "/",
+  rootHref,
   subTitle,
   badge,
   children,
   className,
 }: StudioHeaderProps): React.ReactElement {
+  const pathname = usePathname();
+  const projectMatch = pathname?.match(/^\/projects\/([^/]+)/);
+  const currentProjectId =
+    projectMatch && projectMatch[1] !== "new" ? projectMatch[1] : null;
+
+  const resolvedRootHref =
+    rootHref && rootHref !== "/"
+      ? rootHref
+      : currentProjectId
+      ? `/projects/${currentProjectId}/workflow`
+      : "/";
+
   return (
     <header
       className={cn(
@@ -28,9 +43,9 @@ export function StudioHeader({
     >
       {/* Breadcrumb Section */}
       <div className="flex items-center gap-2.5 text-xs">
-        {rootHref ? (
+        {resolvedRootHref ? (
           <Link
-            href={rootHref}
+            href={resolvedRootHref}
             className="font-medium text-slate-100 hover:text-white transition-colors"
           >
             {rootTitle}
@@ -50,4 +65,5 @@ export function StudioHeader({
     </header>
   );
 }
+
 

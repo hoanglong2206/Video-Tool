@@ -1,10 +1,5 @@
-import { RenderExport } from "@/features/render-export";
+import { redirect } from "next/navigation";
 
-export const metadata = {
-  title: "Render & Export Center | AI Motion Studio",
-};
-
-export default function RenderPage() {
-  return <RenderExport />;
+export default function RenderPage(): never {
+  redirect("/projects/proj-1/render");
 }
-

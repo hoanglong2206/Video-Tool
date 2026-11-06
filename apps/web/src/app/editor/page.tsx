@@ -1,7 +1,5 @@
-import React from "react";
-import { SceneEditor } from "@/features/scene-editor";
+import { redirect } from "next/navigation";
 
-export default function EditorPage(): React.ReactElement {
-  return <SceneEditor />;
+export default function EditorPage(): never {
+  redirect("/projects/proj-1/scenes/scene-01");
 }
-

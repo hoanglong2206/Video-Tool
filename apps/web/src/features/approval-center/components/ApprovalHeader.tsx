@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Badge, Button } from "@/components/ui";
 
 interface ApprovalHeaderProps {
@@ -7,6 +8,11 @@ interface ApprovalHeaderProps {
 }
 
 export function ApprovalHeader({ pendingCount }: ApprovalHeaderProps): React.ReactElement {
+  const pathname = usePathname();
+  const projectMatch = pathname?.match(/^\/projects\/([^/]+)/);
+  const currentProjectId =
+    projectMatch && projectMatch[1] !== "new" ? projectMatch[1] : null;
+
   return (
     <header className="h-14 border-b border-[#1E2638] px-6 flex items-center justify-between bg-[#0B0F17] select-none">
       {/* Title & Pending Pill */}
@@ -21,9 +27,18 @@ export function ApprovalHeader({ pendingCount }: ApprovalHeaderProps): React.Rea
 
       {/* Editor Jump */}
       <Button variant="outline" size="sm" asChild>
-        <Link href="/editor">Open in editor</Link>
+        <Link
+          href={
+            currentProjectId
+              ? `/projects/${currentProjectId}/scenes/scene-01`
+              : "/editor"
+          }
+        >
+          Open in editor
+        </Link>
       </Button>
     </header>
   );
 }
+
 

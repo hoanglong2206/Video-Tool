@@ -1,7 +1,5 @@
-import React from "react";
-import { AssetStudio } from "@/features/asset-studio";
+import { redirect } from "next/navigation";
 
-export default function AssetsPage(): React.ReactElement {
-  return <AssetStudio />;
+export default function AssetsPage(): never {
+  redirect("/projects/proj-1/assets");
 }
-

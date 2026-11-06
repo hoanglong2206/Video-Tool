@@ -1,10 +1,5 @@
-import { AiAssistant } from "@/features/ai-assistant";
+import { redirect } from "next/navigation";
 
-export const metadata = {
-  title: "Global AI Assistant | AI Motion Studio",
-};
-
-export default function AssistantPage() {
-  return <AiAssistant />;
+export default function AssistantPage(): never {
+  redirect("/projects/proj-1/assistant");
 }
-
