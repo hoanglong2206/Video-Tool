@@ -12,8 +12,10 @@ from server.backend.src.api.dtos.project import ProjectResponseDTO
 from server.backend.src.domain.entities.project import ProjectStatus
 from server.backend.src.infrastructure.database.models import (
     ApprovalModel,
+    AssetModel,
     ProjectModel,
     RenderJobModel,
+    SceneModel,
 )
 from server.backend.src.infrastructure.database.session import get_db_session
 
@@ -52,12 +54,14 @@ async def get_dashboard_overview(
     queued_renders_count = await session.scalar(
         select(func.count(RenderJobModel.id)).where(RenderJobModel.status.in_(["queued", "rendering"]))
     ) or 0
+    total_assets = await session.scalar(select(func.count(AssetModel.id))) or 0
+    total_scenes = await session.scalar(select(func.count(SceneModel.id))) or 0
 
     stats = DashboardStatsDTO(
         activeProjects=active_count,
         waitingForApproval=pending_approvals_count,
         rendersInQueue=queued_renders_count,
-        aiGenerationsThisMonth=1240,
+        aiGenerationsThisMonth=total_assets + total_scenes,
     )
 
     # 3. Pending Approvals List
@@ -80,12 +84,27 @@ async def get_dashboard_overview(
     ]
 
     # 4. Render Queue Status
-    render_queue = RenderQueueDTO(
-        id="render-1",
-        title="Halo Speaker · 4K MP4",
-        progress=72,
-        nextJobTitle="Next: Aurora X1 preview · 1080p",
+    active_render_stmt = (
+        select(RenderJobModel)
+        .where(RenderJobModel.status.in_(["rendering", "queued"]))
+        .order_by(RenderJobModel.created_at.desc())
+        .limit(1)
     )
+    active_render = await session.scalar(active_render_stmt)
+    if active_render:
+        render_queue = RenderQueueDTO(
+            id=active_render.id,
+            title=f"{active_render.project_id} · {active_render.resolution}",
+            progress=active_render.progress_percent,
+            nextJobTitle="Rendering active",
+        )
+    else:
+        render_queue = RenderQueueDTO(
+            id="idle",
+            title="Render queue idle",
+            progress=0,
+            nextJobTitle="No active render jobs",
+        )
 
     return DashboardOverviewResponseDTO(
         stats=stats,

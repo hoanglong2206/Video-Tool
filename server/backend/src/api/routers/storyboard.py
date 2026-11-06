@@ -67,7 +67,20 @@ async def generate_project_storyboard(
     target_id = "proj-1" if project_id in ["proj-1", "default"] else project_id
     project = await session.get(ProjectModel, target_id)
     if not project:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+        if target_id in ["proj-1", "default"]:
+            project = ProjectModel(
+                id=target_id,
+                name="Aurora X1 Launch",
+                client="Aurora Audio",
+                brief="Premium cinematic launch video for the Aurora X1 wireless headphones. Dark studio mood, slow reveals, metallic reflections.",
+                stage_description="Stage 01 · Brief analysis",
+                progress=0,
+                status="in_progress",
+            )
+            session.add(project)
+            await session.flush()
+        else:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
 
     # 1. Synthesize scenes via AI Engine
     brief = project.brief or f"Cinematic Apple-style hardware launch trailer for {project.name}"

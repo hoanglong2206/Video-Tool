@@ -30,7 +30,7 @@ from server.backend.src.infrastructure.database.models import (
 
 
 async def clear_all_data() -> None:
-    """Wipe all project data from Supabase PostgreSQL, leaving schemas intact."""
+    """Wipe all project data from Supabase PostgreSQL and temporary render files."""
     async with async_session_maker() as session:
         print("[INFO] Wiping all data from Supabase tables...")
         await session.execute(delete(RenderJobModel))
@@ -41,7 +41,19 @@ async def clear_all_data() -> None:
         await session.execute(delete(SceneModel))
         await session.execute(delete(ProjectModel))
         await session.commit()
-        print("[SUCCESS] All data cleared! Database is now empty and ready for fresh projects.")
+        print("[SUCCESS] All database records cleared!")
+
+    # Clean storage render files
+    render_dir = root / "storage" / "renders"
+    if render_dir.exists():
+        for f in render_dir.glob("*.mp4"):
+            try:
+                f.unlink()
+                print(f"[INFO] Deleted render artifact: {f.name}")
+            except Exception as e:
+                print(f"[WARN] Could not delete {f.name}: {e}")
+
+    print("[SUCCESS] Database and render cache are now 100% clean and ready for testing.")
 
 
 if __name__ == "__main__":

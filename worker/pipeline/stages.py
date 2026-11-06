@@ -31,7 +31,10 @@ async def execute_stage(
     session: AsyncSession,
 ) -> StageExecutionResult:
     """Execute logic for a specific stage in the 10-stage video production pipeline."""
-    num = stage.stage_number
+    try:
+        num = int(stage.stage_number)
+    except (ValueError, TypeError):
+        num = 1
     name = stage.name
     now_label = datetime.now(timezone.utc).strftime("%H:%M:%S")
 
