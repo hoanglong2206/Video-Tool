@@ -1,4 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { renderService, type ExportSettings as ServiceExportSettings } from "@/services/render";
+import { QUERY_KEYS } from "@/constants/query-keys";
+import { useRenderExportStore } from "../store";
 import type { ExportSettings, PreviousRender, RenderProgress } from "../types";
 
 const DEFAULT_SETTINGS: ExportSettings = {
@@ -16,111 +20,80 @@ const DEFAULT_PROGRESS: RenderProgress = {
   logs: ["Ready to build broadcast master"],
 };
 
-export function useRenderExport(projectName: string = "Aurora X1 Launch", projectId: string = "proj-1") {
+export function useRenderExport(
+  projectName: string = "Aurora X1 Launch",
+  projectId: string = "proj-1"
+) {
+  const queryClient = useQueryClient();
+  const store = useRenderExportStore();
+
   const [settings, setSettings] = useState<ExportSettings>(DEFAULT_SETTINGS);
   const [renders, setRenders] = useState<PreviousRender[]>([]);
-  const [progress, setProgress] = useState<RenderProgress>(DEFAULT_PROGRESS);
-  const [isRendering, setIsRendering] = useState<boolean>(false);
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const { data: progressData, refetch: refetchProgress } = useQuery({
+    queryKey: QUERY_KEYS.render.progress(),
+    queryFn: () => renderService.getProgress(),
+    refetchInterval: store.isRendering ? 1500 : false,
+  });
 
-  const fetchRenderData = useCallback(async () => {
-    try {
-      // 1. Fetch History
-      const histRes = await fetch(`${apiUrl}/api/v1/render/history`);
-      if (histRes.ok) {
-        const histData = await histRes.json();
-        if (Array.isArray(histData)) {
-          setRenders(
-            histData.map((item, idx) => ({
-              id: item.version || `rend-${idx}`,
-              version: item.version,
-              resolution: item.resolution,
-              duration: item.duration,
-              status: item.status,
-            }))
-          );
-        }
-      }
-
-      // 2. Fetch Progress
-      const progRes = await fetch(`${apiUrl}/api/v1/render/progress`);
-      if (progRes.ok) {
-        const progData = await progRes.json();
-        setProgress({
-          percentage: progData.percentage || 0,
-          statusText: progData.status_text || "Idle",
-          estimatedRemaining: progData.estimated_remaining || "0s",
-          elapsedTime: progData.elapsed_time || "0s",
-          logs: progData.logs || [],
-        });
-        setIsRendering(progData.percentage > 0 && progData.percentage < 100);
-      }
-    } catch (err) {
-      console.error("Failed to fetch render status from Supabase backend:", err);
+  useEffect(() => {
+    if (progressData) {
+      store.setProgress(progressData);
+      const isStillRendering =
+        progressData.percentage > 0 && progressData.percentage < 100;
+      store.setIsRendering(isStillRendering);
     }
-  }, [apiUrl]);
+  }, [progressData]);
 
-  useEffect(() => {
-    fetchRenderData();
-  }, [fetchRenderData]);
+  const startRenderMutation = useMutation({
+    mutationFn: () =>
+      renderService.startRender({
+        project_id: projectId,
+        settings: {
+          resolution: settings.resolution,
+          codec: settings.codec,
+          aspect_ratio: settings.aspectRatio,
+          frame_rate: settings.frameRate,
+        } as ServiceExportSettings,
+      }),
+    onMutate: () => store.setIsRendering(true),
+    onSuccess: (data) => {
+      store.setActiveJobId(data.job_id);
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.render.progress() });
+    },
+    onError: () => store.setIsRendering(false),
+  });
 
-  // Live polling while rendering is in progress
-  useEffect(() => {
-    if (!isRendering) return;
-    const interval = setInterval(() => {
-      fetchRenderData();
-    }, 1500);
-    return () => clearInterval(interval);
-  }, [isRendering, fetchRenderData]);
+  const progress: RenderProgress = progressData
+    ? {
+        percentage: progressData.percentage || 0,
+        statusText: progressData.status_text || "Idle",
+        estimatedRemaining: progressData.estimated_remaining || "0s",
+        elapsedTime: progressData.elapsed_time || "0s",
+        logs: progressData.logs || [],
+      }
+    : DEFAULT_PROGRESS;
 
   const updateSetting = (key: keyof ExportSettings, value: string) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
   };
 
   const startRender = async () => {
-    setIsRendering(true);
-    try {
-      const res = await fetch(`${apiUrl}/api/v1/render/start`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          project_id: projectId,
-          resolution: settings.resolution,
-          codec: settings.codec,
-        }),
-      });
-      if (res.ok) {
-        await fetchRenderData();
-      }
-    } catch (err) {
-      console.error("Error starting render job:", err);
-      setIsRendering(false);
-    }
+    startRenderMutation.mutate();
   };
 
   const downloadMasterVideo = () => {
-    window.open(`${apiUrl}/api/v1/render/download/master`, "_blank");
+    const jobId = store.activeJobId || "master";
+    window.open(renderService.getDownloadUrl(jobId), "_blank");
   };
 
   const cancelRender = async () => {
-    setIsRendering(false);
-    try {
-      await fetch(`${apiUrl}/api/v1/render/cancel`, { method: "POST" });
-      await fetchRenderData();
-    } catch (err) {
-      console.error("Error cancelling render:", err);
-    }
+    store.setIsRendering(false);
+    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.render.progress() });
   };
 
   const retryFailed = async () => {
-    setIsRendering(true);
-    try {
-      await fetch(`${apiUrl}/api/v1/render/retry`, { method: "POST" });
-      await fetchRenderData();
-    } catch (err) {
-      console.error("Error retrying render:", err);
-    }
+    startRenderMutation.mutate();
   };
 
   return {
@@ -129,10 +102,11 @@ export function useRenderExport(projectName: string = "Aurora X1 Launch", projec
     updateSetting,
     renders,
     progress,
-    isRendering,
+    isRendering: store.isRendering,
     startRender,
     downloadMasterVideo,
     cancelRender,
     retryFailed,
+    refetchProgress,
   };
 }

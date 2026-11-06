@@ -1,41 +1,58 @@
-import { useState, useEffect, useCallback } from "react";
+import { useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { storyboardService, type UpdateSceneInput } from "@/services/storyboard";
+import { QUERY_KEYS } from "@/constants/query-keys";
+import { useStoryboardStore } from "../store";
 import type { StoryboardScene } from "../types";
 
-export function useStoryboard(projectName: string = "Aurora X1 Launch", projectId: string = "proj-1") {
-  const [scenes, setScenes] = useState<StoryboardScene[]>([]);
-  const [selectedSceneId, setSelectedSceneId] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isGenerating, setIsGenerating] = useState<boolean>(false);
+export function useStoryboard(
+  projectName: string = "Aurora X1 Launch",
+  projectId: string = "proj-1"
+) {
+  const queryClient = useQueryClient();
+  const store = useStoryboardStore();
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
-  // Fetch storyboard from Supabase via backend API
-  const fetchStoryboard = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const res = await fetch(`${apiUrl}/api/v1/projects/${projectId}/storyboard`, {
-        headers: { Accept: "application/json" },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data.scenes) && data.scenes.length > 0) {
-          setScenes(data.scenes);
-          setSelectedSceneId((prev) => prev || data.scenes[0].id);
-        }
-      }
-    } catch (err) {
-      console.error("Failed to load storyboard from Supabase backend:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [apiUrl, projectId]);
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: QUERY_KEYS.storyboard.byProject(projectId),
+    queryFn: () => storyboardService.getStoryboard(projectId),
+  });
 
   useEffect(() => {
-    fetchStoryboard();
-  }, [fetchStoryboard]);
+    if (data?.scenes && data.scenes.length > 0) {
+      store.setScenes(data.scenes);
+      if (data.approvalStatus) store.setApprovalStatus(data.approvalStatus);
+      if (data.version) store.setVersion(data.version);
+    }
+  }, [data]);
+
+  const updateSceneMutation = useMutation({
+    mutationFn: ({ sceneId, input }: { sceneId: string; input: UpdateSceneInput }) =>
+      storyboardService.updateScene(projectId, sceneId, input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.storyboard.byProject(projectId),
+      });
+    },
+  });
+
+  const generateMutation = useMutation({
+    mutationFn: () => storyboardService.generateStoryboard(projectId),
+    onMutate: () => store.setIsGenerating(true),
+    onSuccess: (res) => {
+      if (res.scenes && res.scenes.length > 0) {
+        store.setScenes(res.scenes);
+        store.setSelectedSceneId(res.scenes[0].id);
+      }
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.storyboard.byProject(projectId),
+      });
+    },
+    onSettled: () => store.setIsGenerating(false),
+  });
 
   const selectedScene =
-    scenes.find((s) => s.id === selectedSceneId) || scenes[0] || {
+    store.scenes.find((s) => s.id === store.selectedSceneId) ||
+    store.scenes[0] || {
       id: "scene-empty",
       sceneNumber: 1,
       title: "Loading...",
@@ -46,36 +63,31 @@ export function useStoryboard(projectName: string = "Aurora X1 Launch", projectI
       creativeDirection: "",
     };
 
-  const totalDuration = scenes.reduce((acc, s) => acc + (s.durationSeconds || 0), 0);
+  const totalDuration = store.scenes.reduce(
+    (acc, s) => acc + (s.durationSeconds || 0),
+    0
+  );
 
-  // Persist scene modifications directly to Supabase
-  const updateSelectedScene = async (field: keyof StoryboardScene, value: string | number): Promise<void> => {
-    if (!selectedSceneId) return;
+  const updateSelectedScene = async (
+    field: keyof StoryboardScene,
+    value: string | number
+  ): Promise<void> => {
+    if (!store.selectedSceneId) return;
 
-    // 1. Optimistic UI update
-    setScenes((prev) =>
-      prev.map((s) => (s.id === selectedSceneId ? { ...s, [field]: value } : s))
-    );
+    // 1. Optimistic update
+    store.updateSceneLocal(store.selectedSceneId, { [field]: value });
 
-    // 2. Persist to Supabase
-    try {
-      const payload: Record<string, string | number> = {};
-      if (field === "description") payload.description = String(value);
-      if (field === "durationSeconds") payload.durationSeconds = Number(value);
-      if (field === "transitionType") payload.transitionType = String(value);
+    // 2. Persist with mutation
+    const input: UpdateSceneInput = {};
+    if (field === "description") input.description = String(value);
+    if (field === "durationSeconds") input.durationSeconds = Number(value);
+    if (field === "transitionType") input.transitionType = String(value);
 
-      await fetch(`${apiUrl}/api/v1/projects/${projectId}/storyboard/scenes/${selectedSceneId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-    } catch (err) {
-      console.error("Error persisting scene edit to Supabase:", err);
-    }
+    updateSceneMutation.mutate({ sceneId: store.selectedSceneId, input });
   };
 
   const handleAddScene = (): void => {
-    const nextNumber = scenes.length + 1;
+    const nextNumber = store.scenes.length + 1;
     const newScene: StoryboardScene = {
       id: `scene-${Date.now()}`,
       sceneNumber: nextNumber,
@@ -86,8 +98,8 @@ export function useStoryboard(projectName: string = "Aurora X1 Launch", projectI
       description: "New cinematic scene concept awaiting direction.",
       creativeDirection: selectedScene.creativeDirection || "Studio minimal",
     };
-    setScenes((prev) => [...prev, newScene]);
-    setSelectedSceneId(newScene.id);
+    store.setScenes([...store.scenes, newScene]);
+    store.setSelectedSceneId(newScene.id);
   };
 
   const handleDuplicate = (): void => {
@@ -95,51 +107,36 @@ export function useStoryboard(projectName: string = "Aurora X1 Launch", projectI
       ...selectedScene,
       id: `scene-${Date.now()}`,
       title: `${selectedScene.title} (Copy)`,
-      sceneNumber: scenes.length + 1,
+      sceneNumber: store.scenes.length + 1,
     };
-    setScenes((prev) => [...prev, duplicated]);
-    setSelectedSceneId(duplicated.id);
+    store.setScenes([...store.scenes, duplicated]);
+    store.setSelectedSceneId(duplicated.id);
   };
 
   const handleRemove = (): void => {
-    if (scenes.length <= 1) return;
-    const filtered = scenes.filter((s) => s.id !== selectedSceneId);
-    setScenes(filtered);
-    setSelectedSceneId(filtered[0]?.id || "");
+    if (store.scenes.length <= 1) return;
+    const filtered = store.scenes.filter((s) => s.id !== store.selectedSceneId);
+    store.setScenes(filtered);
+    store.setSelectedSceneId(filtered[0]?.id || "");
   };
 
   const handleGenerateWithAi = async (): Promise<void> => {
-    setIsGenerating(true);
-    try {
-      const res = await fetch(`${apiUrl}/api/v1/projects/${projectId}/storyboard/generate`, {
-        method: "POST",
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data.scenes) && data.scenes.length > 0) {
-          setScenes(data.scenes);
-          setSelectedSceneId(data.scenes[0].id);
-        }
-      }
-    } catch (err) {
-      console.error("Failed to generate AI storyboard:", err);
-    } finally {
-      setIsGenerating(false);
-    }
+    generateMutation.mutate();
   };
 
   return {
     projectName,
-    scenes,
+    scenes: store.scenes,
     selectedScene,
     totalDuration,
     isLoading,
-    isGenerating,
-    setSelectedSceneId,
+    isGenerating: store.isGenerating,
+    setSelectedSceneId: store.setSelectedSceneId,
     updateSelectedScene,
     handleAddScene,
     handleDuplicate,
     handleRemove,
     handleGenerateWithAi,
+    refetch,
   };
 }
