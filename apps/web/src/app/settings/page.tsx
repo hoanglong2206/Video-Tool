@@ -140,7 +140,7 @@ export default function SettingsPage(): React.ReactElement {
                           e.stopPropagation();
                           setAutoProceedDelaySeconds(sec);
                         }}
-                        className={`text-[10px] font-mono px-2 py-0.5 rounded transition-colors ${
+                        className={`text-[10px] font-mono px-2 py-0.5 rounded transition-colors cursor-pointer ${
                           autoProceedDelaySeconds === sec
                             ? "bg-emerald-600 text-white font-bold"
                             : "bg-[#101520] text-slate-400 hover:text-slate-200 border border-[#1E2638]"

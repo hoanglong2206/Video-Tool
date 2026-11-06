@@ -1,12 +1,170 @@
 @import "tailwindcss";
 @config "../../tailwind.config.ts";
 
+/* -------------------------------------------------------------------------
+   Design System & Color Tokens (Light & Dark Theme)
+   ------------------------------------------------------------------------- */
 :root {
-  --background: #0B0F17;
-  --foreground: #F1F5F9;
+  /* Light Mode Baseline Palette */
+  --background: #F8FAFC;
+  --foreground: #0F172A;
+
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+  --card-subtle: #F1F5F9;
+
+  --popover: #FFFFFF;
+  --popover-foreground: #0F172A;
+
+  --primary: #2563EB;
+  --primary-foreground: #FFFFFF;
+  --primary-hover: #1D4ED8;
+
+  --secondary: #F1F5F9;
+  --secondary-foreground: #0F172A;
+
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+
+  --accent: #E2E8F0;
+  --accent-foreground: #0F172A;
+
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+
+  --border: #E2E8F0;
+  --border-highlight: #CBD5E1;
+  --input: #E2E8F0;
+  --ring: #2563EB;
+
   --radius: 0.5rem;
+
+  /* Studio Specific Semantic Variables (Light) */
+  --studio-bg: #F8FAFC;
+  --studio-sidebar: #FFFFFF;
+  --studio-card: #FFFFFF;
+  --studio-card-hover: #F1F5F9;
+  --studio-border: #E2E8F0;
+  --studio-border-hover: #CBD5E1;
+  --studio-primary: #2563EB;
+  --studio-cyan: #0891B2;
+  --studio-emerald: #059669;
+  --studio-amber: #D97706;
+  --studio-purple: #7C3AED;
+  --studio-text: #0F172A;
+  --studio-text-muted: #64748B;
+  --studio-text-subtle: #94A3B8;
+
+  /* Status Colors (Light) */
+  --status-in-progress-bg: #EFF6FF;
+  --status-in-progress-text: #1D4ED8;
+  --status-in-progress-border: #BFDBFE;
+
+  --status-approval-bg: #FEF3C7;
+  --status-approval-text: #B45309;
+  --status-approval-border: #FDE68A;
+
+  --status-completed-bg: #ECFDF5;
+  --status-completed-text: #047857;
+  --status-completed-border: #A7F3D0;
 }
 
+.dark {
+  /* Dark Mode Palette (Studio High-Tech Dark Theme) */
+  --background: #0B0F17;
+  --foreground: #F1F5F9;
+
+  --card: #101520;
+  --card-foreground: #F1F5F9;
+  --card-subtle: #0E131E;
+
+  --popover: #0E131E;
+  --popover-foreground: #F1F5F9;
+
+  --primary: #3B82F6;
+  --primary-foreground: #FFFFFF;
+  --primary-hover: #60A5FA;
+
+  --secondary: #161D2B;
+  --secondary-foreground: #F1F5F9;
+
+  --muted: #141B29;
+  --muted-foreground: #94A3B8;
+
+  --accent: #1E2638;
+  --accent-foreground: #F1F5F9;
+
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+
+  --border: #1E2638;
+  --border-highlight: #28354D;
+  --input: #1E2638;
+  --ring: #3B82F6;
+
+  /* Studio Specific Semantic Variables (Dark) */
+  --studio-bg: #0B0F17;
+  --studio-sidebar: #0A0E17;
+  --studio-card: #101520;
+  --studio-card-hover: #141B29;
+  --studio-border: #1E2638;
+  --studio-border-hover: #2E3B54;
+  --studio-primary: #3B82F6;
+  --studio-cyan: #06B6D4;
+  --studio-emerald: #10B981;
+  --studio-amber: #F59E0B;
+  --studio-purple: #A855F7;
+  --studio-text: #F1F5F9;
+  --studio-text-muted: #94A3B8;
+  --studio-text-subtle: #64748B;
+
+  /* Status Colors (Dark) */
+  --status-in-progress-bg: rgba(59, 130, 246, 0.15);
+  --status-in-progress-text: #60A5FA;
+  --status-in-progress-border: rgba(59, 130, 246, 0.35);
+
+  --status-approval-bg: rgba(245, 158, 11, 0.15);
+  --status-approval-text: #FBBF24;
+  --status-approval-border: rgba(245, 158, 11, 0.35);
+
+  --status-completed-bg: rgba(16, 185, 129, 0.15);
+  --status-completed-text: #34D399;
+  --status-completed-border: rgba(16, 185, 129, 0.35);
+}
+
+/* -------------------------------------------------------------------------
+   Global Interactive Cursors: Ensure any interactive element has cursor: pointer
+   ------------------------------------------------------------------------- */
+button,
+[role="button"],
+a,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+input[type="checkbox"],
+input[type="radio"],
+select,
+label[for],
+summary,
+[data-clickable="true"],
+.cursor-pointer,
+[role="tab"],
+[role="switch"],
+[role="menuitem"],
+[role="option"] {
+  cursor: pointer !important;
+}
+
+/* Disabled elements should display not-allowed */
+button:disabled,
+[disabled],
+.disabled {
+  cursor: not-allowed !important;
+}
+
+/* -------------------------------------------------------------------------
+   Base Typography & Body
+   ------------------------------------------------------------------------- */
 body {
   background-color: var(--background);
   color: var(--foreground);
@@ -15,21 +173,23 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Custom subtle scrollbar */
+/* -------------------------------------------------------------------------
+   Custom Subtle Studio Scrollbar (Dark & Light)
+   ------------------------------------------------------------------------- */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0B0F17;
+  background: var(--studio-bg);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1E2638;
+  background: var(--studio-border);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #2E3B54;
+  background: var(--studio-border-hover);
 }

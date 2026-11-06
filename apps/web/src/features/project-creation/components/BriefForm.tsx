@@ -86,7 +86,7 @@ export function BriefForm({
                 "Video giới thiệu sản phẩm cao cấp tai nghe không dây chống ồn Aurora X1. Phong cách cinematic tối màu, ánh sáng viền studio (rim-light), hiệu ứng chuyển động kim loại phản chiếu, âm thanh dồn dập kịch tính và tiết lộ sản phẩm bùng nổ."
               )
             }
-            className="text-[11px] text-blue-400 hover:text-blue-300"
+            className="text-[11px] text-blue-400 hover:text-blue-300 cursor-pointer"
           >
             Sử dụng mẫu brief chuẩn
           </button>
@@ -129,7 +129,7 @@ export function BriefForm({
                   key={dur}
                   type="button"
                   onClick={() => onChangeField("duration", dur)}
-                  className={`py-1.5 text-xs rounded font-mono font-medium transition-colors ${
+                  className={`py-1.5 text-xs rounded font-mono font-medium transition-colors cursor-pointer ${
                     formData.duration === dur
                       ? "bg-blue-600 text-white font-bold"
                       : "bg-[#0E131E] text-slate-400 border border-[#1E2638] hover:text-slate-200"
@@ -156,7 +156,7 @@ export function BriefForm({
                   key={ratio.id}
                   type="button"
                   onClick={() => onChangeField("aspectRatio", ratio.id)}
-                  className={`py-1.5 text-xs rounded font-mono font-medium transition-colors ${
+                  className={`py-1.5 text-xs rounded font-mono font-medium transition-colors cursor-pointer ${
                     formData.aspectRatio === ratio.id
                       ? "bg-blue-600 text-white font-bold"
                       : "bg-[#0E131E] text-slate-400 border border-[#1E2638] hover:text-slate-200"
@@ -179,7 +179,7 @@ export function BriefForm({
                   key={res}
                   type="button"
                   onClick={() => onChangeField("resolution", res)}
-                  className={`py-1.5 text-xs rounded font-mono font-medium transition-colors ${
+                  className={`py-1.5 text-xs rounded font-mono font-medium transition-colors cursor-pointer ${
                     formData.resolution === res
                       ? "bg-cyan-600 text-white font-bold"
                       : "bg-[#0E131E] text-slate-400 border border-[#1E2638] hover:text-slate-200"
@@ -229,7 +229,7 @@ export function BriefForm({
         <Button
           type="button"
           onClick={onSubmitAnalyze}
-          className="bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-sm h-11 px-8 rounded-lg shadow-lg shadow-blue-500/25 flex items-center gap-2.5 transition-all hover:scale-[1.01]"
+          className="bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-sm h-11 px-8 rounded-lg shadow-lg shadow-blue-500/25 flex items-center gap-2.5 transition-all hover:scale-[1.01] cursor-pointer"
         >
           <Sparkles className="w-4 h-4" />
           <span>Khởi chạy Phân tích AI (LLM + Vision + Prompt Builder + Schema) ➔</span>

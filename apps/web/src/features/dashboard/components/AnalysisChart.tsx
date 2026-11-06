@@ -93,7 +93,7 @@ export function AnalysisChart(): React.ReactElement {
           <button
             onClick={() => setActiveMetric("throughput")}
             className={cn(
-              "text-[10px] px-2 py-0.5 rounded font-medium transition-all",
+              "text-[10px] px-2 py-0.5 rounded font-medium transition-all cursor-pointer",
               activeMetric === "throughput"
                 ? "bg-blue-600 text-white shadow-sm"
                 : "text-slate-400 hover:text-slate-200"
@@ -104,7 +104,7 @@ export function AnalysisChart(): React.ReactElement {
           <button
             onClick={() => setActiveMetric("render_fps")}
             className={cn(
-              "text-[10px] px-2 py-0.5 rounded font-medium transition-all",
+              "text-[10px] px-2 py-0.5 rounded font-medium transition-all cursor-pointer",
               activeMetric === "render_fps"
                 ? "bg-blue-600 text-white shadow-sm"
                 : "text-slate-400 hover:text-slate-200"
@@ -115,7 +115,7 @@ export function AnalysisChart(): React.ReactElement {
           <button
             onClick={() => setActiveMetric("latency")}
             className={cn(
-              "text-[10px] px-2 py-0.5 rounded font-medium transition-all",
+              "text-[10px] px-2 py-0.5 rounded font-medium transition-all cursor-pointer",
               activeMetric === "latency"
                 ? "bg-blue-600 text-white shadow-sm"
                 : "text-slate-400 hover:text-slate-200"

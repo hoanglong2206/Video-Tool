@@ -50,7 +50,7 @@ export function RecentTwoProjects({ projects }: RecentTwoProjectsProps): React.R
         </div>
         <Link
           href="/projects"
-          className="text-[11px] text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1 transition-colors"
+          className="text-[11px] text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1 transition-colors cursor-pointer"
         >
           Xem tất cả ({projects.length || 2})
           <ArrowUpRight className="w-3 h-3" />

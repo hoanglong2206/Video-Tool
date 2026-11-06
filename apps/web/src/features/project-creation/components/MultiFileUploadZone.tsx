@@ -89,7 +89,7 @@ export function MultiFileUploadZone({
         <button
           type="button"
           onClick={onAddDemoFiles}
-          className="text-[11px] text-cyan-400 hover:text-cyan-300 font-medium flex items-center gap-1 transition-colors"
+          className="text-[11px] text-cyan-400 hover:text-cyan-300 font-medium flex items-center gap-1 transition-colors cursor-pointer"
         >
           <Sparkles className="w-3 h-3" /> Nạp file mẫu Aurora X1
         </button>
@@ -157,7 +157,7 @@ export function MultiFileUploadZone({
                     e.stopPropagation();
                     onRemoveFile(file.id);
                   }}
-                  className="absolute top-1 right-1 w-5 h-5 rounded bg-black/70 hover:bg-red-600 text-slate-300 hover:text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="absolute top-1 right-1 w-5 h-5 rounded bg-black/70 hover:bg-red-600 text-slate-300 hover:text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                   title="Xoá file"
                 >
                   <Trash2 className="w-3 h-3" />

@@ -90,7 +90,7 @@ export function PipelineStageView({
           <div className="flex items-center gap-3">
             <Link
               href="/projects"
-              className="text-xs text-slate-400 hover:text-slate-200 flex items-center gap-1 transition-colors"
+              className="text-xs text-slate-400 hover:text-slate-200 flex items-center gap-1 transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Dự án</span>
@@ -111,7 +111,7 @@ export function PipelineStageView({
           <div className="flex items-center gap-3">
             <Link
               href="/settings"
-              className="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-slate-200 bg-[#101520] border border-[#1E2638] px-2.5 py-1 rounded-md transition-colors"
+              className="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-slate-200 bg-[#101520] border border-[#1E2638] px-2.5 py-1 rounded-md transition-colors cursor-pointer"
             >
               <Settings className="w-3 h-3 text-slate-400" />
               <span>Chế độ:</span>

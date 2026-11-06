@@ -116,7 +116,7 @@ export default function ProjectsPage(): React.ReactElement {
             <button
               key={tab.id}
               onClick={() => setFilter(tab.id as typeof filter)}
-              className={`text-xs px-3 py-1 rounded-md font-medium transition-colors ${
+              className={`text-xs px-3 py-1 rounded-md font-medium transition-colors cursor-pointer ${
                 filter === tab.id
                   ? "bg-blue-600 text-white font-bold"
                   : "text-slate-400 hover:text-slate-200 hover:bg-[#141B29]"

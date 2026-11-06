@@ -50,7 +50,7 @@ export function PipelineJourneyBar({
                 <Link
                   href={`/projects/${projectId}/${stage.id}`}
                   className={cn(
-                    "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs transition-all border",
+                    "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs transition-all border cursor-pointer",
                     isCurrent
                       ? "bg-gradient-to-r from-blue-900/60 to-indigo-900/60 text-blue-300 border-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.25)] font-semibold scale-[1.02]"
                       : isCompleted

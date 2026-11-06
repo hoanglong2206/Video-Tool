@@ -102,7 +102,7 @@ export function StudioSidebar({ className }: StudioSidebarProps): React.ReactEle
         {/* Brand Bar */}
         <Link
           href="/"
-          className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-[#141B29] transition-colors group"
+          className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-[#141B29] transition-colors group cursor-pointer"
         >
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 via-indigo-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform shrink-0">
             <Film className="w-4 h-4 text-white" />
@@ -125,7 +125,7 @@ export function StudioSidebar({ className }: StudioSidebarProps): React.ReactEle
         {/* Primary Action Button: New Project */}
         <Button
           onClick={() => router.push("/projects/new")}
-          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-medium text-xs h-9 shadow-md shadow-blue-600/20 flex items-center justify-center gap-2 rounded-lg border border-blue-400/20 transition-all hover:scale-[1.01]"
+          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-medium text-xs h-9 shadow-md shadow-blue-600/20 flex items-center justify-center gap-2 rounded-lg border border-blue-400/20 transition-all hover:scale-[1.01] cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Tạo mới dự án</span>
@@ -137,7 +137,7 @@ export function StudioSidebar({ className }: StudioSidebarProps): React.ReactEle
           <Link
             href="/"
             className={cn(
-              "flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all group relative",
+              "flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all group relative cursor-pointer",
               isOverview
                 ? "bg-[#141B29] text-blue-400 border border-[#28354D] shadow-sm font-semibold"
                 : "text-slate-400 hover:text-slate-200 hover:bg-[#121723]"
@@ -154,7 +154,7 @@ export function StudioSidebar({ className }: StudioSidebarProps): React.ReactEle
           <Link
             href="/projects"
             className={cn(
-              "flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all group relative",
+              "flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all group relative cursor-pointer",
               isProjects
                 ? "bg-[#141B29] text-blue-400 border border-[#28354D] shadow-sm font-semibold"
                 : "text-slate-400 hover:text-slate-200 hover:bg-[#121723]"
@@ -190,7 +190,7 @@ export function StudioSidebar({ className }: StudioSidebarProps): React.ReactEle
                   key={project.id}
                   href={`/projects/${project.id}/workflow`}
                   className={cn(
-                    "flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs transition-all group relative",
+                    "flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs transition-all group relative cursor-pointer",
                     isCurrent
                       ? "bg-[#151D2C] text-slate-100 border border-[#2D3C57]"
                       : "text-slate-400 hover:text-slate-200 hover:bg-[#111722]"
@@ -233,7 +233,7 @@ export function StudioSidebar({ className }: StudioSidebarProps): React.ReactEle
         <Link
           href="/settings"
           className={cn(
-            "flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all group",
+            "flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all group cursor-pointer",
             isSettings
               ? "bg-[#141B29] text-blue-400 border border-[#28354D] font-semibold"
               : "text-slate-400 hover:text-slate-200 hover:bg-[#121723]"

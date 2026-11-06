@@ -19,7 +19,7 @@ export function CreationHeader({
       <div className="flex items-center gap-3">
         <button
           onClick={onBackToOverview}
-          className="text-xs text-slate-400 hover:text-slate-200 flex items-center gap-1 transition-colors"
+          className="text-xs text-slate-400 hover:text-slate-200 flex items-center gap-1 transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Tổng quan</span>
