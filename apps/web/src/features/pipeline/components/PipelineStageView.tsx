@@ -9,6 +9,7 @@ import {
   getNextStageId,
   getPrevStageId,
   type PipelineStageId,
+  type PipelineStageConfig,
 } from "../config/stages";
 import { PipelineJourneyBar } from "./PipelineJourneyBar";
 import { usePipelineSettingsStore } from "../store/pipelineSettingsStore";
@@ -46,6 +47,9 @@ export function PipelineStageView({
   const [countdown, setCountdown] = useState<number>(autoProceedDelaySeconds);
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [isApproved, setIsApproved] = useState<boolean>(false);
+  const [hoveredStage, setHoveredStage] = useState<PipelineStageConfig | null>(null);
+
+  const displayStage = hoveredStage || stage;
 
   // Auto-proceed logic when approvalMode === 'always_proceed'
   useEffect(() => {
@@ -123,20 +127,29 @@ export function PipelineStageView({
         </header>
 
         {/* 3. The 9-Stage Pipeline Bar (from story -> export) */}
-        <PipelineJourneyBar projectId={projectId} currentStageId={stage.id} />
+        <PipelineJourneyBar
+          projectId={projectId}
+          currentStageId={stage.id}
+          onHoverStage={setHoveredStage}
+        />
 
-        {/* 4. Action & Approval Control Bar */}
-        <div className="bg-[#0E131E] border-b border-[#1C2436] px-6 py-2.5 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-3">
-            <span className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded border bg-emerald-950 text-emerald-300 border-emerald-700/60">
-              {stage.approvalLabel}
+        {/* 4. Action & Approval Control Bar (Fixed height to prevent any layout jump) */}
+        <div className="h-14 bg-[#0E131E] border-b border-[#1C2436] px-6 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <span className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded border bg-emerald-950 text-emerald-300 border-emerald-700/60 shrink-0">
+              {displayStage.approvalLabel}
             </span>
-            <div className="flex flex-col">
-              <span className="text-xs font-bold text-slate-200">
-                Bước 0{stage.stepNumber}: {stage.fullName}
+            <div className="flex flex-col min-w-0">
+              <span className="text-xs font-bold text-slate-200 truncate flex items-center gap-1.5">
+                <span>Bước 0{displayStage.stepNumber}: {displayStage.fullName}</span>
+                {hoveredStage && (
+                  <span className="text-[10px] text-blue-400 font-normal font-mono bg-blue-950/60 px-1 rounded border border-blue-800/40">
+                    Xem trước
+                  </span>
+                )}
               </span>
-              <span className="text-[11px] text-slate-400">
-                {stage.description}
+              <span className="text-[11px] text-slate-400 truncate">
+                {displayStage.description}
               </span>
             </div>
           </div>
