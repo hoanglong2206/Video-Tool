@@ -27,9 +27,9 @@ export function PipelineAutomationSection({
   onSetAudioNotification,
 }: PipelineAutomationSectionProps): React.ReactElement {
   return (
-    <div className="bg-[#101520] border border-[#1C2436] rounded-xl p-4 flex flex-col gap-4">
+    <div className="bg-[#101520] border border-[#1C2436] rounded-xl p-4 md:p-5 flex-1 min-h-0 flex flex-col justify-between">
       {/* Header */}
-      <div className="flex items-center justify-between pb-2 border-b border-[#1C2436]">
+      <div className="flex items-center justify-between pb-2 border-b border-[#1C2436] shrink-0">
         <div className="flex items-center gap-2">
           <GitBranch className="w-4 h-4 text-emerald-400" />
           <h2 className="text-xs font-bold text-slate-200 uppercase tracking-wider">
@@ -42,11 +42,11 @@ export function PipelineAutomationSection({
       </div>
 
       {/* 2 Radio Option Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1 min-h-0 my-2">
         {/* Option A: Manual Human Approval */}
         <div
           onClick={() => onSetApprovalMode("manual")}
-          className={`p-3.5 rounded-lg border cursor-pointer transition-all flex flex-col justify-between ${
+          className={`p-3.5 rounded-lg border cursor-pointer transition-all flex flex-col justify-between h-full ${
             approvalMode === "manual"
               ? "bg-[#141B29] border-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.2)] ring-1 ring-blue-500/40"
               : "bg-[#0E131E] border-[#1E2638] hover:border-slate-600"
@@ -78,7 +78,7 @@ export function PipelineAutomationSection({
         {/* Option B: Always Proceed */}
         <div
           onClick={() => onSetApprovalMode("always_proceed")}
-          className={`p-3.5 rounded-lg border cursor-pointer transition-all flex flex-col justify-between ${
+          className={`p-3.5 rounded-lg border cursor-pointer transition-all flex flex-col justify-between h-full ${
             approvalMode === "always_proceed"
               ? "bg-[#141B29] border-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.2)] ring-1 ring-emerald-500/40"
               : "bg-[#0E131E] border-[#1E2638] hover:border-slate-600"
@@ -129,7 +129,7 @@ export function PipelineAutomationSection({
       </div>
 
       {/* Additional Automation Toggles (No typing!) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-[#1C2436]/60">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2.5 border-t border-[#1C2436]/60 shrink-0">
         <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#0E131E] border border-[#1E2638]">
           <div className="flex items-center gap-2">
             <BookmarkCheck className="w-3.5 h-3.5 text-blue-400" />

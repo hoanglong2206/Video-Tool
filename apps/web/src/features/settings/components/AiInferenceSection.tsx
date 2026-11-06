@@ -56,9 +56,9 @@ export function AiInferenceSection({
   onSetTemperature,
 }: AiInferenceSectionProps): React.ReactElement {
   return (
-    <div className="bg-[#101520] border border-[#1C2436] rounded-xl p-4 flex flex-col gap-3.5">
+    <div className="bg-[#101520] border border-[#1C2436] rounded-xl p-4 md:p-5 flex-1 min-h-0 flex flex-col justify-between">
       {/* Header */}
-      <div className="flex items-center justify-between pb-2 border-b border-[#1C2436]">
+      <div className="flex items-center justify-between pb-2 border-b border-[#1C2436] shrink-0">
         <div className="flex items-center gap-2">
           <Cpu className="w-4 h-4 text-blue-400" />
           <h2 className="text-xs font-bold text-slate-200 uppercase tracking-wider">
@@ -71,7 +71,7 @@ export function AiInferenceSection({
       </div>
 
       {/* 1. AI Provider Selection (Radio Chips) */}
-      <div>
+      <div className="shrink-0 my-1">
         <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">
           Nền tảng AI Provider
         </label>
@@ -109,7 +109,7 @@ export function AiInferenceSection({
       </div>
 
       {/* 2. Select Dropdowns for Models */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1 min-h-0 flex flex-col justify-center my-1">
         {/* LLM Model Dropdown */}
         <div>
           <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-1">
@@ -150,7 +150,7 @@ export function AiInferenceSection({
       </div>
 
       {/* 3. AI Temperature / Creativity (Radio Pills) */}
-      <div className="pt-2 border-t border-[#1C2436]/60 flex items-center justify-between">
+      <div className="pt-2.5 border-t border-[#1C2436]/60 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-1 text-[10px] text-slate-400 font-medium">
           <Thermometer className="w-3.5 h-3.5 text-amber-400" />
           <span>Độ sáng tạo (Temperature):</span>

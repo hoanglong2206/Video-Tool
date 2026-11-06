@@ -58,9 +58,9 @@ export function StorageSchemaSection({
   onSetCleanCache,
 }: StorageSchemaSectionProps): React.ReactElement {
   return (
-    <div className="bg-[#101520] border border-[#1C2436] rounded-xl p-4 flex flex-col gap-3.5">
+    <div className="bg-[#101520] border border-[#1C2436] rounded-xl p-4 md:p-5 flex-1 min-h-0 flex flex-col justify-between">
       {/* Header */}
-      <div className="flex items-center justify-between pb-2 border-b border-[#1C2436]">
+      <div className="flex items-center justify-between pb-2 border-b border-[#1C2436] shrink-0">
         <div className="flex items-center gap-2">
           <HardDrive className="w-4 h-4 text-emerald-400" />
           <h2 className="text-xs font-bold text-slate-200 uppercase tracking-wider">
@@ -73,7 +73,7 @@ export function StorageSchemaSection({
       </div>
 
       {/* Storage Location (Select Dropdown) */}
-      <div>
+      <div className="shrink-0 my-1">
         <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
           Vị trí thư mục Storage
         </label>
@@ -92,12 +92,12 @@ export function StorageSchemaSection({
       </div>
 
       {/* Schema Validator Mode (Radio Cards) */}
-      <div>
-        <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-1.5">
+      <div className="flex-1 min-h-0 flex flex-col justify-center my-1">
+        <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-1.5 shrink-0">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
           Chế độ Schema Validator
         </label>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-1 min-h-0 py-1">
           {SCHEMA_MODES.map((mode) => {
             const isSelected = schemaMode === mode.id;
             return (
@@ -105,7 +105,7 @@ export function StorageSchemaSection({
                 key={mode.id}
                 type="button"
                 onClick={() => onSetSchemaMode(mode.id)}
-                className={`p-2 rounded-lg border text-left flex flex-col justify-between transition-all cursor-pointer ${
+                className={`p-2.5 rounded-lg border text-left flex flex-col justify-between transition-all cursor-pointer h-full ${
                   isSelected
                     ? "bg-emerald-950/40 border-emerald-500 ring-1 ring-emerald-500/40"
                     : "bg-[#0E131E] border-[#1E2638] hover:border-slate-600"
@@ -138,7 +138,7 @@ export function StorageSchemaSection({
       </div>
 
       {/* Auto-clean cache toggle switch */}
-      <div className="pt-2 border-t border-[#1C2436]/60 flex items-center justify-between">
+      <div className="pt-2.5 border-t border-[#1C2436]/60 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
           <Trash2 className="w-3.5 h-3.5 text-slate-400" />
           <div className="flex flex-col">

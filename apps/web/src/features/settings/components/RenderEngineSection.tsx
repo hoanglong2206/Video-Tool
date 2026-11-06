@@ -46,9 +46,9 @@ export function RenderEngineSection({
   onSetCodec,
 }: RenderEngineSectionProps): React.ReactElement {
   return (
-    <div className="bg-[#101520] border border-[#1C2436] rounded-xl p-4 flex flex-col gap-3.5">
+    <div className="bg-[#101520] border border-[#1C2436] rounded-xl p-4 md:p-5 flex-1 min-h-0 flex flex-col justify-between">
       {/* Header */}
-      <div className="flex items-center justify-between pb-2 border-b border-[#1C2436]">
+      <div className="flex items-center justify-between pb-2 border-b border-[#1C2436] shrink-0">
         <div className="flex items-center gap-2">
           <Film className="w-4 h-4 text-cyan-400" />
           <h2 className="text-xs font-bold text-slate-200 uppercase tracking-wider">
@@ -61,7 +61,7 @@ export function RenderEngineSection({
       </div>
 
       {/* GPU Hardware Acceleration (Select Dropdown) */}
-      <div>
+      <div className="shrink-0 my-1">
         <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-1">
           <Zap className="w-3 h-3 text-amber-400" /> Phần cứng tăng tốc GPU
         </label>
@@ -80,7 +80,7 @@ export function RenderEngineSection({
       </div>
 
       {/* 2 Columns: Preset & Concurrency */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1 min-h-0 flex flex-col justify-center my-1">
         {/* Render Preset Dropdown */}
         <div>
           <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-1">
@@ -125,7 +125,7 @@ export function RenderEngineSection({
       </div>
 
       {/* Video Codec (Radio Buttons) */}
-      <div className="pt-2 border-t border-[#1C2436]/60 flex items-center justify-between">
+      <div className="pt-2.5 border-t border-[#1C2436]/60 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-1 text-[10px] text-slate-400 font-medium">
           <Video className="w-3.5 h-3.5 text-blue-400" />
           <span>Định dạng Video Codec:</span>
