@@ -26,44 +26,6 @@ export interface StudioSidebarProps {
   className?: string;
 }
 
-const FALLBACK_RECENT_PROJECTS: ProjectItem[] = [
-  {
-    id: "proj-e6240645",
-    name: "Aurora X1 Launch",
-    stageDescription: "Stage 01 · Brief analysis",
-    progress: 10,
-    status: "in_progress",
-  },
-  {
-    id: "proj-3b38d3ac",
-    name: "Nike Cyber Air Max",
-    stageDescription: "Stage 03 · 3D Assets",
-    progress: 35,
-    status: "in_progress",
-  },
-  {
-    id: "proj-7f89b1c2",
-    name: "Sony Alpha Cine TVC",
-    stageDescription: "Stage 02 · Storyboard",
-    progress: 20,
-    status: "waiting_approval",
-  },
-  {
-    id: "proj-9d41a8e5",
-    name: "Tesla Cyberpunk Spot",
-    stageDescription: "Stage 09 · Render",
-    progress: 100,
-    status: "completed",
-  },
-  {
-    id: "proj-1c22d43e",
-    name: "Cosmic Kinetic Audio",
-    stageDescription: "Stage 05 · Composition",
-    progress: 50,
-    status: "in_progress",
-  },
-];
-
 export function StudioSidebar({ className }: StudioSidebarProps): React.ReactElement {
   const pathname = usePathname();
   const router = useRouter();
@@ -74,16 +36,9 @@ export function StudioSidebar({ className }: StudioSidebarProps): React.ReactEle
     staleTime: 10000,
   });
 
-  // Extract up to 5 recent projects, combining live API projects with fallback seeds
+  // Extract up to 5 recent projects purely from live API
   const recentProjects: ProjectItem[] = React.useMemo(() => {
-    const live = data?.projects || [];
-    const combined = [...live];
-    for (const fb of FALLBACK_RECENT_PROJECTS) {
-      if (!combined.some((p) => p.id === fb.id || p.name === fb.name)) {
-        combined.push(fb);
-      }
-    }
-    return combined.slice(0, 5);
+    return (data?.projects || []).slice(0, 5);
   }, [data?.projects]);
 
   const isOverview = pathname === "/" || pathname === "/overview";
@@ -180,49 +135,55 @@ export function StudioSidebar({ className }: StudioSidebarProps): React.ReactEle
           </div>
 
           <div className="flex flex-col gap-1">
-            {recentProjects.map((project) => {
-              const isCurrent = pathname.includes(project.id);
-              const isCompleted = project.status === "completed";
-              const isWaiting = project.status === "waiting_approval";
+            {recentProjects.length === 0 ? (
+              <div className="px-2.5 py-3 text-center rounded-lg bg-[#0E131E] border border-dashed border-[#1E2638]">
+                <p className="text-[11px] text-slate-500">Chưa có dự án nào</p>
+              </div>
+            ) : (
+              recentProjects.map((project) => {
+                const isCurrent = pathname.includes(project.id);
+                const isCompleted = project.status === "completed";
+                const isWaiting = project.status === "waiting_approval";
 
-              return (
-                <Link
-                  key={project.id}
-                  href={`/projects/${project.id}/workflow`}
-                  className={cn(
-                    "flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs transition-all group relative cursor-pointer",
-                    isCurrent
-                      ? "bg-[#151D2C] text-slate-100 border border-[#2D3C57]"
-                      : "text-slate-400 hover:text-slate-200 hover:bg-[#111722]"
-                  )}
-                  title={`${project.name} (${project.stageDescription || "Pipeline"})`}
-                >
-                  {/* Status Indicator Dot */}
-                  <span
+                return (
+                  <Link
+                    key={project.id}
+                    href={`/projects/${project.id}/workflow`}
                     className={cn(
-                      "w-2 h-2 rounded-full shrink-0",
-                      isCompleted
-                        ? "bg-emerald-400"
-                        : isWaiting
-                        ? "bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.6)]"
-                        : "bg-blue-400"
+                      "flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs transition-all group relative cursor-pointer",
+                      isCurrent
+                        ? "bg-[#151D2C] text-slate-100 border border-[#2D3C57]"
+                        : "text-slate-400 hover:text-slate-200 hover:bg-[#111722]"
                     )}
-                  />
+                    title={`${project.name} (${project.stageDescription || "Pipeline"})`}
+                  >
+                    {/* Status Indicator Dot */}
+                    <span
+                      className={cn(
+                        "w-2 h-2 rounded-full shrink-0",
+                        isCompleted
+                          ? "bg-emerald-400"
+                          : isWaiting
+                          ? "bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.6)]"
+                          : "bg-blue-400"
+                      )}
+                    />
 
-                  {/* Project Info */}
-                  <div className="flex flex-col min-w-0 flex-1">
-                    <span className="truncate font-medium text-slate-200 group-hover:text-white leading-tight">
-                      {project.name}
-                    </span>
-                    <span className="text-[10px] text-slate-400 truncate mt-0.5 font-mono">
-                      {project.stageDescription ? project.stageDescription.split("·")[0].trim() : "Stage 01"} · {project.progress}%
-                    </span>
-                  </div>
+                    {/* Project Info */}
+                    <div className="flex flex-col min-w-0 flex-1">
+                      <span className="truncate font-medium text-slate-200 group-hover:text-white leading-tight">
+                        {project.name}
+                      </span>
+                      <span className="text-[10px] text-slate-400 truncate mt-0.5 font-mono">
+                        {project.stageDescription ? project.stageDescription.split("·")[0].trim() : "Stage 01"} · {project.progress}%
+                      </span>
+                    </div>
 
-                  <ChevronRight className="w-3 h-3 text-slate-600 group-hover:text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-                </Link>
-              );
-            })}
+                    <ChevronRight className="w-3 h-3 text-slate-600 group-hover:text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                  </Link>
+                );
+              })
+            )}
           </div>
         </div>
       </div>

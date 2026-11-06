@@ -21,45 +21,7 @@ export default function ProjectsPage(): React.ReactElement {
     queryFn: () => dashboardService.getOverview(),
   });
 
-  const defaultProjects = [
-    {
-      id: "proj-e6240645",
-      name: "Aurora X1 Launch",
-      stageDescription: "Stage 01 · Phân tích Brief & Moodboard",
-      progress: 10,
-      status: "in_progress" as const,
-    },
-    {
-      id: "proj-3b38d3ac",
-      name: "Nike Cyber Air Max",
-      stageDescription: "Stage 03 · Khởi tạo mô hình 3D",
-      progress: 35,
-      status: "in_progress" as const,
-    },
-    {
-      id: "proj-7f89b1c2",
-      name: "Sony Alpha Cine TVC",
-      stageDescription: "Stage 02 · Storyboard Visual",
-      progress: 20,
-      status: "waiting_approval" as const,
-    },
-    {
-      id: "proj-9d41a8e5",
-      name: "Tesla Cyberpunk Spot",
-      stageDescription: "Stage 09 · Render & Post",
-      progress: 100,
-      status: "completed" as const,
-    },
-    {
-      id: "proj-1c22d43e",
-      name: "Cosmic Kinetic Audio",
-      stageDescription: "Stage 05 · Composition Remotion",
-      progress: 50,
-      status: "in_progress" as const,
-    },
-  ];
-
-  const projects = data?.projects?.length ? data.projects : defaultProjects;
+  const projects = data?.projects || [];
 
   const filteredProjects = projects.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
@@ -129,44 +91,63 @@ export default function ProjectsPage(): React.ReactElement {
 
         {/* Projects Grid */}
         <main className="flex-1 overflow-y-auto p-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredProjects.map((project) => (
-              <div
-                key={project.id}
-                onClick={() => router.push(`/projects/${project.id}/workflow`)}
-                className="bg-[#101520] border border-[#1C2436] hover:border-[#2D3C57] rounded-xl p-3.5 flex flex-col justify-between transition-all cursor-pointer group hover:bg-[#121826]"
-              >
-                {/* 16:9 Thumbnail */}
-                <div className="w-full aspect-[16/9] rounded-lg bg-gradient-to-br from-[#141B29] to-[#0A0D14] border border-[#1E2638] relative overflow-hidden flex items-center justify-center group-hover:border-blue-500/40 transition-colors">
-                  <div className="w-9 h-9 rounded-full bg-blue-600/80 backdrop-blur-sm border border-blue-400/40 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">
-                    <Play className="w-4 h-4 fill-current ml-0.5" />
-                  </div>
-                  <div className="absolute top-2 right-2">
-                    <StatusBadge status={project.status} />
-                  </div>
-                </div>
-
-                {/* Project details */}
-                <div className="mt-3">
-                  <h3 className="text-sm font-bold text-slate-100 group-hover:text-blue-300 transition-colors truncate">
-                    {project.name}
-                  </h3>
-                  <p className="text-xs text-slate-400 truncate mt-0.5">
-                    {project.stageDescription || "Pipeline v2.0"}
-                  </p>
-                </div>
-
-                {/* Progress bar */}
-                <div className="mt-3 pt-2.5 border-t border-[#1C2436]/60">
-                  <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-1">
-                    <span>Tiến độ hoàn thành</span>
-                    <span className="font-semibold text-slate-200">{project.progress}%</span>
-                  </div>
-                  <Progress value={project.progress} className="h-1.5 [&>div]:bg-blue-500" />
-                </div>
+          {filteredProjects.length === 0 ? (
+            <div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-[#1E2638] rounded-xl bg-[#0E131E] my-8 max-w-lg mx-auto">
+              <div className="w-12 h-12 rounded-full bg-blue-950/60 border border-blue-800/40 flex items-center justify-center text-blue-400 mb-3">
+                <Film className="w-6 h-6" />
               </div>
-            ))}
-          </div>
+              <h3 className="text-sm font-semibold text-slate-200">Chưa có dự án nào</h3>
+              <p className="text-xs text-slate-400 mt-1 max-w-sm">
+                Bắt đầu tạo dự án video quảng cáo đầu tiên với bộ tứ AI (LLM, Vision, Prompt Builder & Remotion).
+              </p>
+              <Button
+                size="sm"
+                onClick={() => router.push("/projects/new")}
+                className="mt-4 h-8 px-4 bg-blue-600 hover:bg-blue-500 text-white text-xs cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5 mr-1" /> Tạo mới dự án
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredProjects.map((project) => (
+                <div
+                  key={project.id}
+                  onClick={() => router.push(`/projects/${project.id}/workflow`)}
+                  className="bg-[#101520] border border-[#1C2436] hover:border-[#2D3C57] rounded-xl p-3.5 flex flex-col justify-between transition-all cursor-pointer group hover:bg-[#121826]"
+                >
+                  {/* 16:9 Thumbnail */}
+                  <div className="w-full aspect-[16/9] rounded-lg bg-gradient-to-br from-[#141B29] to-[#0A0D14] border border-[#1E2638] relative overflow-hidden flex items-center justify-center group-hover:border-blue-500/40 transition-colors">
+                    <div className="w-9 h-9 rounded-full bg-blue-600/80 backdrop-blur-sm border border-blue-400/40 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">
+                      <Play className="w-4 h-4 fill-current ml-0.5" />
+                    </div>
+                    <div className="absolute top-2 right-2">
+                      <StatusBadge status={project.status} />
+                    </div>
+                  </div>
+
+                  {/* Project details */}
+                  <div className="mt-3">
+                    <h3 className="text-sm font-bold text-slate-100 group-hover:text-blue-300 transition-colors truncate">
+                      {project.name}
+                    </h3>
+                    <p className="text-xs text-slate-400 truncate mt-0.5">
+                      {project.stageDescription || "Pipeline v2.0"}
+                    </p>
+                  </div>
+
+                  {/* Progress bar */}
+                  <div className="mt-3 pt-2.5 border-t border-[#1C2436]/60">
+                    <div className="flex items-center justify-between text-[10px] font-mono tabular-nums text-slate-400 mb-1">
+                      <span>Tiến độ hoàn thành</span>
+                      <span className="font-semibold text-slate-200">{project.progress}%</span>
+                    </div>
+                    <Progress value={project.progress} className="h-1.5 [&>div]:bg-blue-500" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </main>
       </div>
     </div>

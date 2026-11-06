@@ -1,257 +1,152 @@
-# AI Motion Studio (`video-ai-demo`)
+# Video AI Studio (`video-ai-demo`)
 
-> **Automated Cinematic Video Production Platform**  
-> *Transforming Client Briefs & Product Imagery into Broadcast-Quality 4K60 Product Launch Trailers*
-
----
-
-## 🌟 Executive Overview
-
-**AI Motion Studio** is an open-source, local-first video production platform designed to automate end-to-end commercial video production for real client briefs. Inspired by the sleek, minimalist aesthetics of **Apple keynote announcements and hardware launch trailers**, the studio combines modern AI reasoning, local image diffusion, programmatic 3D raytracing, and code-driven motion design.
-
-The platform streamlines what traditionally required a multidisciplinary agency team into an integrated, human-steered software pipeline:
-* **Client Brief Analysis & Creative Direction:** Automated expansion of unstructured client requests, target audiences, and brand palettes into actionable creative concepts.
-* **AI-Generated Storyboard & Scene Planning:** Intelligent generation of multi-scene plans, camera trajectories, typography copy, and visual timing.
-* **Image Synthesis & Asset Processing:** Text-to-image and image-to-image product restyling via **ComfyUI** (Flux/SDXL), transparent cutouts via **OpenCV**, and color-curve matching with **Pillow**.
-* **Scene Composition & Layer Management:** Declarative Scene DSL managing 3D models, raster cutouts, kinetic typography, and studio lighting rigs.
-* **Organic Motion Design & Visual Effects:** Second-order physical spring physics ($F = -kx - c\dot{x}$), micro-staggered typography reveals, and camera parallax powered by **GSAP** and **Remotion**.
-* **3D Production Using Blender:** Automated 3D scene staging, material physics (metallic, glass, anodized aluminum), and specular rim light sweeps executed via headless **Blender 4.x Python API (`bpy`)**, with real-time **Three.js** in-browser preview.
-* **Sound Design & Audio Synchronization:** Beat-aligned scene transition cuts, multi-track audio sequencing, and automated voiceover ducking.
-* **Hardware-Accelerated Video Rendering:** Compositing 3D and 2D passes and encoding master 4K60 MP4 deliverables using **FFmpeg** and **NVIDIA NVENC** (`h264_nvenc`).
-* **Human-in-the-Loop (HITL) Governance:** Mandatory human review, editing, and approval gates at critical milestones (Storyboard, Assets, Final Master).
+> **Hệ thống Sản xuất Video Quảng cáo Tự động bằng AI (AI-Native Video Production Studio)**  
+> *Chuyển đổi yêu cầu kịch bản & hình ảnh/video của khách hàng thành video giới thiệu sản phẩm chuẩn điện ảnh 4K.*
 
 ---
 
-## 🏗️ Architecture & Core Principles
+## 🌟 Tổng quan Dự án
 
-The platform is designed around three architectural pillars and one operational discipline:
-
-```mermaid
-graph TD
-    subgraph Principles ["Architectural Principles"]
-        LF["1. Local-First<br>Runs completely offline on local workstation / private GPU"]
-        OS["2. Open-Source-First<br>Postgres, Valkey, Temporal, Ollama, ComfyUI, Blender, FFmpeg"]
-        CR["3. Cloud-Ready<br>Provider Adapter Pattern for S3, Cloud LLMs, and distributed workers"]
-    end
-
-    subgraph ProcessSeparation ["Process Separation Model"]
-        Web["apps/web<br>Next.js Studio UI & Remotion Player"]
-        API["server/backend<br>FastAPI REST / WS Gateway & Postgres"]
-        AIEngine["server/ai_engine<br>Ollama & ComfyUI Diffusion Services"]
-        Orch["Temporal Cluster<br>Durable Workflow Orchestrator"]
-        Worker["worker<br>Temporal Background Worker Daemon"]
-        Engine["apps/video-engine<br>Remotion & GSAP Motion Engine"]
-    end
-
-    Web -->|HTTP / WS| API
-    API -->|Workflow Trigger| Orch
-    Orch -->|Dispatch Activities| Worker
-    Worker -->|Inference / Vision| AIEngine
-    Worker -->|Subprocess| Engine
-    Worker -->|Subprocess| Blender["Blender 4.x CLI"]
-    Worker -->|Subprocess| FFmpeg["FFmpeg NVENC"]
-```
-
-1. **Local-First:** Full end-to-end functionality on a single workstation without mandatory cloud accounts or subscription APIs.
-2. **Open-Source-First:** Eliminates proprietary vendor lock-in by utilizing community-backed open-source engines (**Valkey** over Redis, **Blender** for 3D, **Ollama** and **ComfyUI** for AI, **Temporal** for orchestration).
-3. **Cloud-Ready:** Standardized Provider Adapter interfaces allow instant migration to AWS S3, Cloudflare R2, cloud GPUs, and managed container clusters.
-4. **Decoupled Process Separation:** Lightweight API handling (`server/backend`) is strictly separated from AI processing adapters (`server/ai_engine`), long-running Temporal workflows, background worker daemons (`worker`), and GPU-intensive rendering workloads (`apps/video-engine`).
+**Video AI Studio** là nền tảng sản xuất video ứng dụng AI toàn diện, tự động hóa từ khâu tiếp nhận brief, phân tích hình ảnh, tạo storyboard, bố cục phân cảnh 3D/2D, cho đến render xuất bản video hoàn thiện:
+* **LLM & Prompt Builder:** Phân tích yêu cầu, bóc tách thông điệp cốt lõi, khách hàng mục tiêu và chuẩn hóa prompt sản xuất.
+* **Vision AI:** Nhận diện đối tượng từ ảnh/logo khách hàng tải lên, phát hiện phong cách ánh sáng và trích xuất bảng màu thương hiệu.
+* **JSON Schema Validator:** Kiểm định cấu trúc dữ liệu đầu ra đạt chuẩn 100% trước khi chuyển sang khâu dựng.
+* **Pipeline Sản xuất 10 bước (Story ➔ Export):** Hỗ trợ 2 chế độ:
+  1. *Phê duyệt thủ công (Human Approval)* cho từng khâu.
+  2. *Tự động chuyển bước (Always Proceed)* theo đồng hồ đếm ngược.
+* **Giao diện Vibe Coding chuẩn Studio:** Khóa tràn viewport (không scroll toàn trang, cuộn nội bộ), zero-typing (ưu tiên radio cards, select dropdowns, toggles) và 100% `cursor-pointer`.
 
 ---
 
-## 📊 Implementation Status: Truth in Documentation
+## 📋 Yêu cầu Hệ thống (Prerequisites)
 
-The repository features a fully functional frontend studio and backend API gateway, adhering strictly to the architecture specifications:
-
-| Subsystem / Component | Technology Baseline | Current Repository Status | Path / Location |
-| :--- | :--- | :--- | :--- |
-| **Monorepo Tooling** | Bun / Node.js Workspace, Concurrently, PowerShell | **Fully Implemented** | Root directory (`scripts/`) |
-| **Frontend Studio** | Next.js 16.4.5, React 19.3, Tailwind v4.3, shadcn/ui | **Fully Implemented (11 Screens)** | `apps/web/` |
-| **UI Design System** | 11 High-Fidelity Studio Screens Pixel-Matched | **Fully Implemented** | `apps/web/src/features/` |
-| **Backend API Gateway** | FastAPI 0.162+, Pydantic v2.14+, Uvicorn 0.54+ | **Fully Implemented (16 Routes)**| `server/backend/` |
-| **Dependencies Tooling** | `npm-check-updates`, `pur` / pip checker | **Fully Implemented** | `scripts/check-deps.ps1`, `scripts/upgrade-deps.ps1` |
-| **AI Engine Services** | Ollama, ComfyUI, OpenCV, Pillow | **Scaffolded (Specification Complete)** | `server/ai_engine/` |
-| **Worker Daemon** | Temporal Python Worker, Blender CLI, FFmpeg | **Scaffolded (Specification Complete)** | `worker/` |
-| **Motion Engine** | Remotion v4, GSAP 3.12+, Three.js | **Planned (Specification Complete)** | `apps/video-engine/` |
-| **Supporting Infra** | Docker Compose (PostgreSQL 16, Valkey 7, Temporal) | **Configured** | `docker-compose.infra.yml` |
-| **Configuration** | Environment variable specification & template | **Configured** | `.env.example` |
-| **Technical Documentation**| Complete architectural, development & testing guides | **Complete & Verified** | `docs/`, `PROJECT.md`, `CLAUDE.md` |
+Trước khi cài đặt, hãy đảm bảo máy tính đã cài:
+1. **Node.js** $\ge$ 20.x hoặc **Bun** $\ge$ 1.1
+2. **Python** $\ge$ 3.11 hoặc 3.12 (khuyên dùng kèm môi trường ảo `.venv`)
+3. **Git**
+4. *(Tùy chọn)* **FFmpeg** & **NVIDIA GPU** (nếu render Remotion tăng tốc phần cứng)
 
 ---
 
-## 🗂️ Repository Structure
+## ⚙️ Hướng dẫn Cài đặt (Installation)
 
-```text
-video-ai-demo/
-├── apps/
-│   ├── web/                    # Next.js frontend (App Router, Tailwind, shadcn/ui, Remotion Player)
-│   └── video-engine/           # Remotion video motion compositions, GSAP spring curves, shaders
-├── server/
-│   ├── backend/                # FastAPI backend (Pydantic v2, SQLAlchemy 2.0 Async, Alembic, Temporal client)
-│   └── ai_engine/              # AI Engine services (Ollama LLM adapter, ComfyUI diffusion, OpenCV/Pillow)
-├── worker/                     # Temporal worker daemon (Workflows, Activities, Blender CLI, FFmpeg NVENC)
-├── packages/                   # Shared DTO contracts, Scene DSL schemas, and common utilities
-├── scripts/                    # Automation, render testing, and environment setup scripts
-├── UI Design/                  # 11 Production UI screen specifications & visual studio mockups
-├── docs/
-│   ├── architecture/           # System architecture, topology, and technology stack rationalizations
-│   └── development/            # Coding standards, local setup, environment variables, testing strategy
-├── docker-compose.infra.yml    # Docker Compose for PostgreSQL, Valkey, and Temporal Cluster
-├── .env.example                # Canonical template for environment configurations
-├── CLAUDE.md                   # AI agent instructions, coding constraints, and rules
-├── PROJECT.md                  # Master product specification and workflow details
-└── README.md                   # Repository overview & quickstart index (this document)
-```
-
----
-
-## 🎨 UI Design System & Studio Views (`UI Design/`)
-
-The platform's frontend experience is grounded in 11 comprehensive UI mockups located in the `UI Design/` directory:
-
-1. **Dashboard (`Dashboard.png`):** Studio overview, recent video projects, pipeline status, and performance metrics.
-2. **Project Creation & Client Brief (`Project Creation & Client Brief.png`):** Client intake, USP input, aspect ratio, duration, and brand kit selection.
-3. **Storyboard Studio (`Storyboard Studio.png`):** Multi-scene card matrix with visual pacing, camera prompts, and copy editing (HITL Gate 1).
-4. **Asset Studio (`Asset Studio.png`):** AI image generation, prompt tuning, ComfyUI diffusion outputs, and transparent cutout controls (HITL Gate 2).
-5. **Asset Library & Brand Kit (`Asset Library & Brand Kit.png`):** Reusable logos, product photos, 3D models, fonts, and brand color palettes.
-6. **3D Scene Studio (`3D Scene Studio.png`):** WebGL/Three.js spatial viewport for inspecting 3D model orientation, materials, and camera paths.
-7. **Scene & Motion Editor (`Scene & Motion Editor.png`):** Multi-track timeline, kinetic typography controls, and GSAP spring curves.
-8. **Production Workflow (`Production Workflow.png`):** Visual trace of Temporal workflows, active activities, and execution logs.
-9. **Approval Center (`Approval Center.png`):** Centralized Human-in-the-Loop review deck for side-by-side revision approvals.
-10. **Render & Export Center (`Render & Export Center.png`):** Hardware NVENC encoding settings, bitrates, audio tracks, and 4K60 export (HITL Gate 3).
-11. **Global AI Assistant (`Global AI Assistant.png`):** Persistent creative copilot for conversational brief expansion and styling tips.
-
----
-
-## 💻 Technology Stack Summary
-
-| Domain | Core Technologies & Versions |
-| :--- | :--- |
-| **Frontend UI** | **Next.js 16.4.5**, **React 19.3.1**, TypeScript Strict, **Tailwind CSS v4.3.4**, **shadcn/ui** (Radix UI, CVA), Lucide Icons, Zustand |
-| **Interactive 3D / Video**| Three.js, React Three Fiber, `@remotion/player` |
-| **Backend API Gateway** | **Python 3.11+ / 3.14**, **FastAPI 0.162.0**, **Pydantic v2.14.3**, **Uvicorn 0.54.0**, CORS Support (`server/backend`) |
-| **AI Engine Services** | Ollama (`llama3:8b`), ComfyUI (Flux.1 / SDXL Diffusion), OpenCV, Pillow (`server/ai_engine`) |
-| **Orchestration & Workflow**| Temporal (Python SDK, Temporal Server, Temporal Web UI) |
-| **Database & Cache** | PostgreSQL 16 (Relational state), Valkey 7 (Cache, Session store, PubSub) |
-| **2D Motion Engine** | Remotion v4, GSAP 3.12+ (organic second-order spring physics) (`apps/video-engine`) |
-| **3D Rendering Engine** | Blender 4.1+ (Headless Python API scripting, Cycles raytracing, EEVEE) |
-| **Video Compositing** | FFmpeg 6.1+ & FFprobe (NVIDIA NVENC `h264_nvenc` acceleration) |
-| **Storage Abstraction** | Local Filesystem provider $\rightarrow$ AWS S3 / MinIO provider |
-| **Containerization & Dev** | Docker Compose, Monorepo orchestration scripts (`scripts/dev.ps1`, `scripts/check-deps.ps1`, `scripts/upgrade-deps.ps1`) |
-
----
-
-## 🚀 Quickstart & Local Setup
-
-### 1. Prerequisites
-Ensure your workstation has the following installed:
-* **Docker & Docker Compose** (for PostgreSQL, Valkey, and Temporal)
-* **Python 3.11+** (virtual environment in `.venv`)
-* **Node.js 20+** or **Bun 1.1+**
-* **Blender 4.1+** and **FFmpeg 6.1+** on your system `PATH`
-* **Ollama** and **ComfyUI** (for local AI features)
-
-### 2. Configure Environment
+### Bước 1: Clone mã nguồn
 ```bash
-# Clone the repository
 git clone https://github.com/your-org/video-ai-demo.git
 cd video-ai-demo
+```
 
-# Copy environment configuration template
+### Bước 2: Thiết lập file môi trường
+Tạo file `.env` từ file mẫu:
+```bash
 cp .env.example .env
 ```
-*(Review and customize `.env` as detailed in [docs/development/ENVIRONMENT_VARIABLES.md](docs/development/ENVIRONMENT_VARIABLES.md))*
+> **Lưu ý:** Điền chuỗi kết nối cơ sở dữ liệu `DATABASE_URL` (Supabase PostgreSQL hoặc PostgreSQL local) trong file `.env`.
 
-### 3. Start Core Infrastructure (Docker Compose)
-Launch PostgreSQL 16, Valkey 7, and Temporal Server:
-```bash
-docker compose -f docker-compose.infra.yml up -d
-```
-Verify all containers are healthy:
-```bash
-docker compose -f docker-compose.infra.yml ps
-```
+### Bước 3: Cài đặt Backend (FastAPI Python)
+Tạo môi trường ảo và cài đặt các thư viện phụ thuộc:
 
-### 4. Start Application Services
-
-#### Option A: Unified Monorepo Runner (Recommended)
-Run both the Next.js Frontend Studio and the FastAPI Backend concurrently with a single command:
-```bash
-# Using Bun or npm from the repository root:
-bun run dev
-# or on Windows PowerShell:
-powershell -ExecutionPolicy Bypass -File ./scripts/dev.ps1
+**Trên Windows (PowerShell):**
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r server/backend/requirements.txt
 ```
 
-#### Option B: Standalone Terminal Execution
+**Trên macOS / Linux:**
 ```bash
-# Terminal 1: Backend API Gateway (server/backend)
-.\.venv\Scripts\Activate.ps1   # Linux/macOS: source .venv/bin/activate
-cd server/backend
-pip install -r requirements.txt
-python -m src.main            # Runs on http://localhost:8000 (Docs at /docs)
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r server/backend/requirements.txt
+```
 
-# Terminal 2: Studio Frontend (apps/web)
+### Bước 4: Cài đặt Frontend (Next.js 16 Studio)
+```bash
 cd apps/web
 bun install
-bun run dev                   # Runs on http://localhost:3000 (or :3001)
-
-# Terminal 3: Dependency Maintenance Tooling
-bun run deps:check            # Verify latest versions
-bun run deps:upgrade          # Upgrade all dependencies to latest
+# hoặc nếu dùng npm:
+# npm install
+cd ../..
 ```
-
-### 5. Access Dashboards & Health Checks
-* **Studio Web UI:** [http://localhost:3000](http://localhost:3000)
-* **FastAPI Interactive Docs:** [http://localhost:8000/docs](http://localhost:8000/docs)
-* **Temporal Workflow Web UI:** [http://localhost:8233](http://localhost:8233)
-* **Remotion Standalone Preview:** [http://localhost:3100](http://localhost:3100)
-* **Ollama Local LLM Endpoint:** [http://localhost:11434](http://localhost:11434)
-* **ComfyUI Interface:** [http://localhost:8188](http://localhost:8188)
 
 ---
 
-## 🧪 Testing & Quality Assurance
+## 🚀 Hướng dẫn Khởi chạy Dự án (Running the Studio)
 
-The codebase enforces a five-tier testing strategy:
+### Cách 1: Khởi chạy 1-Click (Khuyên dùng)
+Chạy đồng thời cả **Frontend Web Studio** và **Backend API Server**:
 
 ```bash
-# 1. Run Python unit & integration tests across backend, ai_engine, and worker
-pytest server/backend/tests server/ai_engine/tests worker/tests -v
-
-# 2. Run Temporal workflow simulation tests with time-skipping
-pytest worker/tests/workflows -v
-
-# 3. Run frontend unit tests
-cd apps/web && bun test
-
-# 4. Verify rendering determinism (OpenCV SSIM >= 0.999)
-python scripts/test_render_determinism.py --fixture tests/fixtures/sample_scene.json
-
-# 5. Run end-to-end user journey tests (Playwright)
-cd apps/web && bun run test:e2e
+bun run dev
+# hoặc dùng npm:
+npm run dev
 ```
 
-For complete details on test tiers, mock configurations, and CI pipelines, see [docs/development/TESTING_STRATEGY.md](docs/development/TESTING_STRATEGY.md).
+Lệnh này sẽ khởi động:
+- **Frontend Studio:** `http://localhost:3000`
+- **FastAPI Backend:** `http://localhost:8000`
 
 ---
 
-## 📚 Complete Technical Documentation Index
+### Cách 2: Khởi chạy riêng lẻ từng dịch vụ (Dành cho Debug)
 
-| Document | Description | Path |
+#### Terminal 1: Backend API Gateway (Port 8000)
+**Windows PowerShell:**
+```powershell
+.\.venv\Scripts\python.exe -m uvicorn server.backend.src.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+**macOS / Linux:**
+```bash
+source .venv/bin/activate
+python -m uvicorn server.backend.src.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+#### Terminal 2: Frontend Studio (Port 3000)
+```bash
+npm --prefix apps/web run dev
+# hoặc:
+# cd apps/web && bun run dev
+```
+
+---
+
+## 🧹 Làm sạch Dữ liệu Database (Reset Data)
+
+Dự án **không sử dụng mockdata/seed cứng**. Dữ liệu được tạo thực tế khi người dùng khởi tạo dự án mới trên giao diện.
+
+Nếu bạn muốn dọn sạch toàn bộ database và cache video để bắt đầu lại từ đầu:
+```bash
+npm run db:clean
+# hoặc chạy trực tiếp bằng python:
+.\.venv\Scripts\python.exe server/backend/src/infrastructure/database/clean.py
+```
+
+---
+
+## 🌐 Các Địa chỉ Truy cập (Endpoints)
+
+| Dịch vụ | URL | Mô tả |
 | :--- | :--- | :--- |
-| **Master Product Specification** | Vision, Apple motion math, functional requirements, MVP scope | [PROJECT.md](PROJECT.md) |
-| **AI Agent Directives** | Actionable guidelines, boundaries, and conventions for AI assistants | [CLAUDE.md](CLAUDE.md) |
-| **System Architecture** | Service topology, process boundaries, data flows, and HITL patterns | [SYSTEM_ARCHITECTURE.md](docs/architecture/SYSTEM_ARCHITECTURE.md) |
-| **Technology Stack & Decisions** | Technology selection, licensing boundaries (GPL/LGPL), and adapters | [TECH_STACK.md](docs/architecture/TECH_STACK.md) |
-| **Coding Standards & Limits** | Clean Architecture, line length budgets, Python & TypeScript standards | [CODING_STANDARDS.md](docs/development/CODING_STANDARDS.md) |
-| **Local Setup Guide** | Comprehensive installation guide, Docker Compose, and troubleshooting | [LOCAL_SETUP.md](docs/development/LOCAL_SETUP.md) |
-| **Environment Variables** | Detailed reference of all configuration keys, defaults, and requirements | [ENVIRONMENT_VARIABLES.md](docs/development/ENVIRONMENT_VARIABLES.md) |
-| **Testing Strategy** | Multi-tier testing methodology, determinism tests, and CI/CD pipelines | [TESTING_STRATEGY.md](docs/development/TESTING_STRATEGY.md) |
+| **Studio Web UI** | [http://localhost:3000](http://localhost:3000) | Giao diện chính: Dashboard, Tạo dự án, Pipeline Studio |
+| **Tạo mới Dự án** | [http://localhost:3000/projects/new](http://localhost:3000/projects/new) | Form nhập Brief 2 cột, chọn phong cách & phân tích AI |
+| **Cài đặt Hệ thống** | [http://localhost:3000/settings](http://localhost:3000/settings) | Cấu hình chế độ duyệt, AI Models, GPU & Codec |
+| **FastAPI Swagger Docs** | [http://localhost:8000/docs](http://localhost:8000/docs) | Tài liệu API tương tác trực tiếp |
+| **API Health Check** | [http://localhost:8000/health](http://localhost:8000/health) | Kiểm tra trạng thái máy chủ backend |
 
 ---
 
-## 📄 License & Attribution
+## 📐 Tiêu chuẩn Giao diện & Vibe Coding
 
-This project is licensed under the **MIT License**.  
-External integrated software engines (Blender, ComfyUI, FFmpeg, PostgreSQL, Valkey, Temporal) operate as independent processes under their respective open-source licenses (GPL-3.0, LGPL, BSD-3-Clause, Apache 2.0). Refer to [docs/architecture/TECH_STACK.md](docs/architecture/TECH_STACK.md) for full licensing boundary analyses.
+Mọi trang và component được phát triển tuân thủ nghiêm ngặt các nguyên tắc trong [GEMINI.md](GEMINI.md) và [AGENTS.md](AGENTS.md):
+1. **Không scroll cửa sổ (No Global Scroll):** Khóa `overflow-hidden` cấp trang; cuộn nội bộ mượt mà ở các card con (`flex-1 min-h-0 overflow-y-auto`).
+2. **Không nhảy layout (No Layout Shift):** Tooltip render qua Radix Portal; số đếm sử dụng `font-mono tabular-nums`.
+3. **Thao tác 1-Click (Zero-Manual Typing):** Ưu tiên Radio Cards, Dropdown Selects và Switches thay vì nhập text.
+4. **Trỏ chuột tương tác:** 100% nút bấm, thẻ và switch có `cursor-pointer`.
+5. **Ngân sách file:** $\le 200$ dòng code mỗi file (tối đa 300 dòng).
+
+---
+
+## 📄 License
+
+Dự án phát hành theo giấy phép **MIT License**.

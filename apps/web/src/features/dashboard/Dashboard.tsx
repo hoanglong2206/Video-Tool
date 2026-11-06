@@ -25,7 +25,7 @@ export function Dashboard(): React.ReactElement {
         {/* Top Header Bar */}
         <DashboardHeader
           onNewProject={() => router.push("/projects/new")}
-          onRenderHistory={() => router.push("/projects/proj-e6240645/render")}
+          onRenderHistory={() => router.push(projects[0] ? `/projects/${projects[0].id}/render` : "/projects")}
         />
 
         {/* Overview Body (Fits 100% of remaining viewport) */}
@@ -53,7 +53,7 @@ export function Dashboard(): React.ReactElement {
               <ApprovalPanel
                 approvals={approvals}
                 onSelectApproval={(item) =>
-                  router.push(`/projects/proj-e6240645/approvals`)
+                  router.push(projects[0] ? `/projects/${projects[0].id}/approvals` : "/projects")
                 }
               />
             </div>

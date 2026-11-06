@@ -19,7 +19,6 @@
     "infra:up": "docker compose -f docker-compose.infra.yml up -d",
     "infra:down": "docker compose -f docker-compose.infra.yml down",
     "infra:ps": "docker compose -f docker-compose.infra.yml ps",
-    "db:seed": "powershell -Command \"if (Test-Path .venv\\Scripts\\python.exe) { .\\.venv\\Scripts\\python.exe server/backend/src/infrastructure/database/seed.py } else { python server/backend/src/infrastructure/database/seed.py }\"",
     "db:clean": "powershell -Command \"if (Test-Path .venv\\Scripts\\python.exe) { .\\.venv\\Scripts\\python.exe server/backend/src/infrastructure/database/clean.py } else { python server/backend/src/infrastructure/database/clean.py }\"",
     "deps:check": "powershell -ExecutionPolicy Bypass -File ./scripts/check-deps.ps1",
     "deps:check:web": "npm-check-updates --cwd apps/web",

@@ -39,13 +39,12 @@ export function useProjectCreation() {
       if (project?.id) {
         router.push(`/projects/${project.id}/storyboard`);
       } else {
-        router.push("/projects/proj-e6240645/storyboard");
+        router.push("/projects");
       }
     },
     onError: (err) => {
       console.error("Lỗi khi tạo dự án:", err);
-      // Fallback navigation in case of offline dev mode
-      router.push("/projects/proj-e6240645/storyboard");
+      router.push("/projects");
     },
     onSettled: () => {
       setIsSaving(false);
