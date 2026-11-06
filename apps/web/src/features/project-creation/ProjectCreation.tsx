@@ -1,53 +1,77 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 import { DashboardSidebar } from "@/features/dashboard/components/DashboardSidebar";
 import { useProjectCreation } from "./hooks/useProjectCreation";
 import { CreationHeader } from "./components/CreationHeader";
-import { ProgressSidebar } from "./components/ProgressSidebar";
 import { BriefForm } from "./components/BriefForm";
-import { AiBriefCheckPanel } from "./components/AiBriefCheckPanel";
+import { AiPipelineProcessingView } from "./components/AiPipelineProcessingView";
+import { InspectionStudioView } from "./components/InspectionStudioView";
 
 export function ProjectCreation(): React.ReactElement {
+  const router = useRouter();
   const {
+    step,
     formData,
-    analysis,
+    aiOutput,
+    activeAiPipelineStage,
     isSaving,
-    isCheckingBrief,
+    setStep,
     updateField,
-    handleFillFromNotes,
+    addFile,
+    removeFile,
+    addDemoFiles,
+    updateScene,
+    handleRunAiPipeline,
+    handleConfirmAndCreateProject,
     handleSaveDraft,
-    handleContinue,
   } = useProjectCreation();
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#0B0F17] text-slate-100 antialiased select-none">
-      {/* Far-left Icon Navigation Rail */}
+      {/* 1. Left Sidebar Navigation */}
       <DashboardSidebar />
 
-      {/* Progress Sidebar */}
-      <ProgressSidebar />
-
-      {/* Center & Right Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      {/* 2. Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         {/* Top Header */}
         <CreationHeader
-          isSaving={isSaving}
-          onSaveDraft={handleSaveDraft}
-          onContinue={handleContinue}
+          step={step}
+          onBackToOverview={() => router.push("/")}
         />
 
-        {/* Main Split: Form Inputs vs AI Brief Check */}
+        {/* Dynamic Workflow Stage */}
         <main className="flex-1 flex min-h-0 overflow-hidden">
-          <BriefForm formData={formData} onChangeField={updateField} />
-          <AiBriefCheckPanel
-            analysis={analysis}
-            isChecking={isCheckingBrief}
-            onFillFromNotes={handleFillFromNotes}
-          />
+          {step === "input" && (
+            <BriefForm
+              formData={formData}
+              onChangeField={updateField}
+              onAddFile={addFile}
+              onRemoveFile={removeFile}
+              onAddDemoFiles={addDemoFiles}
+              onSubmitAnalyze={handleRunAiPipeline}
+            />
+          )}
+
+          {step === "processing" && (
+            <AiPipelineProcessingView activeStage={activeAiPipelineStage} />
+          )}
+
+          {step === "inspection" && (
+            <InspectionStudioView
+              formData={formData}
+              aiOutput={aiOutput}
+              isSaving={isSaving}
+              onChangeField={updateField}
+              onUpdateScene={updateScene}
+              onBackToInput={() => setStep("input")}
+              onSaveDraft={handleSaveDraft}
+              onConfirmCreate={handleConfirmAndCreateProject}
+            />
+          )}
         </main>
       </div>
     </div>
   );
 }
-
