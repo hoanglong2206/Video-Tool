@@ -37,7 +37,7 @@ graph TD
     subgraph ProcessSeparation ["Process Separation Model"]
         Web["apps/web<br>Next.js Studio UI & Remotion Player"]
         API["server/backend<br>FastAPI REST / WS Gateway & Postgres"]
-        AIEngine["server/ai-engine<br>Ollama & ComfyUI Diffusion Services"]
+        AIEngine["server/ai_engine<br>Ollama & ComfyUI Diffusion Services"]
         Orch["Temporal Cluster<br>Durable Workflow Orchestrator"]
         Worker["worker<br>Temporal Background Worker Daemon"]
         Engine["apps/video-engine<br>Remotion & GSAP Motion Engine"]
@@ -55,7 +55,7 @@ graph TD
 1. **Local-First:** Full end-to-end functionality on a single workstation without mandatory cloud accounts or subscription APIs.
 2. **Open-Source-First:** Eliminates proprietary vendor lock-in by utilizing community-backed open-source engines (**Valkey** over Redis, **Blender** for 3D, **Ollama** and **ComfyUI** for AI, **Temporal** for orchestration).
 3. **Cloud-Ready:** Standardized Provider Adapter interfaces allow instant migration to AWS S3, Cloudflare R2, cloud GPUs, and managed container clusters.
-4. **Decoupled Process Separation:** Lightweight API handling (`server/backend`) is strictly separated from AI processing adapters (`server/ai-engine`), long-running Temporal workflows, background worker daemons (`worker`), and GPU-intensive rendering workloads (`apps/video-engine`).
+4. **Decoupled Process Separation:** Lightweight API handling (`server/backend`) is strictly separated from AI processing adapters (`server/ai_engine`), long-running Temporal workflows, background worker daemons (`worker`), and GPU-intensive rendering workloads (`apps/video-engine`).
 
 ---
 
@@ -70,7 +70,7 @@ The repository features a fully functional frontend studio and backend API gatew
 | **UI Design System** | 11 High-Fidelity Studio Screens Pixel-Matched | **Fully Implemented** | `apps/web/src/features/` |
 | **Backend API Gateway** | FastAPI 0.162+, Pydantic v2.14+, Uvicorn 0.54+ | **Fully Implemented (16 Routes)**| `server/backend/` |
 | **Dependencies Tooling** | `npm-check-updates`, `pur` / pip checker | **Fully Implemented** | `scripts/check-deps.ps1`, `scripts/upgrade-deps.ps1` |
-| **AI Engine Services** | Ollama, ComfyUI, OpenCV, Pillow | **Scaffolded (Specification Complete)** | `server/ai-engine/` |
+| **AI Engine Services** | Ollama, ComfyUI, OpenCV, Pillow | **Scaffolded (Specification Complete)** | `server/ai_engine/` |
 | **Worker Daemon** | Temporal Python Worker, Blender CLI, FFmpeg | **Scaffolded (Specification Complete)** | `worker/` |
 | **Motion Engine** | Remotion v4, GSAP 3.12+, Three.js | **Planned (Specification Complete)** | `apps/video-engine/` |
 | **Supporting Infra** | Docker Compose (PostgreSQL 16, Valkey 7, Temporal) | **Configured** | `docker-compose.infra.yml` |
@@ -88,7 +88,7 @@ video-ai-demo/
 │   └── video-engine/           # Remotion video motion compositions, GSAP spring curves, shaders
 ├── server/
 │   ├── backend/                # FastAPI backend (Pydantic v2, SQLAlchemy 2.0 Async, Alembic, Temporal client)
-│   └── ai-engine/              # AI Engine services (Ollama LLM adapter, ComfyUI diffusion, OpenCV/Pillow)
+│   └── ai_engine/              # AI Engine services (Ollama LLM adapter, ComfyUI diffusion, OpenCV/Pillow)
 ├── worker/                     # Temporal worker daemon (Workflows, Activities, Blender CLI, FFmpeg NVENC)
 ├── packages/                   # Shared DTO contracts, Scene DSL schemas, and common utilities
 ├── scripts/                    # Automation, render testing, and environment setup scripts
@@ -130,7 +130,7 @@ The platform's frontend experience is grounded in 11 comprehensive UI mockups lo
 | **Frontend UI** | **Next.js 16.4.5**, **React 19.3.1**, TypeScript Strict, **Tailwind CSS v4.3.4**, **shadcn/ui** (Radix UI, CVA), Lucide Icons, Zustand |
 | **Interactive 3D / Video**| Three.js, React Three Fiber, `@remotion/player` |
 | **Backend API Gateway** | **Python 3.11+ / 3.14**, **FastAPI 0.162.0**, **Pydantic v2.14.3**, **Uvicorn 0.54.0**, CORS Support (`server/backend`) |
-| **AI Engine Services** | Ollama (`llama3:8b`), ComfyUI (Flux.1 / SDXL Diffusion), OpenCV, Pillow (`server/ai-engine`) |
+| **AI Engine Services** | Ollama (`llama3:8b`), ComfyUI (Flux.1 / SDXL Diffusion), OpenCV, Pillow (`server/ai_engine`) |
 | **Orchestration & Workflow**| Temporal (Python SDK, Temporal Server, Temporal Web UI) |
 | **Database & Cache** | PostgreSQL 16 (Relational state), Valkey 7 (Cache, Session store, PubSub) |
 | **2D Motion Engine** | Remotion v4, GSAP 3.12+ (organic second-order spring physics) (`apps/video-engine`) |
@@ -216,8 +216,8 @@ bun run deps:upgrade          # Upgrade all dependencies to latest
 The codebase enforces a five-tier testing strategy:
 
 ```bash
-# 1. Run Python unit & integration tests across backend, ai-engine, and worker
-pytest server/backend/tests server/ai-engine/tests worker/tests -v
+# 1. Run Python unit & integration tests across backend, ai_engine, and worker
+pytest server/backend/tests server/ai_engine/tests worker/tests -v
 
 # 2. Run Temporal workflow simulation tests with time-skipping
 pytest worker/tests/workflows -v

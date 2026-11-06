@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY server/backend/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy backend and ai-engine modules
+# Copy backend and ai_engine modules
 COPY server ./server
 COPY storage ./storage
 

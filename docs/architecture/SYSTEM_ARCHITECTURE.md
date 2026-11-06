@@ -36,7 +36,7 @@ flowchart TD
 1. **Local-First:** The complete platform operates out of the box on a developer workstation or private GPU server without requiring external cloud accounts or paid proprietary APIs.
 2. **Open-Source-First:** Core production engines rely on foundational open-source tools: **Ollama** for local LLM reasoning, **ComfyUI** for diffusion-based asset generation, **Blender** for 3D physics and raytracing, **Valkey** for high-throughput caching, and **PostgreSQL** for relational state.
 3. **Cloud-Ready:** All storage, AI engine, and worker interfaces implement the Provider Adapter Pattern. Local storage can seamlessly transition to AWS S3 / MinIO; local Ollama and ComfyUI can swap with cloud LLM/Diffusion endpoints; rendering workers scale horizontally across container clusters.
-4. **Process Separation:** Heavy CPU/GPU operations (video encoding, 3D rendering, diffusion sampling) are strictly isolated from the user-facing API gateway (`server/backend`) and AI processing services (`server/ai-engine`). Workflows are orchestrated by **Temporal** to guarantee fault tolerance, execution history, and resumability.
+4. **Process Separation:** Heavy CPU/GPU operations (video encoding, 3D rendering, diffusion sampling) are strictly isolated from the user-facing API gateway (`server/backend`) and AI processing services (`server/ai_engine`). Workflows are orchestrated by **Temporal** to guarantee fault tolerance, execution history, and resumability.
 5. **Human-in-the-Loop (HITL) by Design:** AI video production cannot rely on pure unattended automation. The architecture incorporates first-class human approval gates across the production timeline, allowing creators to review, steer, revise, or override any stage.
 
 ---
@@ -65,7 +65,7 @@ graph TD
         FastApi --- TemporalClient
     end
 
-    subgraph AITier ["AI Engine Services (server/ai-engine)"]
+    subgraph AITier ["AI Engine Services (server/ai_engine)"]
         AIEngine["AI Orchestrator & Provider Adapters"]
         OllamaAdapter["Ollama LLM Client (Brief & Storyboard)"]
         ComfyAdapter["ComfyUI Workflow Client (Flux/SDXL)"]
@@ -149,7 +149,7 @@ graph TD
   * `infrastructure/database/`: PostgreSQL async engine, ORM entity mappings, and Alembic migration scripts.
   * `infrastructure/temporal/`: Client wrappers initiating workflows and delivering human-in-the-loop signals.
 
-### 3.3 AI Engine & Vision Services (`server/ai-engine`)
+### 3.3 AI Engine & Vision Services (`server/ai_engine`)
 * **Role:** Dedicated AI service layer abstracting generative LLM reasoning, diffusion workflows, and computer vision transformations.
 * **Technology:** Python 3.11+, Pillow, OpenCV, HTTP clients for Ollama and ComfyUI.
 * **Key Modules:**
@@ -164,7 +164,7 @@ graph TD
 * **Architecture:**
   * Built strictly on **Temporal Workflows and Activities**.
   * Workflows define the deterministic choreography: brief expansion $\rightarrow$ HITL gate $\rightarrow$ asset synthesis $\rightarrow$ HITL gate $\rightarrow$ 3D & 2D rendering $\rightarrow$ final post-processing $\rightarrow$ HITL signoff.
-  * Activities call into `server/ai-engine` for AI generation, spawn Blender headless runs, and execute FFmpeg transcoding.
+  * Activities call into `server/ai_engine` for AI generation, spawn Blender headless runs, and execute FFmpeg transcoding.
   * Enforces GPU semaphore guardrails (`GPU_CONCURRENCY_LIMIT`) to prevent CUDA OOM failures.
 
 ### 3.5 Video Motion & 3D Engines (`apps/video-engine`, Blender, FFmpeg)
@@ -190,7 +190,7 @@ sequenceDiagram
     participant DB as PostgreSQL
     participant Temporal as Temporal Orchestrator
     participant Worker as Temporal Worker Daemon
-    participant AI as AI Engine (server/ai-engine)
+    participant AI as AI Engine (server/ai_engine)
     participant 3D as Blender 4.x
     participant Motion as Remotion & FFmpeg
     participant Storage as File / S3 Storage
@@ -266,9 +266,9 @@ sequenceDiagram
 | **`server/backend`** | **Valkey** | TCP (Port 6379) | RESP (Redis Protocol)| Cache lookups, lock tokens, rate limits |
 | **`server/backend`** | **Temporal Cluster**| gRPC (Port 7233) | Protobuf | Workflow start, cancellation, query, and signaling |
 | **`worker`** | **Temporal Cluster**| gRPC (Port 7233) | Protobuf | Polling task queues, reporting activity heartbeats |
-| **`worker`** | **`server/ai-engine`**| Python Module / IPC | Pydantic DTOs | Requesting LLM reasoning and ComfyUI generation |
-| **`server/ai-engine`**| **Local Ollama** | HTTP (Port 11434)| JSON | Local LLM prompt completion and scene expansion |
-| **`server/ai-engine`**| **Local ComfyUI**| HTTP (Port 8188) | JSON Graph Nodes | Diffusion workflow execution and asset extraction |
+| **`worker`** | **`server/ai_engine`**| Python Module / IPC | Pydantic DTOs | Requesting LLM reasoning and ComfyUI generation |
+| **`server/ai_engine`**| **Local Ollama** | HTTP (Port 11434)| JSON | Local LLM prompt completion and scene expansion |
+| **`server/ai_engine`**| **Local ComfyUI**| HTTP (Port 8188) | JSON Graph Nodes | Diffusion workflow execution and asset extraction |
 | **`worker`** | **Blender 4.x** | OS Subprocess | CLI flags & Python script | Headless 3D viewport rendering and Cycles/EEVEE passes |
 | **`worker`** | **Remotion CLI** | Node Subprocess | JSON Scene AST | Headless WebGL frame rasterization |
 | **`worker`** | **FFmpeg** | OS Subprocess / IPC | Raw RGBA Streams / Files | Hardware NVENC master MP4 multiplexing |

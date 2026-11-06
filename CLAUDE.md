@@ -10,13 +10,13 @@
 ## 1. Golden Directives for AI Agents
 
 1. **Honesty Regarding Implementation Status:**
-   `apps/web` (Next.js 16.4+, React 19.3+, Tailwind CSS v4.3+, shadcn/ui components, 11 studio screens) and `server/backend` (FastAPI 0.162+, Pydantic v2.14+ Settings, 16 REST endpoints, CORS) are fully implemented. For unwritten worker activities or ai-engine model adapters, treat the codebase on disk as the sole source of truth.
+   `apps/web` (Next.js 16.4+, React 19.3+, Tailwind CSS v4.3+, shadcn/ui components, 11 studio screens) and `server/backend` (FastAPI 0.162+, Pydantic v2.14+ Settings, 16 REST endpoints, CORS) are fully implemented. For unwritten worker activities or ai_engine model adapters, treat the codebase on disk as the sole source of truth.
 2. **Process Separation Discipline:**
    Do not collapse workloads into a monolithic process.
    * `apps/web`: Pure frontend presentation, WebGL preview, and user state.
    * `server/backend`: Lightweight API gateway, database operations, Alembic migrations, and Temporal workflow client.
-   * `server/ai-engine`: Dedicated AI inference abstractions (Ollama LLM client, ComfyUI diffusion wrappers, OpenCV/Pillow image processing).
-   * `worker`: Long-running Temporal workflows and activities coordinating calls to `server/ai-engine`, Blender, and FFmpeg.
+   * `server/ai_engine`: Dedicated AI inference abstractions (Ollama LLM client, ComfyUI diffusion wrappers, OpenCV/Pillow image processing).
+   * `worker`: Long-running Temporal workflows and activities coordinating calls to `server/ai_engine`, Blender, and FFmpeg.
    * `apps/video-engine`: Remotion compositions and GSAP motion definitions.
 3. **Strict Adherence to Technology Choices:**
    Do not introduce alternative or competing frameworks (e.g., do not replace Temporal with Celery, do not replace Valkey/PostgreSQL with ad-hoc flat files, do not replace FastAPI with Flask).
@@ -38,7 +38,7 @@ video-ai-demo/
 │   └── video-engine/            # Remotion video motion compositions, GSAP springs, WebGL compositions
 ├── server/
 │   ├── backend/                 # FastAPI API Gateway (Pydantic v2.14+, Uvicorn, CORS, 16 REST endpoints)
-│   └── ai-engine/               # AI Engine services (Ollama LLM adapter, ComfyUI diffusion, OpenCV/Pillow)
+│   └── ai_engine/               # AI Engine services (Ollama LLM adapter, ComfyUI diffusion, OpenCV/Pillow)
 ├── worker/                      # Temporal Worker Daemon (Workflows, Activities, Blender CLI, FFmpeg NVENC)
 ├── packages/                    # Shared contracts, DTO schemas, and helper utilities
 ├── scripts/                     # Operational, testing, and deployment automation scripts (dev.ps1, check-deps.ps1, upgrade-deps.ps1)
@@ -55,10 +55,10 @@ video-ai-demo/
 
 ## 3. Coding Standards & Conventions
 
-### 3.1 Python Standards (`server/backend`, `server/ai-engine`, `worker`)
+### 3.1 Python Standards (`server/backend`, `server/ai_engine`, `worker`)
 * **Python Runtime:** Python 3.11+ using native type hints (`list[str]`, `dict[str, Any]`, `T | None`).
 * **Clean Architecture in `server/backend`:** Keep domain entities completely pure (zero framework imports). Routers call Application Use Cases; Use Cases interface with repositories and Temporal clients via abstract ports.
-* **AI Abstraction in `server/ai-engine`:** Encapsulate all prompt construction, ComfyUI node graphs, and OpenCV image filters in clean service classes implementing abstract provider interfaces.
+* **AI Abstraction in `server/ai_engine`:** Encapsulate all prompt construction, ComfyUI node graphs, and OpenCV image filters in clean service classes implementing abstract provider interfaces.
 * **Database Access:** Always use asynchronous SQLAlchemy 2.0 (`asyncpg`). Manage all schema mutations through Alembic migration scripts in `server/backend/alembic/versions/`.
 * **Subprocess Security:** When invoking Blender (`bpy`) or FFmpeg via subprocesses in worker activities:
   * Never pass raw un-sanitized user strings into `shell=True`.
@@ -81,7 +81,7 @@ video-ai-demo/
 
 Whenever creating or updating codebase features, follow these testing rules:
 1. **Unit Tests (Pytest / Bun Test):**
-   * Every new domain entity or use case must have accompanying unit tests in `server/backend/tests/unit/`, `server/ai-engine/tests/unit/`, or `worker/tests/unit/`.
+   * Every new domain entity or use case must have accompanying unit tests in `server/backend/tests/unit/`, `server/ai_engine/tests/unit/`, or `worker/tests/unit/`.
    * Unit tests must run fast ($< 5\text{s}$) with zero external network or database calls.
 2. **Temporal Workflow Tests:**
    * Test workflow choreography and approval signals using `temporalio.testing.WorkflowEnvironment.start_time_skipping()`.
@@ -139,7 +139,7 @@ cd apps/web && bun run dev
 cd apps/video-engine && bun run preview
 
 # Run backend & worker test suites
-pytest server/backend/tests server/ai-engine/tests worker/tests -v
+pytest server/backend/tests server/ai_engine/tests worker/tests -v
 ```
 
 ---

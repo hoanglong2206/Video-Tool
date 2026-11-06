@@ -59,7 +59,7 @@ To maintain architectural integrity, this document explicitly distinguishes betw
 | **Web Studio (`apps/web`)** | Next.js 16.4+, React 19.3+, Tailwind v4.3+, shadcn/ui | **Fully Implemented (11 Screens)** | `apps/web/src/features/` |
 | **API Gateway (`server/backend`)** | FastAPI 0.162+, Pydantic v2.14+, CORS | **Fully Implemented (16 Routes)** | `server/backend/src/` |
 | **UI Design System** | 11 Production screen mockups | **Pixel-Matched in Code** | `UI Design/` $\leftrightarrow$ `apps/web/` |
-| **AI Engine Services (`server/ai-engine`)** | Ollama LLM client, ComfyUI adapter, OpenCV, Pillow | **Scaffolded (Specification Complete)** | `server/ai-engine/` |
+| **AI Engine Services (`server/ai_engine`)** | Ollama LLM client, ComfyUI adapter, OpenCV, Pillow | **Scaffolded (Specification Complete)** | `server/ai_engine/` |
 | **Worker Daemon (`worker`)** | Temporal Python Worker, Blender CLI, FFmpeg | **Scaffolded (Specification Complete)** | `worker/` |
 | **Motion Engine (`apps/video-engine`)** | Remotion v4, GSAP 3.12+, Three.js canvas compositions | **Planned (Specification Complete)** | `apps/video-engine/` |
 | **Database & Cache** | PostgreSQL 16 (Relational state), Valkey 7 (Cache/PubSub) | **Configured** | `docker-compose.infra.yml` |
@@ -109,9 +109,9 @@ graph TD
 ### 5.1 Process Separation Model
 The system enforces strict operational boundaries across separate components:
 1. **API Gateway (`server/backend`):** High-throughput, stateless FastAPI gateway handling HTTP/WebSocket ingress, authentication, project CRUD, PostgreSQL transactions, and Temporal workflow triggering.
-2. **AI Processing Services (`server/ai-engine`):** Dedicated AI abstraction layer encapsulating Ollama LLM brief expansion, ComfyUI diffusion execution, and OpenCV/Pillow image processing.
+2. **AI Processing Services (`server/ai_engine`):** Dedicated AI abstraction layer encapsulating Ollama LLM brief expansion, ComfyUI diffusion execution, and OpenCV/Pillow image processing.
 3. **Orchestration Cluster (Temporal):** Manages durable workflow state machines, timers, approval signals, and execution history across restarts.
-4. **Worker Daemons (`worker`):** Independent Python processes polling Temporal task queues, executing activities (calling `server/ai-engine`, Blender CLI scripts, and FFmpeg transcoding).
+4. **Worker Daemons (`worker`):** Independent Python processes polling Temporal task queues, executing activities (calling `server/ai_engine`, Blender CLI scripts, and FFmpeg transcoding).
 5. **Motion Engine Node (`apps/video-engine`):** Remotion WebGL rendering instances executed via headless Chromium subprocesses.
 
 ---
@@ -120,14 +120,14 @@ The system enforces strict operational boundaries across separate components:
 
 ### Stage 1: Client Brief Analysis & Creative Direction
 * **FR-1.1:** The system shall accept unstructured client briefs (text prompts, target audience, brand color palettes, font specifications, and duration constraints).
-* **FR-1.2:** The system shall expand the client brief using an LLM (Ollama `llama3:8b` or cloud fallback via `server/ai-engine`) into a structured creative concept comprising visual themes, lighting styles, typography hierarchy, and emotional pacing.
+* **FR-1.2:** The system shall expand the client brief using an LLM (Ollama `llama3:8b` or cloud fallback via `server/ai_engine`) into a structured creative concept comprising visual themes, lighting styles, typography hierarchy, and emotional pacing.
 
 ### Stage 2: AI-Generated Storyboard & Scene Planning
 * **FR-2.1:** The system shall generate a structured multi-scene storyboard JSON schema defining scene duration, camera trajectories, lighting parameters, headline copy, and visual asset requirements.
 * **FR-2.2 (HITL Gate 1):** The system shall pause execution and present the storyboard to the creator in a visual card matrix (`Storyboard Studio.png`). The creator can approve, edit scene timing and copy directly, or reject with natural language feedback.
 
 ### Stage 3: Image Generation, Editing & Asset Processing
-* **FR-3.1:** The system shall generate high-resolution scene background plates, textures, and product environments using diffusion models via **ComfyUI** (`server/ai-engine`).
+* **FR-3.1:** The system shall generate high-resolution scene background plates, textures, and product environments using diffusion models via **ComfyUI** (`server/ai_engine`).
 * **FR-3.2:** The system shall process uploaded customer product photos using **OpenCV** and **Pillow** (automated background removal, color-grading adjustments, contrast curve harmonization).
 * **FR-3.3 (HITL Gate 2):** The creator shall review processed assets in the UI (`Asset Studio.png`), with options to regenerate specific layers or upload manual cutout overrides.
 
@@ -176,7 +176,7 @@ sequenceDiagram
     participant API as FastAPI Gateway (server/backend)
     participant Temporal as Temporal Cluster
     participant Worker as Temporal Worker Daemon
-    participant AI as AI Engine (server/ai-engine)
+    participant AI as AI Engine (server/ai_engine)
     participant Blender as Blender 4.x (3D)
     participant Motion as Remotion & FFmpeg
     participant Storage as Media Storage (Local / S3)
@@ -235,7 +235,7 @@ sequenceDiagram
 flowchart LR
     subgraph MVP ["Phase 1: MVP Scope"]
         M1["Local-First Single Node Deployment"]
-        M2["Ollama (Llama 3) Brief & Storyboard via ai-engine"]
+        M2["Ollama (Llama 3) Brief & Storyboard via ai_engine"]
         M3["ComfyUI Asset Gen & OpenCV Cutouts"]
         M4["Blender Headless 3D Studio Lighting"]
         M5["Remotion 2D Kinetic Typography"]

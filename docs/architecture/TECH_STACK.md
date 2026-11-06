@@ -105,7 +105,7 @@ flowchart LR
     subgraph ProprietaryCore ["Application Core (MIT / Proprietary Safe)"]
         WebCode["apps/web (Next.js)"]
         BackendCode["server/backend (FastAPI Gateway)"]
-        AIEngineCode["server/ai-engine (AI Services)"]
+        AIEngineCode["server/ai_engine (AI Services)"]
         WorkerCode["worker (Python Orchestrator)"]
     end
 

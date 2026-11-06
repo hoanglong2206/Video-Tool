@@ -37,7 +37,7 @@ To preserve maintainability, simplify code reviews, and optimize AI-assisted pai
 | **Python Use Cases** | `server/backend/src/application/use_cases/*.py` | $\le 120$ lines | **180 lines** | Enforce one use case per file |
 | **FastAPI Routers** | `server/backend/src/api/routers/*.py` | $\le 150$ lines | **220 lines** | Decompose into sub-routers by resource |
 | **SQLAlchemy Repositories** | `server/backend/src/infrastructure/database/repositories/*.py` | $\le 160$ lines | **240 lines** | Separate queries into dedicated query classes |
-| **AI Engine Adapters & Vision**| `server/ai-engine/src/**/*.py` | $\le 150$ lines | **220 lines** | Modularize prompts, node graphs, and OpenCV filters |
+| **AI Engine Adapters & Vision**| `server/ai_engine/src/**/*.py` | $\le 150$ lines | **220 lines** | Modularize prompts, node graphs, and OpenCV filters |
 | **Temporal Workflows** | `worker/src/workflows/*.py` | $\le 150$ lines | **220 lines** | Decompose complex flows into child workflows |
 | **Temporal Activities** | `worker/src/activities/*.py` | $\le 150$ lines | **220 lines** | Extract utility helpers or provider SDK clients |
 | **Remotion Compositions** | `apps/video-engine/src/compositions/*.tsx` | $\le 150$ lines | **220 lines** | Separate scene sequences into individual scene components |
@@ -48,7 +48,7 @@ To preserve maintainability, simplify code reviews, and optimize AI-assisted pai
 
 ---
 
-## 3. Python & FastAPI Conventions (`server/backend`, `server/ai-engine`, `worker`)
+## 3. Python & FastAPI Conventions (`server/backend`, `server/ai_engine`, `worker`)
 
 ### 3.1 Python Version & Type Annotations
 * **Python Runtime:** Python 3.11+.
@@ -237,7 +237,7 @@ The repository strictly enforces **Conventional Commits (v1.0.0)**:
 ### 8.2 Standard Monorepo Scopes
 * `web`: Next.js frontend (`apps/web`).
 * `server/backend`: FastAPI API Gateway (`server/backend`).
-* `server/ai-engine`: AI models, ComfyUI, Ollama, OpenCV (`server/ai-engine`).
+* `server/ai_engine`: AI models, ComfyUI, Ollama, OpenCV (`server/ai_engine`).
 * `worker`: Temporal worker daemon (`worker`).
 * `video-engine`: Remotion and GSAP motion engine (`apps/video-engine`).
 * `packages`: Shared libraries or contracts.

@@ -127,11 +127,11 @@ docker compose -f docker-compose.infra.yml ps
 
 ---
 
-### Step 3.5: Set Up AI Engine Services (`server/ai-engine`)
+### Step 3.5: Set Up AI Engine Services (`server/ai_engine`)
 In a separate terminal or virtual environment:
 1. Install AI Engine dependencies (Pillow, OpenCV, Ollama client, ComfyUI client):
    ```bash
-   pip install -r server/ai-engine/requirements.txt
+   pip install -r server/ai_engine/requirements.txt
    ```
 
 ---

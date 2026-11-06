@@ -55,7 +55,7 @@ def test_scene_node_validates_minimum_duration():
 * **AI Provider Mocking:** Local diffusion (ComfyUI) and LLM (Ollama) endpoints must never be hit during standard integration tests. Providers implement mock responses via pytest fixtures:
 
 ```python
-# Example: Mocking AI Provider in Integration Tests (server/ai-engine/tests/test_ollama.py)
+# Example: Mocking AI Provider in Integration Tests (server/ai_engine/tests/test_ollama.py)
 import pytest
 from unittest.mock import AsyncMock
 from server.ai_engine.src.adapters.ollama_adapter import OllamaProvider
@@ -159,8 +159,8 @@ def assert_frames_are_identical(frame_path_a: str, frame_path_b: str):
 
 ### 3.1 Backend & Worker Testing (Pytest)
 ```bash
-# Run all unit tests across backend, ai-engine, and worker
-pytest server/backend/tests/unit server/ai-engine/tests/unit worker/tests/unit -v
+# Run all unit tests across backend, ai_engine, and worker
+pytest server/backend/tests/unit server/ai_engine/tests/unit worker/tests/unit -v
 
 # Run integration tests (requires Docker infra running)
 pytest server/backend/tests/integration -v
@@ -169,7 +169,7 @@ pytest server/backend/tests/integration -v
 pytest worker/tests/workflows -v
 
 # Generate test coverage report
-pytest --cov=server/backend/src --cov=server/ai-engine/src --cov=worker/src --cov-report=html
+pytest --cov=server/backend/src --cov=server/ai_engine/src --cov=worker/src --cov-report=html
 ```
 
 ### 3.2 Frontend & Motion Engine Testing (Bun / Playwright)
