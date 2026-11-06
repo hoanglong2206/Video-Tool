@@ -97,7 +97,7 @@ export default function ProjectsPage(): React.ReactElement {
             <Button
               size="sm"
               onClick={() => router.push("/projects/new")}
-              className="h-7 text-xs px-2.5 bg-blue-600 hover:bg-blue-500 text-white flex items-center gap-1.5"
+              className="h-7 text-xs px-2.5 bg-blue-600 hover:bg-blue-500 text-white flex items-center gap-1.5 cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Tạo mới dự án</span>

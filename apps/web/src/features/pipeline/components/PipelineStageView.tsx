@@ -158,16 +158,16 @@ export function PipelineStageView({
           <div className="flex items-center gap-2.5">
             {approvalMode === "always_proceed" ? (
               <div className="flex items-center gap-2 bg-[#121826] border border-[#1E2638] px-3 py-1 rounded-lg">
-                <span className="text-[11px] font-mono text-cyan-400 flex items-center gap-1">
+                <span className="text-[11px] font-mono tabular-nums text-cyan-400 flex items-center gap-1">
                   <Clock className="w-3.5 h-3.5 animate-spin" />
-                  Tự động chuyển sau: <strong className="text-white">{countdown}s</strong>
+                  Tự động chuyển sau: <strong className="text-white font-mono tabular-nums">{countdown}s</strong>
                 </span>
 
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => setIsPaused(!isPaused)}
-                  className="h-6 px-2 text-[10px] bg-[#161D2C] border-[#242D40] text-slate-300"
+                  className="h-6 px-2 text-[10px] bg-[#161D2C] border-[#242D40] text-slate-300 cursor-pointer"
                 >
                   {isPaused ? <Play className="w-2.5 h-2.5 mr-1" /> : <Pause className="w-2.5 h-2.5 mr-1" />}
                   {isPaused ? "Tiếp tục" : "Tạm dừng"}
@@ -176,7 +176,7 @@ export function PipelineStageView({
                 <Button
                   size="sm"
                   onClick={handleManualApproveAndProceed}
-                  className="h-6 px-2 text-[10px] bg-blue-600 hover:bg-blue-500 text-white font-medium"
+                  className="h-6 px-2 text-[10px] bg-blue-600 hover:bg-blue-500 text-white font-medium cursor-pointer"
                 >
                   Chuyển ngay ➔
                 </Button>
@@ -185,7 +185,7 @@ export function PipelineStageView({
               <Button
                 size="sm"
                 onClick={handleManualApproveAndProceed}
-                className="h-8 px-4 text-xs bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold flex items-center gap-1.5 shadow-md shadow-blue-600/30"
+                className="h-8 px-4 text-xs bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold flex items-center gap-1.5 shadow-md shadow-blue-600/30 cursor-pointer"
               >
                 {nextStageId ? (
                   <>
@@ -218,7 +218,7 @@ export function PipelineStageView({
               <span className="text-[10px] font-mono px-2 py-0.5 rounded border font-semibold bg-emerald-950 text-emerald-300 border-emerald-700/60">
                 {stage.approvalLabel}
               </span>
-              <span className="text-xs font-mono text-slate-400">
+              <span className="text-xs font-mono tabular-nums text-slate-400">
                 Bước 0{stage.stepNumber} / 10
               </span>
             </div>
@@ -244,7 +244,7 @@ export function PipelineStageView({
                   variant="outline"
                   size="sm"
                   onClick={() => router.push(`/projects/${projectId}/${prevStageId}`)}
-                  className="h-8 text-xs bg-[#0E131E] border-[#1E2638] text-slate-300 flex items-center gap-1"
+                  className="h-8 text-xs bg-[#0E131E] border-[#1E2638] text-slate-300 flex items-center gap-1 cursor-pointer"
                 >
                   <ArrowLeft className="w-3 h-3" /> Bước trước
                 </Button>
@@ -253,7 +253,7 @@ export function PipelineStageView({
               <Button
                 size="sm"
                 onClick={handleManualApproveAndProceed}
-                className="h-8 text-xs bg-blue-600 hover:bg-blue-500 text-white font-medium flex items-center gap-1"
+                className="h-8 text-xs bg-blue-600 hover:bg-blue-500 text-white font-medium flex items-center gap-1 cursor-pointer"
               >
                 <span>Duyệt bước này</span>
                 <ArrowRight className="w-3 h-3" />

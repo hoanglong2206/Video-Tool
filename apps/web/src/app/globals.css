@@ -163,14 +163,29 @@ button:disabled,
 }
 
 /* -------------------------------------------------------------------------
-   Base Typography & Body
+   Base Typography, Body & Viewport Root Constraint (No Global Window Scroll)
    ------------------------------------------------------------------------- */
+html,
 body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
   background-color: var(--background);
   color: var(--foreground);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Jitter-Free Numbers: Ensure all monospace numbers use tabular digits */
+.font-mono,
+code,
+kbd,
+samp,
+pre {
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
 }
 
 /* -------------------------------------------------------------------------

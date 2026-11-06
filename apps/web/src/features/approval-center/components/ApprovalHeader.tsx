@@ -14,7 +14,7 @@ export function ApprovalHeader({ pendingCount }: ApprovalHeaderProps): React.Rea
     projectMatch && projectMatch[1] !== "new" ? projectMatch[1] : null;
 
   return (
-    <header className="h-14 border-b border-[#1E2638] px-6 flex items-center justify-between bg-[#0B0F17] select-none">
+    <header className="h-14 border-b border-[#1E2638] px-6 flex items-center justify-between bg-[#0B0F17] select-none shrink-0">
       {/* Title & Pending Pill */}
       <div className="flex items-center gap-2.5">
         <h1 className="text-sm font-semibold text-slate-100 tracking-tight">
@@ -26,13 +26,14 @@ export function ApprovalHeader({ pendingCount }: ApprovalHeaderProps): React.Rea
       </div>
 
       {/* Editor Jump */}
-      <Button variant="outline" size="sm" asChild>
+      <Button variant="outline" size="sm" asChild className="cursor-pointer">
         <Link
           href={
             currentProjectId
               ? `/projects/${currentProjectId}/scenes/scene-01`
               : "/editor"
           }
+          className="cursor-pointer"
         >
           Open in editor
         </Link>

@@ -37,7 +37,7 @@ export function StudioHeader({
   return (
     <header
       className={cn(
-        "h-14 border-b border-[#1E2638] px-6 flex items-center justify-between bg-[#0B0F17]",
+        "h-14 border-b border-[#1E2638] px-6 flex items-center justify-between bg-[#0B0F17] shrink-0 select-none",
         className
       )}
     >
@@ -46,7 +46,7 @@ export function StudioHeader({
         {resolvedRootHref ? (
           <Link
             href={resolvedRootHref}
-            className="font-medium text-slate-100 hover:text-white transition-colors"
+            className="font-medium text-slate-100 hover:text-white transition-colors cursor-pointer"
           >
             {rootTitle}
           </Link>

@@ -112,7 +112,7 @@ export function RecentTwoProjects({ projects }: RecentTwoProjectsProps): React.R
                 {/* Progress bar & Action */}
                 <div className="mt-2 pt-2 border-t border-[#1C2436]/60 flex items-center gap-3">
                   <div className="flex-1">
-                    <div className="flex items-center justify-between text-[9px] font-mono text-slate-400 mb-1">
+                    <div className="flex items-center justify-between text-[9px] font-mono tabular-nums text-slate-400 mb-1">
                       <span>Tiến độ</span>
                       <span className="font-semibold text-slate-200">{project.progress}%</span>
                     </div>
@@ -131,7 +131,7 @@ export function RecentTwoProjects({ projects }: RecentTwoProjectsProps): React.R
                   <Button
                     size="sm"
                     variant="outline"
-                    className="h-6 px-2 text-[10px] bg-[#141B29] border-[#242D40] hover:bg-blue-600 hover:text-white shrink-0"
+                    className="h-6 px-2 text-[10px] bg-[#141B29] border-[#242D40] hover:bg-blue-600 hover:text-white shrink-0 cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
                       router.push(`/projects/${project.id}/workflow`);

@@ -25,7 +25,7 @@ export function BrandKitSidebar({
         {brandKit.colors.map((color, idx) => (
           <div
             key={idx}
-            className="w-10 h-10 rounded-lg border border-[#242F45] shadow-inner"
+            className="w-10 h-10 rounded-lg border border-[#242F45] shadow-inner cursor-pointer hover:scale-105 transition-transform"
             style={{ backgroundColor: color }}
             title={color}
           />

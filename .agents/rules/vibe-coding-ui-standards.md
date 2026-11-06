@@ -28,3 +28,4 @@ Tất cả các frontend components trong dự án Video AI Demo phải tuân th
 
 5. **Ngân sách mã nguồn**:
    - $\le 200$ dòng code mỗi file (tối đa 300 dòng). Tách module nhỏ khi vượt quá.
+

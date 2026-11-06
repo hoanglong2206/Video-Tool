@@ -57,3 +57,4 @@ Tài liệu này định nghĩa các nguyên tắc cốt lõi ("Vibe Coding Guid
   * `fix(...)`: Sửa lỗi giao diện / logic
   * `style(...)`: Tinh chỉnh CSS / Cursor / Token màu
   * `refactor(...)`: Tái cấu trúc mã nguồn
+

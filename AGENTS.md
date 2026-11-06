@@ -8,3 +8,4 @@ Xem chi tiết quy chuẩn Vibe Coding & UI Standards tại [GEMINI.md](file:///
 3. **Zero-typing UI pattern**: Use Radio buttons, Select dropdowns, and Switches instead of raw text inputs.
 4. **Always set `cursor-pointer`** on all clickable/interactive elements.
 5. **Enforce file size limits**: $\le 200$ lines target (max 300 lines). Commit using Conventional Commits.
+

@@ -109,7 +109,7 @@ export function StudioJourneyBar({
   return (
     <div
       className={cn(
-        "h-11 border-b border-[#1E2638] px-6 flex items-center justify-between bg-[#080C14] text-[11px] select-none",
+        "h-11 border-b border-[#1E2638] px-6 flex items-center justify-between bg-[#080C14] text-[11px] select-none shrink-0",
         className
       )}
     >
@@ -143,7 +143,7 @@ export function StudioJourneyBar({
               <Link
                 key={stage.id}
                 href={stageHref}
-                className="text-emerald-400 hover:underline shrink-0"
+                className="text-emerald-400 hover:underline shrink-0 cursor-pointer"
               >
                 ✓ {stage.label}
               </Link>
@@ -155,7 +155,7 @@ export function StudioJourneyBar({
               <Link
                 key={stage.id}
                 href={stageHref}
-                className="text-slate-400 hover:text-slate-200 hover:underline shrink-0"
+                className="text-slate-400 hover:text-slate-200 hover:underline shrink-0 cursor-pointer"
               >
                 {stage.isAttention ? "! " : "- "}
                 {stage.label}
@@ -187,7 +187,7 @@ export function StudioJourneyBar({
         {previousStage && (
           <Link
             href={resolveNavHref(previousStage.href) || previousStage.href}
-            className="h-7 px-2.5 rounded text-[11px] font-medium text-slate-300 bg-[#141A27] border border-[#242D40] hover:bg-[#1C2538] hover:text-white flex items-center justify-center transition-all shadow-sm"
+            className="h-7 px-2.5 rounded text-[11px] font-medium text-slate-300 bg-[#141A27] border border-[#242D40] hover:bg-[#1C2538] hover:text-white flex items-center justify-center transition-all shadow-sm cursor-pointer"
           >
             ← {previousStage.label}
           </Link>
@@ -195,13 +195,13 @@ export function StudioJourneyBar({
 
         {nextStage &&
           (nextStage.isLocked || !nextStage.href ? (
-            <span className="h-7 px-3 rounded text-[11px] font-medium text-slate-500 bg-[#101520] border border-[#1C2436] flex items-center justify-center">
+            <span className="h-7 px-3 rounded text-[11px] font-medium text-slate-500 bg-[#101520] border border-[#1C2436] flex items-center justify-center cursor-not-allowed opacity-50">
               {nextStage.label} → locked
             </span>
           ) : (
             <Link
               href={resolveNavHref(nextStage.href) || nextStage.href}
-              className="h-7 px-3 rounded text-[11px] font-medium text-white bg-[#3B82F6] hover:bg-[#2563EB] flex items-center justify-center active:scale-[0.98] transition-all shadow-sm"
+              className="h-7 px-3 rounded text-[11px] font-medium text-white bg-[#3B82F6] hover:bg-[#2563EB] flex items-center justify-center active:scale-[0.98] transition-all shadow-sm cursor-pointer"
             >
               {nextStage.label} →
             </Link>

@@ -20,10 +20,10 @@ export function StatsOverview({ stats }: StatsOverviewProps): React.ReactElement
           </div>
         </div>
         <div className="flex items-baseline justify-between mt-1">
-          <span className="text-xl font-bold text-slate-100 tracking-tight font-mono">
+          <span className="text-xl font-bold text-slate-100 tracking-tight font-mono tabular-nums">
             {stats.activeProjects}
           </span>
-          <span className="text-[10px] text-emerald-400 flex items-center gap-0.5 font-mono">
+          <span className="text-[10px] text-emerald-400 flex items-center gap-0.5 font-mono tabular-nums">
             <TrendingUp className="w-2.5 h-2.5" /> +1 tuần này
           </span>
         </div>
@@ -51,7 +51,7 @@ export function StatsOverview({ stats }: StatsOverviewProps): React.ReactElement
         </div>
         <div className="flex items-baseline justify-between mt-1">
           <span
-            className={`text-xl font-bold tracking-tight font-mono ${
+            className={`text-xl font-bold tracking-tight font-mono tabular-nums ${
               stats.waitingForApproval > 0 ? "text-[#FBBF24]" : "text-slate-100"
             }`}
           >
@@ -74,7 +74,7 @@ export function StatsOverview({ stats }: StatsOverviewProps): React.ReactElement
           </div>
         </div>
         <div className="flex items-baseline justify-between mt-1">
-          <span className="text-xl font-bold text-slate-100 tracking-tight font-mono">
+          <span className="text-xl font-bold text-slate-100 tracking-tight font-mono tabular-nums">
             {stats.rendersInQueue}
           </span>
           <span className="text-[10px] text-cyan-400 font-mono">
@@ -94,7 +94,7 @@ export function StatsOverview({ stats }: StatsOverviewProps): React.ReactElement
           </div>
         </div>
         <div className="flex items-baseline justify-between mt-1">
-          <span className="text-xl font-bold text-slate-100 tracking-tight font-mono">
+          <span className="text-xl font-bold text-slate-100 tracking-tight font-mono tabular-nums">
             {stats.aiGenerationsThisMonth.toLocaleString()}
           </span>
           <span className="text-[10px] text-purple-400 font-mono">
