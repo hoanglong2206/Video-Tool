@@ -1,6 +1,7 @@
 import React from "react";
 import type { AssetItem, AssetSourceType } from "../types";
 import { AssetCard } from "./AssetCard";
+import { EmptyState } from "@/components/shared";
 
 interface AssetGridProps {
   assets: AssetItem[];
@@ -60,18 +61,24 @@ export function AssetGrid({
         </div>
       </div>
 
-      {/* 4x2 Grid of Assets */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
-        {assets.map((asset) => (
-          <AssetCard
-            key={asset.id}
-            asset={asset}
-            isSelected={asset.id === selectedAssetId}
-            onSelect={onSelectAsset}
-          />
-        ))}
-      </div>
+      {/* Grid of Assets or Empty State */}
+      {assets.length === 0 ? (
+        <EmptyState
+          title="No assets found"
+          description="Try selecting another category or clear your search filter."
+        />
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
+          {assets.map((asset) => (
+            <AssetCard
+              key={asset.id}
+              asset={asset}
+              isSelected={asset.id === selectedAssetId}
+              onSelect={onSelectAsset}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
-

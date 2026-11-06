@@ -1,6 +1,7 @@
 import React from "react";
 import type { ProjectItem } from "../types";
 import { ProjectCard } from "./ProjectCard";
+import { EmptyState } from "@/components/shared";
 
 interface RecentProjectsGridProps {
   projects: ProjectItem[];
@@ -19,16 +20,24 @@ export function RecentProjectsGrid({
         </h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-        {projects.map((project) => (
-          <ProjectCard
-            key={project.id}
-            project={project}
-            onOpen={onOpenProject}
-          />
-        ))}
-      </div>
+      {projects.length === 0 ? (
+        <EmptyState
+          title="No projects found"
+          description="Create your first video project to launch AI storyboard and production."
+          actionLabel="Create Project"
+          onAction={() => (window.location.href = "/projects/new")}
+        />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {projects.map((project) => (
+            <ProjectCard
+              key={project.id}
+              project={project}
+              onOpen={onOpenProject}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
-

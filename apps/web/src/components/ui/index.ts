@@ -10,3 +10,7 @@ export * from "./tooltip";
 export * from "./dialog";
 export * from "./dropdown-menu";
 export * from "./select";
+export * from "./skeleton";
+export * from "./switch";
+export * from "./text-underline";
+export * from "./gradient-text";

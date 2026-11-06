@@ -1,6 +1,7 @@
 import React from "react";
 import type { StoryboardScene } from "../types";
 import { SceneCard } from "./SceneCard";
+import { EmptyState } from "@/components/shared";
 
 interface SceneGridProps {
   scenes: StoryboardScene[];
@@ -34,18 +35,26 @@ export function SceneGrid({
         </button>
       </div>
 
-      {/* 3x2 Matrix Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-        {scenes.map((scene) => (
-          <SceneCard
-            key={scene.id}
-            scene={scene}
-            isSelected={scene.id === selectedSceneId}
-            onSelect={onSelectScene}
-          />
-        ))}
-      </div>
+      {/* 3x2 Matrix Grid or Empty State */}
+      {scenes.length === 0 ? (
+        <EmptyState
+          title="No scenes generated"
+          description="Click 'Generate with AI' to automatically draft scenes from your creative brief."
+          actionLabel="Add scene manually"
+          onAction={onAddScene}
+        />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+          {scenes.map((scene) => (
+            <SceneCard
+              key={scene.id}
+              scene={scene}
+              isSelected={scene.id === selectedSceneId}
+              onSelect={onSelectScene}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
-

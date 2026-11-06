@@ -1,6 +1,6 @@
 import React from "react";
-import Link from "next/link";
 import { Button } from "@/components/ui";
+import { StudioHeader } from "@/components/shared";
 
 interface CreationHeaderProps {
   isSaving: boolean;
@@ -14,37 +14,25 @@ export function CreationHeader({
   onContinue,
 }: CreationHeaderProps): React.ReactElement {
   return (
-    <header className="h-14 border-b border-[#1E2638] px-6 flex items-center justify-between bg-[#0B0F17]">
-      {/* Breadcrumb path */}
-      <div className="flex items-center gap-2 text-xs">
-        <Link
-          href="/"
-          className="font-medium text-slate-100 hover:text-white transition-colors"
-        >
-          New project
-        </Link>
-        <span className="text-slate-600">/</span>
-        <span className="text-slate-400 font-normal">
-          Step 2 of 5 · Brief & materials
-        </span>
-      </div>
+    <StudioHeader
+      rootTitle="New project"
+      rootHref="/"
+      subTitle="Step 2 of 5 · Brief & materials"
+    >
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={onSaveDraft}
+        disabled={isSaving}
+      >
+        {isSaving ? "Saving..." : "Save draft"}
+      </Button>
 
-      {/* Header Actions */}
-      <div className="flex items-center gap-3">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onSaveDraft}
-          disabled={isSaving}
-        >
-          {isSaving ? "Saving..." : "Save draft"}
-        </Button>
-
-        <Button size="sm" onClick={onContinue}>
-          Continue
-        </Button>
-      </div>
-    </header>
+      <Button size="sm" onClick={onContinue}>
+        Continue
+      </Button>
+    </StudioHeader>
   );
 }
+
 
