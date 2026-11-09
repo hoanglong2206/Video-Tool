@@ -100,12 +100,8 @@ export async function extractPaletteFromImageFile(
         const pickedRgb: [number, number, number][] = [];
         for (const item of sorted) {
           if (pickedRgb.length >= 4) break;
-          const isDistinct = pickedRgb.every(
-            (p) => colorDistance(p, item.rgb) > 55
-          );
-          if (isDistinct) {
-            pickedRgb.push(item.rgb);
-          }
+          const isDistinct = pickedRgb.every((p) => colorDistance(p, item.rgb) > 55);
+          if (isDistinct) pickedRgb.push(item.rgb);
         }
 
         // Fallbacks if image is monochromatic
@@ -130,5 +126,73 @@ export async function extractPaletteFromImageFile(
 
     img.src = objectUrl;
   });
+}
+
+export function hexToRgb(hex: string): [number, number, number] | null {
+  const clean = hex.replace("#", "").trim();
+  if (clean.length === 3) {
+    const r = parseInt(clean[0] + clean[0], 16);
+    const g = parseInt(clean[1] + clean[1], 16);
+    const b = parseInt(clean[2] + clean[2], 16);
+    return [r, g, b];
+  }
+  if (clean.length === 6) {
+    const r = parseInt(clean.substring(0, 2), 16);
+    const g = parseInt(clean.substring(2, 4), 16);
+    const b = parseInt(clean.substring(4, 6), 16);
+    return [r, g, b];
+  }
+  return null;
+}
+
+/**
+ * Merges newly extracted colors with existing brand colors into a balanced, harmonious palette.
+ * Retains key colors from previously uploaded images while incorporating new distinct colors.
+ */
+export function mergeColorPalettes(
+  existingColors: string[],
+  newlyExtracted: string[],
+  maxTotal: number = 6
+): string[] {
+  if (!existingColors || existingColors.length === 0) {
+    return newlyExtracted.slice(0, maxTotal);
+  }
+  if (!newlyExtracted || newlyExtracted.length === 0) {
+    return existingColors;
+  }
+
+  const existingWithRgb = existingColors
+    .map((hex) => ({ hex: hex.toUpperCase(), rgb: hexToRgb(hex) }))
+    .filter((c): c is { hex: string; rgb: [number, number, number] } => c.rgb !== null);
+
+  const newWithRgb = newlyExtracted
+    .map((hex) => ({ hex: hex.toUpperCase(), rgb: hexToRgb(hex) }))
+    .filter((c): c is { hex: string; rgb: [number, number, number] } => c.rgb !== null);
+
+  const combined: { hex: string; rgb: [number, number, number] }[] = [];
+
+  // 1. Keep top 2-3 most distinct from existing images
+  for (const item of existingWithRgb) {
+    const isDistinct = combined.every((c) => colorDistance(c.rgb, item.rgb) > 40);
+    if (isDistinct) combined.push(item);
+    if (combined.length >= 3) break;
+  }
+
+  // 2. Add distinct colors from newly extracted image
+  for (const item of newWithRgb) {
+    const isDistinct = combined.every((c) => colorDistance(c.rgb, item.rgb) > 40);
+    if (isDistinct) combined.push(item);
+    if (combined.length >= maxTotal) break;
+  }
+
+  // 3. Guarantee at least 4 colors
+  if (combined.length < 4) {
+    for (const item of [...newWithRgb, ...existingWithRgb]) {
+      if (!combined.some((c) => c.hex === item.hex)) combined.push(item);
+      if (combined.length >= 4) break;
+    }
+  }
+
+  return combined.map((c) => c.hex);
 }
 

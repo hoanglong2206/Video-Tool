@@ -6,6 +6,7 @@ import { MultiFileUploadZone } from "./MultiFileUploadZone";
 import { VisualStyleSelector } from "./VisualStyleSelector";
 import { BrandPaletteSelector } from "./BrandPaletteSelector";
 import { AudioAtmosphereSelector } from "./AudioAtmosphereSelector";
+import { mergeColorPalettes } from "../utils/colorExtractor";
 import { Input, Textarea, Button } from "@/components/ui";
 import { Sparkles, Sliders, CheckCircle2 } from "lucide-react";
 
@@ -168,7 +169,10 @@ export function BriefForm({
               onAddFile={onAddFile}
               onRemoveFile={onRemoveFile}
               onAddDemoFiles={onAddDemoFiles}
-              onAutoExtractedColors={(colors) => onChangeField("brandColors", colors)}
+              onAutoExtractedColors={(newColors) => {
+                const merged = mergeColorPalettes(formData.brandColors || [], newColors);
+                onChangeField("brandColors", merged);
+              }}
             />
           </div>
 

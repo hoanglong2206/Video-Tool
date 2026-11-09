@@ -1,18 +1,11 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from "react";
-import {
-  UploadCloud,
-  FileText,
-  Video,
-  Sparkles,
-  Trash2,
-  FileCheck,
-  Eye,
-  Palette,
-} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { UploadCloud, Sparkles, Palette } from "lucide-react";
 import type { UploadedMediaItem, MediaCategory } from "../types";
 import { MediaPreviewDialog } from "./MediaPreviewDialog";
+import { UploadedFileCard } from "./UploadedFileCard";
 import { extractPaletteFromImageFile } from "../utils/colorExtractor";
 
 interface MultiFileUploadZoneProps {
@@ -34,6 +27,7 @@ export function MultiFileUploadZone({
   const objectUrlsRef = useRef<Set<string>>(new Set());
   const [selectedPreviewFile, setSelectedPreviewFile] = useState<UploadedMediaItem | null>(null);
   const [extractedBanner, setExtractedBanner] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   // Cleanup object URLs on unmount to completely prevent memory leaks
   useEffect(() => {
@@ -50,10 +44,7 @@ export function MultiFileUploadZone({
     };
   }, []);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
-    const uploadedFiles = Array.from(e.target.files);
-
+  const processFiles = async (uploadedFiles: File[]) => {
     for (const f of uploadedFiles) {
       let category: MediaCategory = "image";
       const name = f.name.toLowerCase();
@@ -72,7 +63,6 @@ export function MultiFileUploadZone({
         previewUrl = URL.createObjectURL(f);
         objectUrlsRef.current.add(previewUrl);
 
-        // Auto-extract brand color palette from uploaded logo or primary image
         if (onAutoExtractedColors) {
           extractPaletteFromImageFile(f).then((colors) => {
             onAutoExtractedColors(colors, f.name);
@@ -93,8 +83,41 @@ export function MultiFileUploadZone({
       };
       onAddFile(newItem);
     }
+  };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    await processFiles(Array.from(e.target.files));
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = "copy";
+  };
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      await processFiles(Array.from(e.dataTransfer.files));
+    }
   };
 
   const handleRemoveItem = (id: string) => {
@@ -110,37 +133,14 @@ export function MultiFileUploadZone({
     onRemoveFile(id);
   };
 
-  const getCategoryBadge = (cat: MediaCategory) => {
-    switch (cat) {
-      case "logo":
-        return <span className="bg-indigo-950/90 text-indigo-300 border border-indigo-700/50 text-[9px] px-1 py-0.5 rounded font-mono">LOGO</span>;
-      case "image":
-        return <span className="bg-blue-950/90 text-blue-300 border border-blue-700/50 text-[9px] px-1 py-0.5 rounded font-mono">ẢNH</span>;
-      case "video":
-        return <span className="bg-cyan-950/90 text-cyan-300 border border-cyan-700/50 text-[9px] px-1 py-0.5 rounded font-mono">VIDEO</span>;
-      case "pdf":
-        return <span className="bg-red-950/90 text-red-300 border border-red-700/50 text-[9px] px-1 py-0.5 rounded font-mono">PDF</span>;
-      case "doc":
-        return <span className="bg-emerald-950/90 text-emerald-300 border border-emerald-700/50 text-[9px] px-1 py-0.5 rounded font-mono">DOC</span>;
-    }
-  };
-
   return (
     <div className="flex-1 min-h-0 flex flex-col gap-2 overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-2">
-          <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-            <span>Tài liệu & Media ({files.length})</span>
-            <span className="text-[10px] text-slate-400 font-normal lowercase">(click xem popup)</span>
-          </label>
-          {extractedBanner && (
-            <span className="text-[10px] text-cyan-300 bg-cyan-950/70 border border-cyan-700/50 px-2 py-0.5 rounded flex items-center gap-1 animate-pulse">
-              <Palette className="w-2.5 h-2.5 text-cyan-400" />
-              <span>Đã trích màu từ logo</span>
-            </span>
-          )}
-        </div>
+      {/* Header - Fixed layout with 0 shifts */}
+      <div className="flex items-center justify-between shrink-0 h-6">
+        <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+          <span>Tài liệu & Media ({files.length})</span>
+          <span className="text-[10px] text-slate-400 font-normal lowercase">(click xem popup)</span>
+        </label>
         <button
           type="button"
           onClick={onAddDemoFiles}
@@ -159,26 +159,58 @@ export function MultiFileUploadZone({
         onChange={handleFileChange}
       />
 
-      {/* Upload Dropzone */}
+      {/* Upload Dropzone with Native Drag & Drop and Static Height Status */}
       <div
         onClick={() => fileInputRef.current?.click()}
-        className="border border-dashed border-[#222E45] hover:border-blue-500/60 bg-[#0B0F17]/90 hover:bg-[#0F1626]/80 rounded-xl p-3 flex items-center justify-between transition-colors cursor-pointer shrink-0"
+        onDragOver={handleDragOver}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={cn(
+          "border border-dashed rounded-xl p-3 flex items-center justify-between transition-all cursor-pointer shrink-0 select-none",
+          isDragging
+            ? "border-blue-400 bg-blue-950/60 ring-2 ring-blue-500/40 shadow-lg shadow-blue-500/20"
+            : "border-[#222E45] hover:border-blue-500/60 bg-[#0B0F17]/90 hover:bg-[#0F1626]/80"
+        )}
       >
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-blue-600/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div
+            className={cn(
+              "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors",
+              isDragging
+                ? "bg-blue-600 text-white"
+                : "bg-blue-600/10 border border-blue-500/20 text-blue-400"
+            )}
+          >
             <UploadCloud className="w-4 h-4" />
           </div>
-          <div>
-            <p className="text-xs font-bold text-slate-200">
-              Kéo thả hoặc click để tải thêm file
+          <div className="min-w-0 flex flex-col justify-center">
+            <p className="text-xs font-bold text-slate-200 truncate">
+              {isDragging ? "Thả tệp vào đây để tải lên ngay" : "Kéo thả hoặc click để tải thêm file"}
             </p>
-            <p className="text-[10px] text-slate-400">
-              Hỗ trợ PNG, JPG, MP4, MOV, PDF, Word, SVG • Tự trích màu Logo
-            </p>
+            <div className="h-4 flex items-center min-w-0">
+              {extractedBanner ? (
+                <p className="text-[10px] text-emerald-400 flex items-center gap-1 font-medium truncate animate-in fade-in-0 duration-200">
+                  <Palette className="w-2.5 h-2.5 text-emerald-400 shrink-0" />
+                  <span className="truncate">Đã trích xuất & kết hợp màu: {extractedBanner}</span>
+                </p>
+              ) : (
+                <p className="text-[10px] text-slate-400 truncate">
+                  Hỗ trợ PNG, JPG, MP4, MOV, PDF, Word, SVG • Tự trích màu Logo
+                </p>
+              )}
+            </div>
           </div>
         </div>
-        <span className="text-xs text-blue-400 font-medium px-2.5 py-1 rounded-md bg-blue-950/50 border border-blue-800/40">
-          Browse
+        <span
+          className={cn(
+            "text-xs font-medium px-2.5 py-1 rounded-md shrink-0 ml-2 transition-colors",
+            isDragging
+              ? "bg-blue-600 text-white font-bold"
+              : "text-blue-400 bg-blue-950/50 border border-blue-800/40"
+          )}
+        >
+          {isDragging ? "Thả tệp" : "Browse"}
         </span>
       </div>
 
@@ -191,57 +223,12 @@ export function MultiFileUploadZone({
         ) : (
           <div className="grid grid-cols-2 gap-2">
             {files.map((file) => (
-              <div
+              <UploadedFileCard
                 key={file.id}
-                onClick={() => setSelectedPreviewFile(file)}
-                className="bg-[#0A0D15] border border-[#1E2638] hover:border-blue-500/40 rounded-lg p-2 flex items-center gap-2.5 relative group cursor-pointer transition-colors"
-              >
-                {/* Thumbnail Icon */}
-                <div className="w-9 h-9 rounded-md bg-[#121927] border border-[#223048] flex items-center justify-center shrink-0 overflow-hidden relative">
-                  {file.previewUrl ? (
-                    <img
-                      src={file.previewUrl}
-                      alt={file.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                    />
-                  ) : file.category === "video" ? (
-                    <Video className="w-4 h-4 text-cyan-400" />
-                  ) : file.category === "pdf" ? (
-                    <FileText className="w-4 h-4 text-red-400" />
-                  ) : (
-                    <FileCheck className="w-4 h-4 text-blue-400" />
-                  )}
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                    <Eye className="w-3.5 h-3.5 text-white" />
-                  </div>
-                </div>
-
-                {/* Info */}
-                <div className="flex-1 min-w-0 pr-5">
-                  <div className="flex items-center gap-1.5 mb-0.5">
-                    {getCategoryBadge(file.category)}
-                    <span className="text-[11px] font-medium text-slate-200 truncate" title={file.name}>
-                      {file.name}
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-slate-400 font-mono block">
-                    {file.size}
-                  </span>
-                </div>
-
-                {/* Delete Button */}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRemoveItem(file.id);
-                  }}
-                  className="absolute top-2 right-2 w-5 h-5 rounded bg-slate-800/80 hover:bg-red-600 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
-                  title="Xoá file"
-                >
-                  <Trash2 className="w-2.5 h-2.5" />
-                </button>
-              </div>
+                file={file}
+                onPreview={(f) => setSelectedPreviewFile(f)}
+                onRemove={handleRemoveItem}
+              />
             ))}
           </div>
         )}

@@ -128,7 +128,7 @@ export function BrandPaletteSelector({
               <div
                 key={idx}
                 onClick={() => setEditingIndex(idx)}
-                className="group relative w-6 h-6 rounded-md border border-[#2D3950] shadow-sm flex items-center justify-center cursor-pointer transition-transform hover:scale-110"
+                className="group relative w-6 h-6 rounded-md border border-[#2D3950] shadow-sm flex items-center justify-center cursor-pointer transition-all hover:ring-2 hover:ring-blue-400 hover:border-transparent"
                 style={{ backgroundColor: c }}
                 title={`${c} (Click để chỉnh màu)`}
               >
