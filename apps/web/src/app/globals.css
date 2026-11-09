@@ -191,20 +191,33 @@ pre {
 /* -------------------------------------------------------------------------
    Custom Subtle Studio Scrollbar (Dark & Light)
    ------------------------------------------------------------------------- */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #222E45 transparent;
+}
+
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--studio-bg);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--studio-border);
-  border-radius: 3px;
+  background: #222E45;
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--studio-border-hover);
+  background: #3B82F6;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
