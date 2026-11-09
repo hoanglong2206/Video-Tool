@@ -200,7 +200,7 @@ export function AiPipelineProcessingView({
       {/* Main Full-Screen Split Viewport (Balanced 2-Column Grid) */}
       <div className="flex-1 min-h-0 grid grid-cols-12 gap-3.5 overflow-hidden">
         {/* Left 5 Columns: 4 Interactive Stage Cards + Agent Live Logs */}
-        <div className="col-span-12 lg:col-span-5 min-h-0 h-full overflow-hidden">
+        <div className="col-span-12 lg:col-span-5 min-h-0 h-full overflow-hidden flex flex-col">
           <AiStageSelectorList
             activeStage={activeStage}
             selectedStage={selectedStage}
@@ -211,7 +211,7 @@ export function AiPipelineProcessingView({
         </div>
 
         {/* Right 7 Columns: Stage Result Inspector (Full Details & Artifacts) */}
-        <div className="col-span-12 lg:col-span-7 min-h-0 h-full overflow-hidden">
+        <div className="col-span-12 lg:col-span-7 min-h-0 h-full overflow-hidden flex flex-col">
           <AiStageResultInspector
             selectedStage={selectedStage}
             aiOutput={aiOutput}
