@@ -164,8 +164,8 @@ export function AiStageSelectorList({
         </div>
 
         <div className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-1.5 text-[10px]">
-          {logs.map((log) => (
-            <div key={log.id} className="flex items-start gap-1.5 leading-relaxed">
+          {logs.map((log, idx) => (
+            <div key={`${log.id}-${idx}`} className="flex items-start gap-1.5 leading-relaxed">
               <span className="text-slate-600 shrink-0">[{log.time}]</span>
               <span
                 className={`font-semibold shrink-0 ${

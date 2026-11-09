@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import type { FullAiAnalysisOutput, ProjectBriefFormData } from "../types";
 import { AiStageSelectorList, type LogEntry } from "./AiStageSelectorList";
 import { AiStageResultInspector } from "./AiStageResultInspector";
@@ -27,9 +27,11 @@ export function AiPipelineProcessingView({
 }: AiPipelineProcessingViewProps): React.ReactElement {
   const [selectedStage, setSelectedStage] = useState<number>(1);
   const [showCancelConfirm, setShowCancelConfirm] = useState<boolean>(false);
+  const loggedStagesRef = useRef<Set<number>>(new Set());
+
   const [logs, setLogs] = useState<LogEntry[]>([
     {
-      id: "l-1",
+      id: "log-init",
       time: "00:00.2",
       stageName: "LLM",
       message: `Khởi tạo tiến trình phân tích cho "${formData.projectName || "Dự án"}"`,
@@ -44,53 +46,53 @@ export function AiPipelineProcessingView({
     }
   }, [activeStage]);
 
-  // Append telemetry logs when stage changes
+  // Append telemetry logs when stage changes (strictly once per stage, guaranteed unique IDs)
   useEffect(() => {
+    if (activeStage < 1 || loggedStagesRef.current.has(activeStage)) return;
+    loggedStagesRef.current.add(activeStage);
+
     const timestamp = `00:0${Math.min(activeStage, 4)}.4`;
+    let newLog: LogEntry | null = null;
+
     if (activeStage === 1) {
-      setLogs((prev) => [
-        ...prev,
-        {
-          id: `l-s1-${Date.now()}`,
-          time: timestamp,
-          stageName: "LLM",
-          message: `Phân tích brief: Đã bóc tách 3 key hooks và cấu trúc ${formData.duration}`,
-          type: "success",
-        },
-      ]);
+      newLog = {
+        id: "log-stage-1",
+        time: timestamp,
+        stageName: "LLM",
+        message: `Phân tích brief: Đã bóc tách 3 key hooks và cấu trúc ${formData.duration}`,
+        type: "success",
+      };
     } else if (activeStage === 2) {
-      setLogs((prev) => [
-        ...prev,
-        {
-          id: `l-s2-${Date.now()}`,
-          time: timestamp,
-          stageName: "Vision",
-          message: `Quét ${formData.files.length} tệp: Trích xuất ${formData.brandColors.length} mã màu HEX. Độ nhận diện 98%`,
-          type: "success",
-        },
-      ]);
+      newLog = {
+        id: "log-stage-2",
+        time: timestamp,
+        stageName: "Vision",
+        message: `Quét ${formData.files.length} tệp: Trích xuất ${formData.brandColors.length} mã màu HEX. Độ nhận diện 98%`,
+        type: "success",
+      };
     } else if (activeStage === 3) {
-      setLogs((prev) => [
-        ...prev,
-        {
-          id: `l-s3-${Date.now()}`,
-          time: timestamp,
-          stageName: "PromptBuilder",
-          message: `Đã chuẩn hóa 6 Visual Prompts theo phong cách "${formData.stylePreference}"`,
-          type: "success",
-        },
-      ]);
+      newLog = {
+        id: "log-stage-3",
+        time: timestamp,
+        stageName: "PromptBuilder",
+        message: `Đã chuẩn hóa 6 Visual Prompts theo phong cách "${formData.stylePreference}"`,
+        type: "success",
+      };
     } else if (activeStage >= 4) {
-      setLogs((prev) => [
-        ...prev,
-        {
-          id: `l-s4-${Date.now()}`,
-          time: timestamp,
-          stageName: "Schema",
-          message: "Xác thực ProjectSpec.v2.json: 24/24 tham số đạt chuẩn sản xuất. 0 lỗi.",
-          type: "success",
-        },
-      ]);
+      newLog = {
+        id: "log-stage-4",
+        time: timestamp,
+        stageName: "Schema",
+        message: "Xác thực ProjectSpec.v2.json: 24/24 tham số đạt chuẩn sản xuất. 0 lỗi.",
+        type: "success",
+      };
+    }
+
+    if (newLog) {
+      setLogs((prev) => {
+        if (prev.some((l) => l.id === newLog!.id)) return prev;
+        return [...prev, newLog!];
+      });
     }
   }, [activeStage, formData]);
 
