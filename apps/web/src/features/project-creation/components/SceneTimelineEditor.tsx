@@ -37,9 +37,9 @@ export function SceneTimelineEditor({
   };
 
   return (
-    <div className="flex-1 min-h-0 flex flex-col gap-2.5 overflow-hidden">
-      {/* 1. Scene Timeline Bar */}
-      <div className="flex items-center justify-between pb-1 shrink-0">
+    <div className="flex-1 min-h-0 flex flex-col gap-2 overflow-hidden">
+      {/* 1. Scene Timeline Header */}
+      <div className="flex items-center justify-between pb-1 shrink-0 border-b border-[#1C2436]">
         <div className="flex items-center gap-1.5">
           <Film className="w-3.5 h-3.5 text-cyan-400" />
           <h3 className="text-[11px] font-bold text-slate-200 uppercase tracking-wider">
@@ -94,9 +94,9 @@ export function SceneTimelineEditor({
         })}
       </div>
 
-      {/* 2. Active Scene Detail Editor */}
+      {/* 2. Active Scene Detail Editor (Natural tight layout without awkward justify-between void) */}
       {activeScene && (
-        <div className="flex-1 min-h-0 bg-[#0B0F17] border border-[#1E2638] rounded-xl p-3 flex flex-col justify-between gap-2 overflow-hidden">
+        <div className="flex-1 min-h-0 bg-[#0B0F17] border border-[#1E2638] rounded-xl p-3 flex flex-col gap-2.5 overflow-hidden">
           {/* Header with Title and Switchers */}
           <div className="flex items-center justify-between shrink-0 gap-2">
             <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -133,9 +133,9 @@ export function SceneTimelineEditor({
             </div>
           </div>
 
-          {/* Visual Prompt Input */}
-          <div className="flex flex-col gap-1 shrink-0">
-            <div className="flex items-center justify-between">
+          {/* Visual Prompt Input - Naturally fills central vertical space */}
+          <div className="flex-1 min-h-0 flex flex-col gap-1">
+            <div className="flex items-center justify-between shrink-0">
               <label className="text-[10px] font-semibold text-cyan-400 uppercase tracking-wider flex items-center gap-1">
                 Visual Prompt (Prompt tạo hình ảnh / Video AI)
               </label>
@@ -149,10 +149,9 @@ export function SceneTimelineEditor({
               </button>
             </div>
             <Textarea
-              rows={2}
               value={activeScene.visualPrompt}
               onChange={(e) => onUpdateScene(activeIndex, { visualPrompt: e.target.value })}
-              className="bg-[#070A10] border-[#1E2638] focus:border-cyan-500 text-xs resize-none leading-relaxed h-14"
+              className="bg-[#070A10] border-[#1E2638] focus:border-cyan-500 text-xs resize-none leading-relaxed flex-1 min-h-[60px]"
               placeholder="Visual prompt cho AI renderer..."
             />
           </div>
@@ -187,4 +186,3 @@ export function SceneTimelineEditor({
     </div>
   );
 }
-
