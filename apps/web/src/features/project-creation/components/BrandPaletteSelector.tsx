@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useRef } from "react";
-import { Palette, Check, Plus, Trash2, Type } from "lucide-react";
+import React, { useState } from "react";
+import { Palette, Plus, Trash2, Type } from "lucide-react";
+import { StudioColorPickerModal } from "./StudioColorPickerModal";
 
 export interface ColorPalettePreset {
   id: string;
@@ -48,23 +49,13 @@ export function BrandPaletteSelector({
   colors,
   typeface,
   onChangeColors,
-  onChangeTypeface,
 }: BrandPaletteSelectorProps): React.ReactElement {
-  const activeColorIndexRef = useRef<number | null>(null);
-  const colorPickerInputRef = useRef<HTMLInputElement>(null);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
-  const handleSwatchClick = (idx: number) => {
-    activeColorIndexRef.current = idx;
-    if (colorPickerInputRef.current) {
-      colorPickerInputRef.current.value = colors[idx] || "#3B82F6";
-      colorPickerInputRef.current.click();
-    }
-  };
-
-  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (activeColorIndexRef.current === null) return;
+  const handleColorChange = (newHex: string) => {
+    if (editingIndex === null) return;
     const newColors = [...colors];
-    newColors[activeColorIndexRef.current] = e.target.value.toUpperCase();
+    newColors[editingIndex] = newHex;
     onChangeColors(newColors);
   };
 
@@ -73,10 +64,11 @@ export function BrandPaletteSelector({
     onChangeColors([...colors, "#6366F1"]);
   };
 
-  const handleRemoveColor = (idx: number, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleRemoveColor = (idx: number, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     if (colors.length <= 2) return;
     onChangeColors(colors.filter((_, i) => i !== idx));
+    setEditingIndex(null);
   };
 
   const isCurrentPreset = (preset: ColorPalettePreset) =>
@@ -84,20 +76,12 @@ export function BrandPaletteSelector({
 
   return (
     <div className="flex flex-col gap-2">
-      {/* Hidden Native Color Picker Input */}
-      <input
-        ref={colorPickerInputRef}
-        type="color"
-        className="sr-only"
-        onChange={handleColorChange}
-      />
-
       <div className="flex items-center justify-between">
         <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
           <Palette className="w-3.5 h-3.5 text-blue-400" />
           <span>Bảng màu thương hiệu (Brand Palette)</span>
         </label>
-        <span className="text-[10px] text-slate-400">Click màu để đổi mã HEX</span>
+        <span className="text-[10px] text-slate-400">Click màu để mở Studio Color Picker</span>
       </div>
 
       {/* Palette Presets */}
@@ -141,16 +125,17 @@ export function BrandPaletteSelector({
             {colors.map((c, idx) => (
               <div
                 key={idx}
-                onClick={() => handleSwatchClick(idx)}
+                onClick={() => setEditingIndex(idx)}
                 className="group relative w-6 h-6 rounded-md border border-[#2D3950] shadow-sm flex items-center justify-center cursor-pointer transition-transform hover:scale-110"
                 style={{ backgroundColor: c }}
-                title={`${c} (Click để đổi)`}
+                title={`${c} (Click để chỉnh màu)`}
               >
                 {colors.length > 2 && (
                   <button
                     type="button"
                     onClick={(e) => handleRemoveColor(idx, e)}
                     className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-black/80 hover:bg-red-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                    title="Xóa màu"
                   >
                     <Trash2 className="w-2 h-2" />
                   </button>
@@ -178,7 +163,19 @@ export function BrandPaletteSelector({
           </span>
         </div>
       </div>
+
+      {/* Modern Studio Dark-Themed Color Picker Modal */}
+      {editingIndex !== null && (
+        <StudioColorPickerModal
+          isOpen={editingIndex !== null}
+          currentColor={colors[editingIndex] || "#3B82F6"}
+          colorIndex={editingIndex}
+          canDelete={colors.length > 2}
+          onClose={() => setEditingIndex(null)}
+          onChangeColor={handleColorChange}
+          onDeleteColor={() => handleRemoveColor(editingIndex)}
+        />
+      )}
     </div>
   );
 }
-
