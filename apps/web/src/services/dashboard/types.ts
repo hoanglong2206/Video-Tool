@@ -5,7 +5,7 @@ export interface DashboardStats {
   aiGenerationsThisMonth: number;
 }
 
-export type ProjectStatus = "in_progress" | "waiting_approval" | "completed" | "library";
+export type ProjectStatus = "in_progress" | "waiting_approval" | "completed" | "library" | "stopped";
 
 export interface ProjectItem {
   id: string;

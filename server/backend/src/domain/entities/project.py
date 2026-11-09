@@ -5,7 +5,9 @@ from enum import Enum
 
 class ProjectStatus(str, Enum):
     IN_PROGRESS = "in_progress"
+    WAITING_APPROVAL = "waiting_approval"
     COMPLETED = "completed"
+    STOPPED = "stopped"
     LIBRARY = "library"
 
 

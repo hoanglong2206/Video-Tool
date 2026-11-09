@@ -67,3 +67,9 @@ class BriefCheckResponseDTO(BaseModel):
     missing_items: list[str]
     suggested_structure: str
     is_complete: bool
+
+
+class UpdateProjectStatusRequestDTO(BaseModel):
+    """Payload to update the operational status of a project."""
+
+    status: str = Field(description="New status, e.g. in_progress, stopped, waiting_approval, completed")

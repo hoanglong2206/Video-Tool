@@ -1,4 +1,4 @@
-import { apiGet, apiPost } from "@/lib/axios";
+import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/axios";
 import { API_ENDPOINTS } from "@/constants/api";
 import type {
   CreateProjectInput,
@@ -29,6 +29,14 @@ export const projectService = {
       API_ENDPOINTS.BRIEF_CHECK,
       data
     );
+  },
+
+  updateProjectStatus: async (id: string, status: string): Promise<ProjectItem> => {
+    return apiPatch<ProjectItem>(API_ENDPOINTS.PROJECT_BY_ID(id), { status });
+  },
+
+  deleteProject: async (id: string): Promise<void> => {
+    return apiDelete<void>(API_ENDPOINTS.PROJECT_BY_ID(id));
   },
 };
 

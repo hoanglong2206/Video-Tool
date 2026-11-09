@@ -1,12 +1,13 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Clock, AlertCircle, PlayCircle, MinusCircle, XCircle } from "lucide-react";
+import { CheckCircle2, Clock, AlertCircle, PlayCircle, MinusCircle, XCircle, PauseCircle } from "lucide-react";
 
 export type EntityStatus =
   | "approved"
   | "waiting_approval"
   | "running"
   | "in_progress"
+  | "stopped"
   | "completed"
   | "failed"
   | "pending"
@@ -47,6 +48,13 @@ export function StatusBadge({
         <Badge variant="default" className={className}>
           <PlayCircle className="w-3 h-3 mr-1 animate-pulse" />
           {label || (status === "running" ? "Running" : "In Progress")}
+        </Badge>
+      );
+    case "stopped":
+      return (
+        <Badge variant="destructive" className={`bg-rose-950/80 text-rose-300 border-rose-800/50 hover:bg-rose-900/80 ${className || ""}`}>
+          <PauseCircle className="w-3 h-3 mr-1" />
+          {label || "Đã dừng"}
         </Badge>
       );
     case "failed":

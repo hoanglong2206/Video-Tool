@@ -1,5 +1,5 @@
 from uuid import uuid4
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,6 +8,7 @@ from server.backend.src.api.dtos.project import (
     BriefCheckResponseDTO,
     CreateProjectRequestDTO,
     ProjectResponseDTO,
+    UpdateProjectStatusRequestDTO,
 )
 from server.backend.src.domain.entities.project import Project, ProjectStatus
 from server.backend.src.infrastructure.database.models import (
@@ -133,3 +134,45 @@ async def check_brief_completeness(payload: BriefCheckRequestDTO) -> BriefCheckR
         suggested_structure=result.suggested_structure or "6 scenes, about 5 s each.",
         is_complete=result.is_complete,
     )
+
+
+@router.patch("/{project_id}", response_model=ProjectResponseDTO)
+async def update_project_status(
+    project_id: str,
+    payload: UpdateProjectStatusRequestDTO,
+    session: AsyncSession = Depends(get_db_session),
+) -> ProjectResponseDTO:
+    """Update project status (e.g. stopped, in_progress, waiting_approval, completed)."""
+    stmt = select(ProjectModel).where(ProjectModel.id == project_id)
+    project = await session.scalar(stmt)
+    if not project:
+        raise HTTPException(status_code=404, detail=f"Project '{project_id}' not found.")
+
+    project.status = payload.status
+    await session.commit()
+    await session.refresh(project)
+
+    return ProjectResponseDTO(
+        id=project.id,
+        name=project.name,
+        stageDescription=project.stage_description,
+        progress=project.progress,
+        status=ProjectStatus(project.status) if project.status in [e.value for e in ProjectStatus] else ProjectStatus.IN_PROGRESS,
+        assetCount=project.asset_count,
+        templateCount=project.template_count,
+    )
+
+
+@router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_project(
+    project_id: str,
+    session: AsyncSession = Depends(get_db_session),
+) -> None:
+    """Permanently delete a project and all associated cascading models."""
+    stmt = select(ProjectModel).where(ProjectModel.id == project_id)
+    project = await session.scalar(stmt)
+    if not project:
+        raise HTTPException(status_code=404, detail=f"Project '{project_id}' not found.")
+
+    await session.delete(project)
+    await session.commit()

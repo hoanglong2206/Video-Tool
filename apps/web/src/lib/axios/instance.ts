@@ -90,6 +90,15 @@ export async function apiPut<T, D = unknown>(
   return response.data;
 }
 
+export async function apiPatch<T, D = unknown>(
+  url: string,
+  data?: D,
+  config?: AxiosRequestConfig
+): Promise<T> {
+  const response = await apiClient.patch<T>(url, data, config);
+  return response.data;
+}
+
 export async function apiDelete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
   const response = await apiClient.delete<T>(url, config);
   return response.data;

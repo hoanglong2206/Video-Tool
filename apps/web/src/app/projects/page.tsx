@@ -1,20 +1,35 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { DashboardSidebar } from "@/features/dashboard/components/DashboardSidebar";
 import { dashboardService } from "@/services/dashboard";
+import { projectService } from "@/services/project";
 import { QUERY_KEYS } from "@/constants/query-keys";
-import { StatusBadge } from "@/components/shared";
-import { Progress, Button, Input } from "@/components/ui";
-import { Plus, Search, Film, Clock, Play } from "lucide-react";
+import { Button, Input } from "@/components/ui";
+import { Plus, Search, Film } from "lucide-react";
+import type { ProjectItem } from "@/services/dashboard";
+import {
+  ProjectCardItem,
+  StopProjectConfirmModal,
+  DeleteProjectConfirmModal,
+  VideoPreviewModal,
+} from "@/features/projects";
+
+type ProjectFilterTab = "all" | "in_progress" | "waiting_approval" | "completed" | "stopped";
 
 export default function ProjectsPage(): React.ReactElement {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<"all" | "in_progress" | "waiting_approval" | "completed">("all");
+  const [filter, setFilter] = useState<ProjectFilterTab>("all");
+
+  const [stopModalProject, setStopModalProject] = useState<ProjectItem | null>(null);
+  const [deleteModalProject, setDeleteModalProject] = useState<ProjectItem | null>(null);
+  const [previewModalProject, setPreviewModalProject] = useState<ProjectItem | null>(null);
+  const [isStopping, setIsStopping] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { data } = useQuery({
     queryKey: QUERY_KEYS.dashboard.stats(),
@@ -28,6 +43,38 @@ export default function ProjectsPage(): React.ReactElement {
     const matchesFilter = filter === "all" || p.status === filter;
     return matchesSearch && matchesFilter;
   });
+
+  const handleConfirmStop = async (project: ProjectItem) => {
+    setIsStopping(true);
+    try {
+      await projectService.updateProjectStatus(project.id, "stopped");
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats() });
+      setStopModalProject(null);
+    } catch (err) {
+      console.error("Failed to stop project:", err);
+    } finally {
+      setIsStopping(false);
+    }
+  };
+
+  const handleConfirmDelete = async (project: ProjectItem) => {
+    setIsDeleting(true);
+    try {
+      await projectService.deleteProject(project.id);
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats() });
+      setDeleteModalProject(null);
+    } catch (err) {
+      console.error("Failed to delete project:", err);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleNavigate = (project: ProjectItem) => {
+    if (project.status === "waiting_approval") router.push(`/projects/${project.id}/approvals`);
+    else if (project.status === "completed") router.push(`/projects/${project.id}/export`);
+    else router.push(`/projects/${project.id}/workflow`);
+  };
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#0B0F17] text-slate-100 antialiased select-none">
@@ -67,17 +114,18 @@ export default function ProjectsPage(): React.ReactElement {
           </div>
         </header>
 
-        {/* Filter bar */}
+        {/* Filter Bar */}
         <div className="px-5 py-2.5 border-b border-[#1E2638] bg-[#0C101A] flex items-center gap-2 shrink-0">
           {[
             { id: "all", label: "Tất cả" },
             { id: "in_progress", label: "Đang sản xuất" },
             { id: "waiting_approval", label: "Chờ phê duyệt" },
             { id: "completed", label: "Đã hoàn thành" },
+            { id: "stopped", label: "Đã dừng" },
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setFilter(tab.id as typeof filter)}
+              onClick={() => setFilter(tab.id as ProjectFilterTab)}
               className={`text-xs px-3 py-1 rounded-md font-medium transition-colors cursor-pointer ${
                 filter === tab.id
                   ? "bg-blue-600 text-white font-bold"
@@ -90,15 +138,15 @@ export default function ProjectsPage(): React.ReactElement {
         </div>
 
         {/* Projects Grid */}
-        <main className="flex-1 overflow-y-auto p-5">
+        <main className="flex-1 min-h-0 overflow-y-auto p-5">
           {filteredProjects.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-[#1E2638] rounded-xl bg-[#0E131E] my-8 max-w-lg mx-auto">
               <div className="w-12 h-12 rounded-full bg-blue-950/60 border border-blue-800/40 flex items-center justify-center text-blue-400 mb-3">
                 <Film className="w-6 h-6" />
               </div>
-              <h3 className="text-sm font-semibold text-slate-200">Chưa có dự án nào</h3>
+              <h3 className="text-sm font-semibold text-slate-200">Không tìm thấy dự án phù hợp</h3>
               <p className="text-xs text-slate-400 mt-1 max-w-sm">
-                Bắt đầu tạo dự án video quảng cáo đầu tiên với bộ tứ AI (LLM, Vision, Prompt Builder & Remotion).
+                Không có dự án nào thỏa mãn điều kiện lọc. Chọn tab khác hoặc tạo dự án mới.
               </p>
               <Button
                 size="sm"
@@ -111,46 +159,42 @@ export default function ProjectsPage(): React.ReactElement {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredProjects.map((project) => (
-                <div
+                <ProjectCardItem
                   key={project.id}
-                  onClick={() => router.push(`/projects/${project.id}/workflow`)}
-                  className="bg-[#101520] border border-[#1C2436] hover:border-[#2D3C57] rounded-xl p-3.5 flex flex-col justify-between transition-all cursor-pointer group hover:bg-[#121826]"
-                >
-                  {/* 16:9 Thumbnail */}
-                  <div className="w-full aspect-[16/9] rounded-lg bg-gradient-to-br from-[#141B29] to-[#0A0D14] border border-[#1E2638] relative overflow-hidden flex items-center justify-center group-hover:border-blue-500/40 transition-colors">
-                    <div className="w-9 h-9 rounded-full bg-blue-600/80 backdrop-blur-sm border border-blue-400/40 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">
-                      <Play className="w-4 h-4 fill-current ml-0.5" />
-                    </div>
-                    <div className="absolute top-2 right-2">
-                      <StatusBadge status={project.status} />
-                    </div>
-                  </div>
-
-                  {/* Project details */}
-                  <div className="mt-3">
-                    <h3 className="text-sm font-bold text-slate-100 group-hover:text-blue-300 transition-colors truncate">
-                      {project.name}
-                    </h3>
-                    <p className="text-xs text-slate-400 truncate mt-0.5">
-                      {project.stageDescription || "Pipeline v2.0"}
-                    </p>
-                  </div>
-
-                  {/* Progress bar */}
-                  <div className="mt-3 pt-2.5 border-t border-[#1C2436]/60">
-                    <div className="flex items-center justify-between text-[10px] font-mono tabular-nums text-slate-400 mb-1">
-                      <span>Tiến độ hoàn thành</span>
-                      <span className="font-semibold text-slate-200">{project.progress}%</span>
-                    </div>
-                    <Progress value={project.progress} className="h-1.5 [&>div]:bg-blue-500" />
-                  </div>
-                </div>
+                  project={project}
+                  onOpenStopModal={(p) => setStopModalProject(p)}
+                  onOpenDeleteModal={(p) => setDeleteModalProject(p)}
+                  onOpenVideoPreview={(p) => setPreviewModalProject(p)}
+                  onNavigate={handleNavigate}
+                />
               ))}
             </div>
           )}
         </main>
       </div>
+
+      <StopProjectConfirmModal
+        project={stopModalProject}
+        isOpen={Boolean(stopModalProject)}
+        onClose={() => setStopModalProject(null)}
+        onConfirm={handleConfirmStop}
+        isStopping={isStopping}
+      />
+
+      <DeleteProjectConfirmModal
+        project={deleteModalProject}
+        isOpen={Boolean(deleteModalProject)}
+        onClose={() => setDeleteModalProject(null)}
+        onConfirm={handleConfirmDelete}
+        isDeleting={isDeleting}
+      />
+
+      <VideoPreviewModal
+        project={previewModalProject}
+        isOpen={Boolean(previewModalProject)}
+        onClose={() => setPreviewModalProject(null)}
+        onNavigateDetail={handleNavigate}
+      />
     </div>
   );
 }
-
