@@ -69,10 +69,10 @@ export function ProjectCardItem({
             title="Bấm để tiếp tục lại dự án"
             className="flex flex-col items-center gap-1.5 z-10 cursor-pointer group/resume hover:scale-105 transition-all"
           >
-            <div className="w-10 h-10 rounded-full bg-rose-950/80 border border-rose-700/50 group-hover/resume:border-emerald-500/80 group-hover/resume:bg-emerald-950/80 flex items-center justify-center text-rose-300 group-hover/resume:text-emerald-300 shadow-md transition-colors">
+            <div className="w-10 h-10 rounded-full bg-rose-950/80 border border-rose-700/50 group-hover/resume:border-rose-400 group-hover/resume:bg-rose-900/80 flex items-center justify-center text-rose-300 group-hover/resume:text-white shadow-md transition-colors">
               <Play className="w-4 h-4 fill-current ml-0.5" />
             </div>
-            <span className="text-[9px] font-mono text-rose-300 group-hover/resume:text-emerald-300 bg-black/60 px-2 py-0.5 rounded border border-rose-800/40 group-hover/resume:border-emerald-800/40 transition-colors">
+            <span className="text-[9px] font-mono text-rose-300 group-hover/resume:text-rose-200 bg-black/60 px-2 py-0.5 rounded border border-rose-800/40 group-hover/resume:border-rose-600/60 transition-colors">
               Tiến trình đã tạm dừng
             </span>
           </button>
@@ -112,7 +112,7 @@ export function ProjectCardItem({
                 title="Bấm để tiếp tục lại dự án"
                 className="cursor-pointer group/badge transition-transform hover:scale-105"
               >
-                <StatusBadge status="stopped" className="hover:ring-1 hover:ring-emerald-500/60 cursor-pointer" />
+                <StatusBadge status="stopped" className="hover:ring-1 hover:ring-rose-500/60 cursor-pointer" />
               </button>
               <button
                 onClick={(e) => {
