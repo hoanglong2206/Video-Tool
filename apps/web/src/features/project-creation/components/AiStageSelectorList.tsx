@@ -69,6 +69,7 @@ interface AiStageSelectorListProps {
   selectedStage: number;
   onSelectStage: (stage: number) => void;
   logs: LogEntry[];
+  isAnalyzing?: boolean;
 }
 
 export function AiStageSelectorList({
@@ -76,6 +77,7 @@ export function AiStageSelectorList({
   selectedStage,
   onSelectStage,
   logs,
+  isAnalyzing = false,
 }: AiStageSelectorListProps): React.ReactElement {
   return (
     <div className="flex flex-col gap-3 min-h-0 h-full overflow-hidden select-none">
@@ -93,8 +95,8 @@ export function AiStageSelectorList({
 
         {PIPELINE_STAGES.map((s) => {
           const Icon = s.icon;
-          const isDone = activeStage > s.stage || activeStage === 5;
-          const isRunning = activeStage === s.stage;
+          const isDone = activeStage > s.stage || activeStage >= 5 || (!isAnalyzing && activeStage >= 4);
+          const isRunning = isAnalyzing && activeStage === s.stage;
           const isSelected = selectedStage === s.stage;
 
           return (

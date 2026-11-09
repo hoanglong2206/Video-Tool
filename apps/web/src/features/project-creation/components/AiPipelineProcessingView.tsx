@@ -4,8 +4,9 @@ import React, { useState, useEffect } from "react";
 import type { FullAiAnalysisOutput, ProjectBriefFormData } from "../types";
 import { AiStageSelectorList, type LogEntry } from "./AiStageSelectorList";
 import { AiStageResultInspector } from "./AiStageResultInspector";
+import { CancelAnalysisConfirmDialog } from "./CancelAnalysisConfirmDialog";
 import { Button } from "@/components/ui/button";
-import { Sparkles, ArrowLeft, ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
+import { Sparkles, ArrowLeft, CheckCircle2, Loader2 } from "lucide-react";
 
 interface AiPipelineProcessingViewProps {
   activeStage: number;
@@ -25,6 +26,7 @@ export function AiPipelineProcessingView({
   onBackToInput,
 }: AiPipelineProcessingViewProps): React.ReactElement {
   const [selectedStage, setSelectedStage] = useState<number>(1);
+  const [showCancelConfirm, setShowCancelConfirm] = useState<boolean>(false);
   const [logs, setLogs] = useState<LogEntry[]>([
     {
       id: "l-1",
@@ -44,7 +46,7 @@ export function AiPipelineProcessingView({
 
   // Append telemetry logs when stage changes
   useEffect(() => {
-    const timestamp = `00:0${activeStage}.4`;
+    const timestamp = `00:0${Math.min(activeStage, 4)}.4`;
     if (activeStage === 1) {
       setLogs((prev) => [
         ...prev,
@@ -101,7 +103,15 @@ export function AiPipelineProcessingView({
       ? 75
       : 100;
 
-  const isCompleted = !isAnalyzing && (activeStage >= 4 || activeStage === 0);
+  const isCompleted = !isAnalyzing && (activeStage >= 4 || activeStage === 5);
+
+  const handleBackClick = () => {
+    if (isAnalyzing) {
+      setShowCancelConfirm(true);
+    } else {
+      onBackToInput();
+    }
+  };
 
   return (
     <div className="flex-1 h-full min-h-0 w-full flex flex-col p-4 gap-3 overflow-hidden select-none bg-[#0B0F17] text-slate-100">
@@ -151,21 +161,23 @@ export function AiPipelineProcessingView({
             type="button"
             variant="outline"
             size="sm"
-            onClick={onBackToInput}
+            onClick={handleBackClick}
             className="h-8 text-xs bg-[#101520] border-[#1E2638] text-slate-300 hover:text-white flex items-center gap-1.5 cursor-pointer transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Sửa lại Brief</span>
           </Button>
 
+          {/* User cannot click continue when not finished */}
           <Button
             type="button"
             size="sm"
+            disabled={!isCompleted}
             onClick={onProceedToInspection}
-            className={`h-8 text-xs px-3.5 font-bold flex items-center gap-1.5 cursor-pointer transition-all ${
+            className={`h-8 text-xs px-3.5 font-bold flex items-center gap-1.5 transition-all ${
               isCompleted
-                ? "bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white shadow-md shadow-emerald-600/30"
-                : "bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white shadow-md shadow-blue-600/25"
+                ? "bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white shadow-md shadow-emerald-600/30 cursor-pointer"
+                : "bg-[#141B29] text-slate-500 border border-[#1E2638] cursor-not-allowed opacity-60"
             }`}
           >
             {isCompleted ? (
@@ -175,8 +187,8 @@ export function AiPipelineProcessingView({
               </>
             ) : (
               <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                <span>Xem kiểm tra ngay ➔</span>
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-400" />
+                <span>Đang phân tích Stage 0{activeStage}/4...</span>
               </>
             )}
           </Button>
@@ -192,6 +204,7 @@ export function AiPipelineProcessingView({
             selectedStage={selectedStage}
             onSelectStage={setSelectedStage}
             logs={logs}
+            isAnalyzing={isAnalyzing}
           />
         </div>
 
@@ -204,6 +217,16 @@ export function AiPipelineProcessingView({
           />
         </div>
       </div>
+
+      {/* Cancel Confirmation Modal while analyzing */}
+      <CancelAnalysisConfirmDialog
+        isOpen={showCancelConfirm}
+        onClose={() => setShowCancelConfirm(false)}
+        onConfirmCancel={() => {
+          setShowCancelConfirm(false);
+          onBackToInput();
+        }}
+      />
     </div>
   );
 }

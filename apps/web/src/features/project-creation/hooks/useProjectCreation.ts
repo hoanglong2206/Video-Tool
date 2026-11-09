@@ -87,7 +87,8 @@ export function useProjectCreation() {
       setActiveAiPipelineStage(4);
       await new Promise((r) => setTimeout(r, 800));
 
-      // Mark analysis complete, user remains on the full-screen view to inspect all stages
+      // Mark analysis complete (stage 5 = 100% completed for all 4 stages)
+      setActiveAiPipelineStage(5);
       setIsAnalyzing(false);
     } catch (err) {
       console.error("AI Pipeline error:", err);
