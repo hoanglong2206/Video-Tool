@@ -61,7 +61,9 @@ export function BrandPaletteSelector({
 
   const handleAddColor = () => {
     if (colors.length >= 6) return;
+    const newIdx = colors.length;
     onChangeColors([...colors, "#6366F1"]);
+    setEditingIndex(newIdx);
   };
 
   const handleRemoveColor = (idx: number, e?: React.MouseEvent) => {
@@ -168,7 +170,7 @@ export function BrandPaletteSelector({
       {editingIndex !== null && (
         <StudioColorPickerModal
           isOpen={editingIndex !== null}
-          currentColor={colors[editingIndex] || "#3B82F6"}
+          currentColor={colors[editingIndex] || "#6366F1"}
           colorIndex={editingIndex}
           canDelete={colors.length > 2}
           onClose={() => setEditingIndex(null)}
