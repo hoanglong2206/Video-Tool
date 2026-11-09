@@ -1,4 +1,5 @@
 import React from "react";
+import { Loader2 } from "lucide-react";
 import type { AssetItem } from "../types";
 import { Button } from "@/components/ui";
 
@@ -57,7 +58,14 @@ export function AssetInspector({
           className="text-[11px] h-8 px-2.5"
           onClick={onRemoveBackground}
         >
-          {isRemovingBg ? "Removing..." : "Remove background"}
+          {isRemovingBg ? (
+            <span className="flex items-center gap-1.5">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              <span>Removing</span>
+            </span>
+          ) : (
+            "Remove background"
+          )}
         </Button>
 
         <Button

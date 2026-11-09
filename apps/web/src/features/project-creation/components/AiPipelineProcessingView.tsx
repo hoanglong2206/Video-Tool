@@ -129,13 +129,14 @@ export function AiPipelineProcessingView({
                 Hệ thống Đa tác vụ AI đang phân tích & trích xuất dữ liệu
               </h2>
               <span
-                className={`text-[10px] font-mono px-1.5 py-0.2 rounded font-normal shrink-0 border ${
+                className={`text-[10px] font-mono px-1.5 py-0.5 rounded font-normal shrink-0 border flex items-center gap-1 ${
                   isCompleted
                     ? "bg-emerald-950/60 border-emerald-800/40 text-emerald-400"
-                    : "bg-blue-950/60 border-blue-800/40 text-blue-400 animate-pulse"
+                    : "bg-blue-950/60 border-blue-800/40 text-blue-400"
                 }`}
               >
-                {isCompleted ? "4/4 Stages Hoàn tất" : `Đang xử lý: Stage 0${activeStage}`}
+                {!isCompleted && <Loader2 className="w-2.5 h-2.5 animate-spin" />}
+                <span>{isCompleted ? "4/4 Stages Hoàn tất" : `Đang xử lý: Stage 0${activeStage}`}</span>
               </span>
             </div>
             <p className="text-[11px] text-slate-400 truncate">
@@ -190,7 +191,7 @@ export function AiPipelineProcessingView({
             ) : (
               <>
                 <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-400" />
-                <span>Đang phân tích Stage 0{activeStage}/4...</span>
+                <span>Đang phân tích Stage 0{activeStage}/4</span>
               </>
             )}
           </Button>

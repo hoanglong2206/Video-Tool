@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { PauseCircle } from "lucide-react";
+import { PauseCircle, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -61,9 +61,16 @@ export function StopProjectConfirmModal({
             size="sm"
             disabled={isStopping}
             onClick={() => onConfirm(project)}
-            className="h-8 text-xs bg-amber-600 hover:bg-amber-500 text-white font-medium cursor-pointer"
+            className="h-8 text-xs bg-amber-600 hover:bg-amber-500 text-white font-medium cursor-pointer flex items-center gap-1.5"
           >
-            {isStopping ? "Đang dừng..." : "Xác nhận dừng"}
+            {isStopping ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>Đang dừng</span>
+              </>
+            ) : (
+              <span>Xác nhận dừng</span>
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

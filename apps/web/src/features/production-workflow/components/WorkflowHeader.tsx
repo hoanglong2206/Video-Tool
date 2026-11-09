@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui";
 import { StudioHeader } from "@/components/shared";
 
@@ -44,7 +45,14 @@ export function WorkflowHeader({
           onClick={onStartPipeline}
           className="border-blue-500/40 text-blue-400 hover:bg-blue-500/10 text-xs"
         >
-          {isAdvancing ? "Running..." : "▶ Run Next Stage"}
+          {isAdvancing ? (
+            <span className="flex items-center gap-1.5">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              <span>Running</span>
+            </span>
+          ) : (
+            "▶ Run Next Stage"
+          )}
         </Button>
       )}
 

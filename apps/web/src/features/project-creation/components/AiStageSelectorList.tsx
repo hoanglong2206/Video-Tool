@@ -132,7 +132,7 @@ export function AiStageSelectorList({
                     </span>
                   ) : isRunning ? (
                     <span className="text-blue-400 flex items-center gap-1 font-semibold bg-blue-950/60 border border-blue-800/40 px-1.5 py-0.2 rounded animate-pulse">
-                      <Loader2 className="w-3 h-3 animate-spin" /> Đang chạy...
+                      <Loader2 className="w-3 h-3 animate-spin" /> Đang chạy
                     </span>
                   ) : (
                     <span className="text-slate-400 px-1.5 py-0.2">Chờ</span>

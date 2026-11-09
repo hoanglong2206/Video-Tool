@@ -9,7 +9,7 @@ export interface LoadingStateProps {
 }
 
 export function LoadingState({
-  message = "Loading studio assets...",
+  message = "Đang tải dữ liệu studio",
   className,
   fullscreen = false,
 }: LoadingStateProps): React.ReactElement {

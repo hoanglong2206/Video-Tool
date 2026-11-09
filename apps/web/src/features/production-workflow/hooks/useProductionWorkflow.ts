@@ -69,7 +69,7 @@ export function useProductionWorkflow(
     store.stages[0] || {
       id: "stage-empty",
       stageNumber: "01",
-      name: "Loading...",
+      name: "Loading",
       status: "pending",
     };
 

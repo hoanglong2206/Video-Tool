@@ -1,4 +1,5 @@
 import React from "react";
+import { Loader2 } from "lucide-react";
 import { Badge, Button } from "@/components/ui";
 import { StudioHeader } from "@/components/shared";
 
@@ -54,7 +55,14 @@ export function ThreeDHeader({
         onClick={onRenderPreview}
         disabled={isRendering}
       >
-        {isRendering ? "Rendering..." : "Render preview"}
+        {isRendering ? (
+          <span className="flex items-center gap-1.5">
+            <Loader2 className="w-3 h-3 animate-spin" />
+            <span>Rendering</span>
+          </span>
+        ) : (
+          "Render preview"
+        )}
       </Button>
 
       <Button

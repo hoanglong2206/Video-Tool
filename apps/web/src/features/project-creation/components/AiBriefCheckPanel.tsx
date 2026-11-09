@@ -1,4 +1,5 @@
 import React from "react";
+import { Loader2 } from "lucide-react";
 import type { AiBriefAnalysis } from "../types";
 import { Button } from "@/components/ui";
 
@@ -20,8 +21,9 @@ export function AiBriefCheckPanel({
           AI Brief Check
         </h2>
         {isChecking && (
-          <span className="text-[10px] text-blue-400 animate-pulse font-mono">
-            Thinking...
+          <span className="text-[10px] text-blue-400 font-mono flex items-center gap-1">
+            <Loader2 className="w-2.5 h-2.5 animate-spin" />
+            <span>Thinking</span>
           </span>
         )}
       </div>

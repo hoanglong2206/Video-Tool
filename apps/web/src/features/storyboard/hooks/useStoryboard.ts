@@ -55,7 +55,7 @@ export function useStoryboard(
     store.scenes[0] || {
       id: "scene-empty",
       sceneNumber: 1,
-      title: "Loading...",
+      title: "Loading",
       durationSeconds: 5,
       cameraMovement: "Static",
       transitionType: "Cut",

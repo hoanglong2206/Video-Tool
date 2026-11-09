@@ -80,7 +80,7 @@ export function InspectionStudioView({
           >
             {isSaving ? (
               <>
-                <Loader2 className="w-3 h-3 animate-spin" /> Đang khởi tạo...
+                <Loader2 className="w-3 h-3 animate-spin" /> Đang khởi tạo
               </>
             ) : (
               <>

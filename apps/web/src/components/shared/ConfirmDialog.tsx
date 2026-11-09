@@ -1,4 +1,5 @@
 import React from "react";
+import { Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -59,7 +60,14 @@ export function ConfirmDialog({
             }}
             disabled={isLoading}
           >
-            {confirmLabel}
+            {isLoading ? (
+              <span className="flex items-center gap-1.5">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>{confirmLabel}</span>
+              </span>
+            ) : (
+              confirmLabel
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,4 +1,5 @@
 import React from "react";
+import { Loader2 } from "lucide-react";
 import { Badge, Button } from "@/components/ui";
 import { StudioHeader } from "@/components/shared";
 
@@ -35,7 +36,14 @@ export function StoryboardHeader({
         disabled={isGenerating}
         onClick={onGenerateWithAi}
       >
-        {isGenerating ? "Synthesizing AI Scenes..." : "✨ Generate with AI"}
+        {isGenerating ? (
+          <span className="flex items-center gap-1.5">
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            <span>Synthesizing AI Scenes</span>
+          </span>
+        ) : (
+          "✨ Generate with AI"
+        )}
       </Button>
 
       <Button variant="outline" size="sm" onClick={onPreview}>

@@ -23,7 +23,7 @@ export function RenderQueuePanel({ queueItem, gpuName }: RenderQueuePanelProps):
         </div>
         {isRendering ? (
           <span className="text-[10px] text-cyan-400 font-mono flex items-center gap-1 bg-cyan-950/60 px-1.5 py-0.5 rounded border border-cyan-800/40">
-            <Loader2 className="w-2.5 h-2.5 animate-spin" /> Đang render...
+            <Loader2 className="w-2.5 h-2.5 animate-spin" /> Đang render
           </span>
         ) : (
           <span className="text-[10px] text-slate-400 font-mono">Chờ lệnh</span>

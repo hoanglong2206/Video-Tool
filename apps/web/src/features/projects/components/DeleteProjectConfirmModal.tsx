@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -62,9 +62,16 @@ export function DeleteProjectConfirmModal({
             size="sm"
             disabled={isDeleting}
             onClick={() => onConfirm(project)}
-            className="h-8 text-xs bg-rose-600 hover:bg-rose-500 text-white font-medium cursor-pointer"
+            className="h-8 text-xs bg-rose-600 hover:bg-rose-500 text-white font-medium cursor-pointer flex items-center gap-1.5"
           >
-            {isDeleting ? "Đang xóa..." : "Xóa vĩnh viễn"}
+            {isDeleting ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>Đang xóa</span>
+              </>
+            ) : (
+              <span>Xóa vĩnh viễn</span>
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
