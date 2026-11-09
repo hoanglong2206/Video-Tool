@@ -28,6 +28,18 @@ class ProjectResponseDTO(BaseModel):
         )
 
 
+class SceneCreateDTO(BaseModel):
+    """DTO for individual scene payload when initializing a project."""
+
+    scene_number: int = Field(ge=1)
+    title: str = Field(min_length=1, max_length=255)
+    duration_seconds: int = Field(default=5, ge=1)
+    camera_movement: str = Field(default="Static", max_length=128)
+    visual_prompt: str | None = None
+    voiceover: str | None = None
+    transition_type: str = Field(default="Cut", max_length=128)
+
+
 class CreateProjectRequestDTO(BaseModel):
     """Payload to create a new video project."""
 
@@ -37,6 +49,8 @@ class CreateProjectRequestDTO(BaseModel):
     duration: str | None = None
     aspect_ratio: str | None = None
     style_preference: str | None = None
+    brand_colors: list[str] | None = None
+    scenes: list[SceneCreateDTO] | None = None
 
 
 class BriefCheckRequestDTO(BaseModel):

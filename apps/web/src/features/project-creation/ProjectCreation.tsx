@@ -27,6 +27,8 @@ export function ProjectCreation(): React.ReactElement {
     handleRunAiPipeline,
     handleConfirmAndCreateProject,
     handleSaveDraft,
+    clearDraft,
+    lastSavedAt,
   } = useProjectCreation();
 
   return (
@@ -40,6 +42,8 @@ export function ProjectCreation(): React.ReactElement {
         <CreationHeader
           step={step}
           onBackToOverview={() => router.push("/")}
+          onResetDraft={clearDraft}
+          lastSavedAt={lastSavedAt}
         />
 
         {/* Dynamic Workflow Stage */}

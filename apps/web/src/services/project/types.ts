@@ -1,5 +1,15 @@
 import type { ProjectItem } from "../dashboard/types";
 
+export interface SceneInputDTO {
+  scene_number: number;
+  title: string;
+  duration_seconds: number;
+  camera_movement: string;
+  visual_prompt: string;
+  voiceover: string;
+  transition_type?: string;
+}
+
 export interface CreateProjectInput {
   name: string;
   brief?: string;
@@ -7,7 +17,9 @@ export interface CreateProjectInput {
   duration?: string;
   aspect_ratio?: string;
   style_preference?: string;
+  brand_colors?: string[];
   status?: string;
+  scenes?: SceneInputDTO[];
 }
 
 export interface CreatedProjectResponse {

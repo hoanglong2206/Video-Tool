@@ -10,7 +10,11 @@ from server.backend.src.api.dtos.project import (
     ProjectResponseDTO,
 )
 from server.backend.src.domain.entities.project import Project, ProjectStatus
-from server.backend.src.infrastructure.database.models import ProjectModel, WorkflowStageModel
+from server.backend.src.infrastructure.database.models import (
+    ProjectModel,
+    SceneModel,
+    WorkflowStageModel,
+)
 from server.backend.src.infrastructure.database.session import get_db_session
 
 router = APIRouter(prefix="/api/v1/projects", tags=["Projects"])
@@ -51,11 +55,35 @@ async def create_project(
         name=payload.name,
         client=payload.client,
         brief=payload.brief,
+        duration=payload.duration or "30s",
+        aspect_ratio=payload.aspect_ratio or "16:9",
+        style_preference=payload.style_preference or "3D Cinematic Minimal Tech",
+        brand_colors=payload.brand_colors or [],
         stage_description="Stage 01 · Brief analysis",
         progress=0,
         status="in_progress",
     )
     session.add(new_project)
+
+    # Persist all scenes provided by the frontend (e.g. 6 storyboard scenes)
+    if payload.scenes:
+        for s in payload.scenes:
+            scene_model = SceneModel(
+                id=f"scene-{uuid4().hex[:8]}",
+                project_id=project_id,
+                scene_number=s.scene_number,
+                title=s.title,
+                duration_seconds=s.duration_seconds,
+                camera_movement=s.camera_movement,
+                transition_type=s.transition_type,
+                description=s.visual_prompt,
+                creative_direction=s.voiceover,
+                properties_data={
+                    "visualPrompt": s.visual_prompt,
+                    "voiceover": s.voiceover,
+                },
+            )
+            session.add(scene_model)
 
     # Initialize standard 10 production workflow stages
     stage_names = [

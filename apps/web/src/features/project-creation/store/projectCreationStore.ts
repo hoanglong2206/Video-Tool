@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 import type {
   ProjectBriefFormData,
   FullAiAnalysisOutput,
@@ -149,12 +150,15 @@ export const INITIAL_AI_OUTPUT: FullAiAnalysisOutput = {
 };
 
 interface ProjectCreationStoreState {
+  _hasHydrated: boolean;
   step: CreationStep;
   formData: ProjectBriefFormData;
   aiOutput: FullAiAnalysisOutput;
-  activeAiPipelineStage: number; // 0 = idle, 1 = LLM, 2 = Vision AI, 3 = Prompt Builder, 4 = JSON Schema Validator
+  activeAiPipelineStage: number; // 0 = idle, 1 = LLM, 2 = Vision AI, 3 = Prompt Builder, 4 = JSON Schema Validator, 5 = Done
   isAnalyzing: boolean;
   isSaving: boolean;
+  lastSavedAt: number | null;
+  setHasHydrated: (hydrated: boolean) => void;
   setStep: (step: CreationStep) => void;
   updateField: <K extends keyof ProjectBriefFormData>(field: K, value: ProjectBriefFormData[K]) => void;
   addFile: (file: UploadedMediaItem) => void;
@@ -166,56 +170,99 @@ interface ProjectCreationStoreState {
   setIsAnalyzing: (analyzing: boolean) => void;
   setIsSaving: (saving: boolean) => void;
   resetForm: () => void;
+  clearDraft: () => void;
 }
 
-export const useProjectCreationStore = create<ProjectCreationStoreState>((set) => ({
-  step: "input",
-  formData: INITIAL_FORM,
-  aiOutput: INITIAL_AI_OUTPUT,
-  activeAiPipelineStage: 0,
-  isAnalyzing: false,
-  isSaving: false,
-  setStep: (step) => set({ step }),
-  updateField: (field, value) =>
-    set((state) => ({ formData: { ...state.formData, [field]: value } })),
-  addFile: (file) =>
-    set((state) => ({
-      formData: { ...state.formData, files: [...state.formData.files, file] },
-    })),
-  removeFile: (id) =>
-    set((state) => ({
-      formData: {
-        ...state.formData,
-        files: state.formData.files.filter((f) => f.id !== id),
-      },
-    })),
-  addDemoFiles: () =>
-    set((state) => ({
-      formData: { ...state.formData, files: DEMO_FILES },
-    })),
-  setAiOutput: (aiOutput) => set({ aiOutput }),
-  updateScene: (index, updated) =>
-    set((state) => {
-      const newScenes = [...state.aiOutput.scenes];
-      newScenes[index] = { ...newScenes[index], ...updated };
-      return {
-        aiOutput: {
-          ...state.aiOutput,
-          scenes: newScenes,
-        },
-      };
-    }),
-  setActiveAiPipelineStage: (activeAiPipelineStage) =>
-    set({ activeAiPipelineStage }),
-  setIsAnalyzing: (isAnalyzing) => set({ isAnalyzing }),
-  setIsSaving: (isSaving) => set({ isSaving }),
-  resetForm: () =>
-    set({
+export const useProjectCreationStore = create<ProjectCreationStoreState>()(
+  persist(
+    (set, get) => ({
+      _hasHydrated: false,
       step: "input",
       formData: INITIAL_FORM,
       aiOutput: INITIAL_AI_OUTPUT,
       activeAiPipelineStage: 0,
       isAnalyzing: false,
       isSaving: false,
+      lastSavedAt: null,
+      setHasHydrated: (hydrated) => set({ _hasHydrated: hydrated }),
+      setStep: (step) => set({ step, lastSavedAt: Date.now() }),
+      updateField: (field, value) =>
+        set((state) => ({
+          formData: { ...state.formData, [field]: value },
+          lastSavedAt: Date.now(),
+        })),
+      addFile: (file) =>
+        set((state) => ({
+          formData: { ...state.formData, files: [...state.formData.files, file] },
+          lastSavedAt: Date.now(),
+        })),
+      removeFile: (id) =>
+        set((state) => ({
+          formData: {
+            ...state.formData,
+            files: state.formData.files.filter((f) => f.id !== id),
+          },
+          lastSavedAt: Date.now(),
+        })),
+      addDemoFiles: () =>
+        set((state) => ({
+          formData: { ...state.formData, files: DEMO_FILES },
+          lastSavedAt: Date.now(),
+        })),
+      setAiOutput: (aiOutput) => set({ aiOutput, lastSavedAt: Date.now() }),
+      updateScene: (index, updated) =>
+        set((state) => {
+          const newScenes = [...state.aiOutput.scenes];
+          newScenes[index] = { ...newScenes[index], ...updated };
+          return {
+            aiOutput: {
+              ...state.aiOutput,
+              scenes: newScenes,
+            },
+            lastSavedAt: Date.now(),
+          };
+        }),
+      setActiveAiPipelineStage: (activeAiPipelineStage) =>
+        set({ activeAiPipelineStage, lastSavedAt: Date.now() }),
+      setIsAnalyzing: (isAnalyzing) => set({ isAnalyzing }),
+      setIsSaving: (isSaving) => set({ isSaving }),
+      resetForm: () => {
+        set({
+          step: "input",
+          formData: INITIAL_FORM,
+          aiOutput: INITIAL_AI_OUTPUT,
+          activeAiPipelineStage: 0,
+          isAnalyzing: false,
+          isSaving: false,
+          lastSavedAt: null,
+        });
+      },
+      clearDraft: () => {
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.removeItem("video_ai_project_creation_draft_v1");
+          } catch (e) {
+            console.warn("Could not remove draft from localStorage:", e);
+          }
+        }
+        get().resetForm();
+      },
     }),
-}));
+    {
+      name: "video_ai_project_creation_draft_v1",
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        step: state.step,
+        formData: state.formData,
+        aiOutput: state.aiOutput,
+        activeAiPipelineStage: state.activeAiPipelineStage,
+        lastSavedAt: state.lastSavedAt,
+      }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+        state?.setIsAnalyzing(false);
+        state?.setIsSaving(false);
+      },
+    }
+  )
+);

@@ -27,14 +27,19 @@ export function useProjectCreation() {
     setAiOutput,
     updateScene,
     setActiveAiPipelineStage,
+    _hasHydrated,
+    lastSavedAt,
     setIsAnalyzing,
     setIsSaving,
     resetForm,
+    clearDraft,
   } = useProjectCreationStore();
 
   const createProjectMutation = useMutation({
     mutationFn: (data: CreateProjectInput) => projectService.createProject(data),
     onSuccess: (project) => {
+      // Clear persistent draft on successful creation
+      clearDraft();
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.projects.all });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.all });
       if (project?.id) {
@@ -98,6 +103,16 @@ export function useProjectCreation() {
 
   const handleConfirmAndCreateProject = async (): Promise<void> => {
     setIsSaving(true);
+    const scenesPayload = (aiOutput.scenes || []).map((s) => ({
+      scene_number: s.sceneNumber,
+      title: s.title,
+      duration_seconds: s.durationSeconds,
+      camera_movement: s.cameraMovement,
+      visual_prompt: s.visualPrompt,
+      voiceover: s.voiceover,
+      transition_type: "Cut",
+    }));
+
     createProjectMutation.mutate({
       name: formData.projectName,
       client: formData.client,
@@ -105,20 +120,39 @@ export function useProjectCreation() {
       duration: formData.duration,
       aspect_ratio: formData.aspectRatio,
       style_preference: formData.stylePreference,
+      brand_colors: formData.brandColors,
+      scenes: scenesPayload,
     });
   };
 
   const handleSaveDraft = async (): Promise<void> => {
     setIsSaving(true);
+    const scenesPayload = (aiOutput.scenes || []).map((s) => ({
+      scene_number: s.sceneNumber,
+      title: s.title,
+      duration_seconds: s.durationSeconds,
+      camera_movement: s.cameraMovement,
+      visual_prompt: s.visualPrompt,
+      voiceover: s.voiceover,
+      transition_type: "Cut",
+    }));
+
     createProjectMutation.mutate({
       name: `${formData.projectName} (Bản nháp)`,
       client: formData.client,
       brief: formData.brief,
+      duration: formData.duration,
+      aspect_ratio: formData.aspectRatio,
+      style_preference: formData.stylePreference,
+      brand_colors: formData.brandColors,
       status: "DRAFT",
+      scenes: scenesPayload,
     });
   };
 
   return {
+    _hasHydrated,
+    lastSavedAt,
     step,
     formData,
     aiOutput,
@@ -136,5 +170,6 @@ export function useProjectCreation() {
     handleConfirmAndCreateProject,
     handleSaveDraft,
     resetForm,
+    clearDraft,
   };
 }
