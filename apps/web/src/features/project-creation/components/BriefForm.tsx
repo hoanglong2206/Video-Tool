@@ -5,6 +5,7 @@ import type { ProjectBriefFormData, UploadedMediaItem } from "../types";
 import { MultiFileUploadZone } from "./MultiFileUploadZone";
 import { VisualStyleSelector } from "./VisualStyleSelector";
 import { BrandPaletteSelector } from "./BrandPaletteSelector";
+import { AudioAtmosphereSelector } from "./AudioAtmosphereSelector";
 import { Input, Textarea, Button } from "@/components/ui";
 import { Sparkles, Sliders, CheckCircle2 } from "lucide-react";
 
@@ -30,51 +31,63 @@ export function BriefForm({
 }: BriefFormProps): React.ReactElement {
   return (
     <div className="flex-1 h-full min-h-0 w-full flex flex-col p-4 gap-3 overflow-hidden select-none">
-      {/* Top Banner */}
-      <div className="bg-gradient-to-r from-[#121826] to-[#0D121D] border border-[#1E2638] rounded-xl px-4 py-2.5 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-2.5">
+      {/* Top Banner with Action CTA relocated here */}
+      <div className="bg-linear-to-tr from-[#121826] to-[#0D121D] border border-[#1E2638] rounded-xl px-4 py-2.5 flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-2.5 min-w-0">
           <div className="w-7 h-7 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0">
             <Sparkles className="w-4 h-4" />
           </div>
-          <div>
-            <h2 className="text-xs font-bold text-slate-100 flex items-center gap-2">
-              Khởi tạo Dự án & Trích xuất Dữ liệu Thông minh
-              <span className="text-[10px] text-emerald-400 font-mono bg-emerald-950/60 border border-emerald-800/40 px-1.5 py-0.2 rounded font-normal">
+          <div className="min-w-0">
+            <h2 className="text-xs font-bold text-slate-100 flex items-center gap-2 truncate">
+              <span>Khởi tạo Dự án & Trích xuất Dữ liệu Thông minh</span>
+              <span className="text-[10px] text-emerald-400 font-mono bg-emerald-950/60 border border-emerald-800/40 px-1.5 py-0.2 rounded font-normal shrink-0">
                 4 AI Agents Active
               </span>
             </h2>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-slate-400 truncate">
               Nhập brief và media, AI sẽ phân tích kịch bản, vision, prompt chuẩn hóa và schema đầu ra.
             </p>
           </div>
         </div>
 
-        <div className="hidden md:flex items-center gap-2 text-[10px] font-mono text-slate-400">
-          <span className="flex items-center gap-1 text-slate-300">
-            <CheckCircle2 className="w-3 h-3 text-blue-400" /> LLM
-          </span>
-          <span>•</span>
-          <span className="flex items-center gap-1 text-slate-300">
-            <CheckCircle2 className="w-3 h-3 text-cyan-400" /> Vision AI
-          </span>
-          <span>•</span>
-          <span className="flex items-center gap-1 text-slate-300">
-            <CheckCircle2 className="w-3 h-3 text-indigo-400" /> Prompt Studio
-          </span>
-          <span>•</span>
-          <span className="flex items-center gap-1 text-slate-300">
-            <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Schema
-          </span>
+        {/* Right side of Banner: Agent Indicators + Primary Launch CTA Button */}
+        <div className="flex items-center gap-3 shrink-0">
+          <div className="hidden xl:flex items-center gap-2 text-[10px] font-mono text-slate-400 border-r border-[#1E2638] pr-3">
+            <span className="flex items-center gap-1 text-slate-300">
+              <CheckCircle2 className="w-3 h-3 text-blue-400" /> LLM
+            </span>
+            <span>•</span>
+            <span className="flex items-center gap-1 text-slate-300">
+              <CheckCircle2 className="w-3 h-3 text-cyan-400" /> Vision AI
+            </span>
+            <span>•</span>
+            <span className="flex items-center gap-1 text-slate-300">
+              <CheckCircle2 className="w-3 h-3 text-indigo-400" /> Prompt Studio
+            </span>
+            <span>•</span>
+            <span className="flex items-center gap-1 text-slate-300">
+              <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Schema
+            </span>
+          </div>
+
+          <Button
+            type="button"
+            onClick={onSubmitAnalyze}
+            className="bg-linear-to-tr from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-xs h-8.5 px-4 rounded-lg shadow-md shadow-blue-500/25 flex items-center gap-2 cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99] shrink-0"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Khởi chạy Phân tích AI ➔</span>
+          </Button>
         </div>
       </div>
 
-      {/* Main 2-Column Grid - Fits 100% in viewport without page scroll */}
+      {/* Main 2-Column Grid - Equal Gaps & Perfectly Balanced Heights */}
       <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-3.5 overflow-hidden">
-        {/* Left Column: Project Info & Brief + Customer Media Upload */}
+        {/* Left Column: Metadata & Brief + Visual Style + Brand Palette */}
         <div className="flex flex-col gap-3 min-h-0 h-full overflow-hidden">
-          {/* Card 1: Project Metadata & Brief */}
-          <div className="bg-[#0F141F] border border-[#1C2436] rounded-xl p-3.5 flex flex-col gap-2.5 shrink-0">
-            <div className="grid grid-cols-2 gap-2.5">
+          {/* Left Card 1: Project Metadata & Brief */}
+          <div className="flex-1 min-h-0 bg-[#0F141F] border border-[#1C2436] rounded-xl p-3.5 flex flex-col gap-2.5 overflow-hidden">
+            <div className="grid grid-cols-2 gap-2.5 shrink-0">
               <div>
                 <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1">
                   Tên dự án <span className="text-blue-400">*</span>
@@ -100,8 +113,8 @@ export function BriefForm({
               </div>
             </div>
 
-            <div>
-              <div className="flex items-center justify-between mb-1">
+            <div className="flex-1 min-h-0 flex flex-col">
+              <div className="flex items-center justify-between mb-1 shrink-0">
                 <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider">
                   Yêu cầu & Kịch bản (Brief) <span className="text-blue-400">*</span>
                 </label>
@@ -119,16 +132,36 @@ export function BriefForm({
                 </button>
               </div>
               <Textarea
-                rows={3}
                 value={formData.brief}
                 placeholder="Mô tả ý tưởng cốt lõi, thông điệp truyền tải, phong cách và yêu cầu..."
                 onChange={(e) => onChangeField("brief", e.target.value)}
-                className="bg-[#0E131E] border-[#1E2638] focus:border-blue-500 resize-none leading-relaxed text-xs h-18"
+                className="bg-[#0E131E] border-[#1E2638] focus:border-blue-500 resize-none leading-relaxed text-xs flex-1 min-h-0"
               />
             </div>
           </div>
 
-          {/* Card 2: Media Zone with Internal Scroll */}
+          {/* Left Card 2: Interactive Visual Style Selector */}
+          <div className="shrink-0 bg-[#0F141F] border border-[#1C2436] rounded-xl p-3.5 flex flex-col">
+            <VisualStyleSelector
+              value={formData.stylePreference}
+              onChange={(val) => onChangeField("stylePreference", val)}
+            />
+          </div>
+
+          {/* Left Card 3: Interactive Brand Palette Selector */}
+          <div className="shrink-0 bg-[#0F141F] border border-[#1C2436] rounded-xl p-3.5 flex flex-col">
+            <BrandPaletteSelector
+              colors={formData.brandColors}
+              typeface={formData.typeface}
+              onChangeColors={(c) => onChangeField("brandColors", c)}
+              onChangeTypeface={(f) => onChangeField("typeface", f)}
+            />
+          </div>
+        </div>
+
+        {/* Right Column: Tài liệu & Media + Âm thanh & Giọng đọc AI + Cấu hình Sản xuất */}
+        <div className="flex flex-col gap-3 min-h-0 h-full overflow-hidden">
+          {/* Right Card 1: Media Zone with Internal Scroll */}
           <div className="flex-1 min-h-0 bg-[#0F141F] border border-[#1C2436] rounded-xl p-3.5 flex flex-col overflow-hidden">
             <MultiFileUploadZone
               files={formData.files}
@@ -137,12 +170,21 @@ export function BriefForm({
               onAddDemoFiles={onAddDemoFiles}
             />
           </div>
-        </div>
 
-        {/* Right Column: Specs + Visual Style + Brand Color + Submit Action */}
-        <div className="flex flex-col gap-3 min-h-0 h-full overflow-hidden justify-between">
-          {/* Card 1: Specs */}
-          <div className="bg-[#0F141F] border border-[#1C2436] rounded-xl p-3.5 flex flex-col gap-2.5 shrink-0">
+          {/* Right Card 2: Âm thanh & Giọng đọc AI (New component between Media and Production Specs) */}
+          <div className="shrink-0 bg-[#0F141F] border border-[#1C2436] rounded-xl p-3.5 flex flex-col">
+            <AudioAtmosphereSelector
+              voiceActor={formData.voiceActor}
+              bgmMood={formData.bgmMood}
+              targetChannel={formData.targetChannel}
+              onChangeVoice={(v) => onChangeField("voiceActor", v)}
+              onChangeBgm={(b) => onChangeField("bgmMood", b)}
+              onChangeChannel={(c) => onChangeField("targetChannel", c)}
+            />
+          </div>
+
+          {/* Right Card 3: Cấu hình Sản xuất & Định dạng Video */}
+          <div className="shrink-0 bg-[#0F141F] border border-[#1C2436] rounded-xl p-3.5 flex flex-col gap-2.5">
             <div className="flex items-center gap-1.5 pb-1 border-b border-[#1C2436]">
               <Sliders className="w-3.5 h-3.5 text-blue-400" />
               <h3 className="text-[11px] font-bold text-slate-200 uppercase tracking-wider">
@@ -164,7 +206,7 @@ export function BriefForm({
                       onClick={() => onChangeField("duration", dur)}
                       className={`py-1 text-xs rounded font-mono font-medium transition-colors cursor-pointer ${
                         formData.duration === dur
-                          ? "bg-blue-600 text-white font-bold shadow-sm shadow-blue-500/30"
+                          ? "bg-blue-600 text-white font-bold shadow-xs shadow-blue-500/30"
                           : "bg-[#0E131E] text-slate-400 border border-[#1E2638] hover:text-slate-200"
                       }`}
                     >
@@ -187,7 +229,7 @@ export function BriefForm({
                       onClick={() => onChangeField("aspectRatio", ratio)}
                       className={`py-1 text-xs rounded font-mono font-medium transition-colors cursor-pointer ${
                         formData.aspectRatio === ratio
-                          ? "bg-blue-600 text-white font-bold shadow-sm shadow-blue-500/30"
+                          ? "bg-blue-600 text-white font-bold shadow-xs shadow-blue-500/30"
                           : "bg-[#0E131E] text-slate-400 border border-[#1E2638] hover:text-slate-200"
                       }`}
                     >
@@ -210,7 +252,7 @@ export function BriefForm({
                       onClick={() => onChangeField("resolution", res)}
                       className={`py-1 text-xs rounded font-mono font-medium transition-colors cursor-pointer ${
                         formData.resolution === res
-                          ? "bg-cyan-600 text-white font-bold shadow-sm shadow-cyan-500/30"
+                          ? "bg-cyan-600 text-white font-bold shadow-xs shadow-cyan-500/30"
                           : "bg-[#0E131E] text-slate-400 border border-[#1E2638] hover:text-slate-200"
                       }`}
                     >
@@ -220,36 +262,6 @@ export function BriefForm({
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Card 2: Interactive Visual Style Selector */}
-          <div className="bg-[#0F141F] border border-[#1C2436] rounded-xl p-3.5 flex flex-col shrink-0">
-            <VisualStyleSelector
-              value={formData.stylePreference}
-              onChange={(val) => onChangeField("stylePreference", val)}
-            />
-          </div>
-
-          {/* Card 3: Interactive Brand Palette Selector */}
-          <div className="bg-[#0F141F] border border-[#1C2436] rounded-xl p-3.5 flex flex-col shrink-0">
-            <BrandPaletteSelector
-              colors={formData.brandColors}
-              typeface={formData.typeface}
-              onChangeColors={(c) => onChangeField("brandColors", c)}
-              onChangeTypeface={(f) => onChangeField("typeface", f)}
-            />
-          </div>
-
-          {/* Primary Action Button */}
-          <div className="pt-1 shrink-0">
-            <Button
-              type="button"
-              onClick={onSubmitAnalyze}
-              className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-xs h-10 px-6 rounded-lg shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] cursor-pointer"
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>Khởi chạy Phân tích AI (LLM + Vision + Prompt Builder + Schema) ➔</span>
-            </Button>
           </div>
         </div>
       </div>

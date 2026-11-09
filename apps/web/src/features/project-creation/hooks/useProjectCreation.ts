@@ -6,6 +6,7 @@ import { projectService, type CreateProjectInput } from "@/services/project";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { useProjectCreationStore } from "../store";
 import type { ProjectBriefFormData, SceneBreakdownItem } from "../types";
+import { generateDynamicAiAnalysis } from "../utils/dynamicAiGenerator";
 
 export function useProjectCreation() {
   const router = useRouter();
@@ -51,15 +52,18 @@ export function useProjectCreation() {
     },
   });
 
-  // Orchestrate the 4-component AI pipeline with visual stage progression
+  // Orchestrate the 4-component AI pipeline with visual stage progression & dynamic analysis
   const handleRunAiPipeline = async (): Promise<void> => {
     setIsAnalyzing(true);
     setStep("processing");
 
+    // Compute dynamic, contextual analysis matching current project form data
+    const dynamicOutput = generateDynamicAiAnalysis(formData);
+    setAiOutput(dynamicOutput);
+
     try {
       // Stage 1: LLM
       setActiveAiPipelineStage(1);
-      // Attempt backend call to brief-check
       try {
         await projectService.checkBrief({
           brief: formData.brief,
@@ -67,30 +71,27 @@ export function useProjectCreation() {
           client: formData.client,
         });
       } catch (e) {
-        // Fallback gracefully
+        // Fallback gracefully to dynamicOutput
       }
-      await new Promise((r) => setTimeout(r, 600));
+      await new Promise((r) => setTimeout(r, 900));
 
       // Stage 2: Vision AI
       setActiveAiPipelineStage(2);
-      await new Promise((r) => setTimeout(r, 700));
+      await new Promise((r) => setTimeout(r, 1000));
 
       // Stage 3: Prompt Builder
       setActiveAiPipelineStage(3);
-      await new Promise((r) => setTimeout(r, 600));
+      await new Promise((r) => setTimeout(r, 900));
 
       // Stage 4: JSON Schema Validator
       setActiveAiPipelineStage(4);
-      await new Promise((r) => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 800));
 
-      // Done -> Transition to Inspection view
+      // Mark analysis complete, user remains on the full-screen view to inspect all stages
       setIsAnalyzing(false);
-      setActiveAiPipelineStage(0);
-      setStep("inspection");
     } catch (err) {
       console.error("AI Pipeline error:", err);
       setIsAnalyzing(false);
-      setStep("inspection");
     }
   };
 

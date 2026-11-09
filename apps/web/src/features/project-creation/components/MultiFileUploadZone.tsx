@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import {
   UploadCloud,
   FileText,
@@ -8,8 +8,10 @@ import {
   Sparkles,
   Trash2,
   FileCheck,
+  Eye,
 } from "lucide-react";
 import type { UploadedMediaItem, MediaCategory } from "../types";
+import { MediaPreviewDialog } from "./MediaPreviewDialog";
 
 interface MultiFileUploadZoneProps {
   files: UploadedMediaItem[];
@@ -25,6 +27,7 @@ export function MultiFileUploadZone({
   onAddDemoFiles,
 }: MultiFileUploadZoneProps): React.ReactElement {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedPreviewFile, setSelectedPreviewFile] = useState<UploadedMediaItem | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -79,7 +82,7 @@ export function MultiFileUploadZone({
       <div className="flex items-center justify-between shrink-0">
         <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
           <span>Tài liệu & Media ({files.length})</span>
-          <span className="text-[10px] text-slate-400 font-normal lowercase">(logo, ảnh, video, pdf)</span>
+          <span className="text-[10px] text-slate-400 font-normal lowercase">(click xem popup)</span>
         </label>
         <button
           type="button"
@@ -135,7 +138,8 @@ export function MultiFileUploadZone({
             {files.map((file) => (
               <div
                 key={file.id}
-                className="bg-[#0E131E] border border-[#1E2638] hover:border-[#2C3852] rounded-lg p-2 flex items-center gap-2 group relative transition-colors"
+                onClick={() => setSelectedPreviewFile(file)}
+                className="bg-[#0E131E] border border-[#1E2638] hover:border-blue-500/50 hover:bg-[#121927] rounded-lg p-2 flex items-center gap-2 group relative transition-all cursor-pointer"
               >
                 {/* Thumbnail */}
                 <div className="w-12 h-10 rounded bg-[#070A10] border border-[#1A2234] flex items-center justify-center shrink-0 overflow-hidden relative">
@@ -143,7 +147,7 @@ export function MultiFileUploadZone({
                     <img
                       src={file.previewUrl}
                       alt={file.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                     />
                   ) : file.category === "video" ? (
                     <Video className="w-4 h-4 text-cyan-400" />
@@ -152,6 +156,10 @@ export function MultiFileUploadZone({
                   ) : (
                     <FileCheck className="w-4 h-4 text-blue-400" />
                   )}
+                  {/* Hover Eye Overlay */}
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                    <Eye className="w-3.5 h-3.5 text-white" />
+                  </div>
                 </div>
 
                 {/* Info */}
@@ -167,7 +175,7 @@ export function MultiFileUploadZone({
                   </span>
                 </div>
 
-                {/* Delete */}
+                {/* Delete Button */}
                 <button
                   type="button"
                   onClick={(e) => {
@@ -184,6 +192,14 @@ export function MultiFileUploadZone({
           </div>
         )}
       </div>
+
+      {/* Central Media Preview Modal */}
+      <MediaPreviewDialog
+        file={selectedPreviewFile}
+        isOpen={Boolean(selectedPreviewFile)}
+        onClose={() => setSelectedPreviewFile(null)}
+        onRemoveFile={onRemoveFile}
+      />
     </div>
   );
 }

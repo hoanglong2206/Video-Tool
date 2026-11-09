@@ -96,7 +96,7 @@ export function VisualStyleSelector({
                 </div>
                 {isSelected ? (
                   <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center text-white">
-                    <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    <Check className="w-2.5 h-2.5 stroke-3" />
                   </div>
                 ) : (
                   <span className="text-[9px] px-1 py-0.2 rounded font-mono text-slate-400 bg-slate-800/60">

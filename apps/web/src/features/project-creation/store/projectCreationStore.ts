@@ -52,6 +52,9 @@ export const INITIAL_FORM: ProjectBriefFormData = {
   resolution: "4K UHD",
   brandColors: ["#0B0F17", "#3B82F6", "#06B6D4", "#E2E8F0"],
   typeface: "Inter Display",
+  voiceActor: "Trấn Vũ (Nam - Trầm ấm)",
+  bgmMood: "Cinematic Epic",
+  targetChannel: "YouTube / TVC 16:9",
   files: DEMO_FILES,
 };
 

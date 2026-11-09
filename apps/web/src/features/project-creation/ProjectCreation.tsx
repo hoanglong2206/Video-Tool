@@ -16,6 +16,7 @@ export function ProjectCreation(): React.ReactElement {
     formData,
     aiOutput,
     activeAiPipelineStage,
+    isAnalyzing,
     isSaving,
     setStep,
     updateField,
@@ -55,7 +56,14 @@ export function ProjectCreation(): React.ReactElement {
           )}
 
           {step === "processing" && (
-            <AiPipelineProcessingView activeStage={activeAiPipelineStage} />
+            <AiPipelineProcessingView
+              activeStage={activeAiPipelineStage}
+              formData={formData}
+              aiOutput={aiOutput}
+              isAnalyzing={isAnalyzing}
+              onProceedToInspection={() => setStep("inspection")}
+              onBackToInput={() => setStep("input")}
+            />
           )}
 
           {step === "inspection" && (
