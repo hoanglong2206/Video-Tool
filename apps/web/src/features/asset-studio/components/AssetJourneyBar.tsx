@@ -5,8 +5,8 @@ export function AssetJourneyBar(): React.ReactElement {
   return (
     <StudioJourneyBar
       currentStageId="assets"
-      previousStage={{ label: "Storyboard", href: "/storyboard" }}
-      nextStage={{ label: "Composition", href: "/workflow" }}
+      previousStage={{ label: "Storyboard", href: "/projects/proj-1/storyboard" }}
+      nextStage={{ label: "Composition", href: "/projects/proj-1/workflow" }}
     />
   );
 }

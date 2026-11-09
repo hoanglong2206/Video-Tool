@@ -5,7 +5,7 @@ export function ThreeDJourneyBar(): React.ReactElement {
   return (
     <StudioJourneyBar
       currentStageId="threed"
-      previousStage={{ label: "Motion", href: "/editor" }}
+      previousStage={{ label: "Motion", href: "/projects/proj-1/motion" }}
       nextStage={{ label: "Sound", isLocked: true }}
     />
   );

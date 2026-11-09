@@ -5,7 +5,7 @@ export function RenderPipelineNav(): React.ReactElement {
   return (
     <StudioJourneyBar
       currentStageId="render"
-      previousStage={{ label: "Sound", href: "/editor" }}
+      previousStage={{ label: "Sound", href: "/projects/proj-1/sound" }}
       nextStage={{ label: "Export", isLocked: true }}
     />
   );

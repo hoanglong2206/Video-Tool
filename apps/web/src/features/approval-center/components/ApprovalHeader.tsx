@@ -31,7 +31,7 @@ export function ApprovalHeader({ pendingCount }: ApprovalHeaderProps): React.Rea
           href={
             currentProjectId
               ? `/projects/${currentProjectId}/scenes/scene-01`
-              : "/editor"
+              : "/projects"
           }
           className="cursor-pointer"
         >

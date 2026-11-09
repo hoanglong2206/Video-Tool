@@ -5,7 +5,7 @@ export function AssistantPipelineNav(): React.ReactElement {
   return (
     <StudioJourneyBar
       currentStageId="motion"
-      previousStage={{ label: "Composition", href: "/workflow" }}
+      previousStage={{ label: "Composition", href: "/projects/proj-1/workflow" }}
       nextStage={{ label: "3D (optional)", isLocked: true }}
     />
   );

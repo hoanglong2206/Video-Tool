@@ -29,13 +29,13 @@ export interface JourneyStageConfig {
 export const DEFAULT_JOURNEY_STAGES: JourneyStageConfig[] = [
   { id: "brief", label: "Brief", href: "/projects/new", isCompleted: true },
   { id: "direction", label: "Direction", isCompleted: true },
-  { id: "storyboard", label: "Storyboard", href: "/storyboard", isCompleted: true },
-  { id: "assets", label: "Assets", href: "/assets", isCompleted: true },
-  { id: "composition", label: "Composition", href: "/workflow", isAttention: true },
-  { id: "motion", label: "Motion", href: "/editor" },
-  { id: "threed", label: "3D (optional)", href: "/threed", isOptional: true },
+  { id: "storyboard", label: "Storyboard", href: "/projects", isCompleted: true },
+  { id: "assets", label: "Assets", href: "/projects", isCompleted: true },
+  { id: "composition", label: "Composition", href: "/projects", isAttention: true },
+  { id: "motion", label: "Motion", href: "/projects" },
+  { id: "threed", label: "3D (optional)", href: "/projects", isOptional: true },
   { id: "sound", label: "Sound", isOptional: true },
-  { id: "render", label: "Render", href: "/render" },
+  { id: "render", label: "Render", href: "/projects" },
   { id: "export", label: "Export" },
 ];
 

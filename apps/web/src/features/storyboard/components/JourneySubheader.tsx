@@ -6,7 +6,7 @@ export function JourneySubheader(): React.ReactElement {
     <StudioJourneyBar
       currentStageId="storyboard"
       previousStage={{ label: "Direction", href: "/projects/new" }}
-      nextStage={{ label: "Assets", href: "/assets" }}
+      nextStage={{ label: "Assets", href: "/projects/proj-1/assets" }}
     />
   );
 }

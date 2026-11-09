@@ -61,7 +61,7 @@ export function WorkflowHeader({
           href={
             currentProjectId
               ? `/projects/${currentProjectId}/approvals`
-              : "/approvals"
+              : "/projects"
           }
         >
           Open approvals ({pendingApprovalsCount})
