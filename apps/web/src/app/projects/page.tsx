@@ -10,6 +10,7 @@ import { QUERY_KEYS } from "@/constants/query-keys";
 import { Button, Input } from "@/components/ui";
 import { Plus, Search, Film } from "lucide-react";
 import type { ProjectItem } from "@/services/dashboard";
+import { getProjectStageRoute } from "@/features/pipeline";
 import {
   ProjectCardItem,
   StopProjectConfirmModal,
@@ -87,9 +88,7 @@ export default function ProjectsPage(): React.ReactElement {
   };
 
   const handleNavigate = (project: ProjectItem) => {
-    if (project.status === "waiting_approval") router.push(`/projects/${project.id}/approvals`);
-    else if (project.status === "completed") router.push(`/projects/${project.id}/export`);
-    else router.push(`/projects/${project.id}/workflow`);
+    router.push(getProjectStageRoute(project));
   };
 
   return (

@@ -72,4 +72,6 @@ class BriefCheckResponseDTO(BaseModel):
 class UpdateProjectStatusRequestDTO(BaseModel):
     """Payload to update the operational status of a project."""
 
-    status: str = Field(description="New status, e.g. in_progress, stopped, waiting_approval, completed")
+    status: str | None = Field(default=None, description="New status, e.g. in_progress, stopped, waiting_approval, completed")
+    stage_description: str | None = Field(default=None, description="Updated stage description")
+    progress: int | None = Field(default=None, description="Updated progress percentage")

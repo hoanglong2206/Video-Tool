@@ -136,19 +136,47 @@ async def check_brief_completeness(payload: BriefCheckRequestDTO) -> BriefCheckR
     )
 
 
+@router.get("/{project_id}", response_model=ProjectResponseDTO)
+async def get_project_by_id(
+    project_id: str,
+    session: AsyncSession = Depends(get_db_session),
+) -> ProjectResponseDTO:
+    """Retrieve details for a specific video project."""
+    stmt = select(ProjectModel).where(ProjectModel.id == project_id)
+    project = await session.scalar(stmt)
+    if not project:
+        raise HTTPException(status_code=404, detail=f"Project '{project_id}' not found.")
+
+    return ProjectResponseDTO(
+        id=project.id,
+        name=project.name,
+        stageDescription=project.stage_description,
+        progress=project.progress,
+        status=ProjectStatus(project.status) if project.status in [e.value for e in ProjectStatus] else ProjectStatus.IN_PROGRESS,
+        assetCount=project.asset_count,
+        templateCount=project.template_count,
+    )
+
+
 @router.patch("/{project_id}", response_model=ProjectResponseDTO)
 async def update_project_status(
     project_id: str,
     payload: UpdateProjectStatusRequestDTO,
     session: AsyncSession = Depends(get_db_session),
 ) -> ProjectResponseDTO:
-    """Update project status (e.g. stopped, in_progress, waiting_approval, completed)."""
+    """Update project status (e.g. stopped, in_progress, waiting_approval, completed) and stage."""
     stmt = select(ProjectModel).where(ProjectModel.id == project_id)
     project = await session.scalar(stmt)
     if not project:
         raise HTTPException(status_code=404, detail=f"Project '{project_id}' not found.")
 
-    project.status = payload.status
+    if payload.status is not None:
+        project.status = payload.status
+    if payload.stage_description is not None:
+        project.stage_description = payload.stage_description
+    if payload.progress is not None:
+        project.progress = payload.progress
+
     await session.commit()
     await session.refresh(project)
 

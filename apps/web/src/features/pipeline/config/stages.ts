@@ -146,3 +146,38 @@ export const getPrevStageId = (currentId: PipelineStageId): PipelineStageId | nu
   return null;
 };
 
+export const getProjectCurrentStageId = (project: {
+  id: string;
+  stageDescription?: string;
+  status?: string;
+}): PipelineStageId => {
+  if (typeof window !== "undefined") {
+    const cached = localStorage.getItem(`video_tool_project_stage_${project.id}`);
+    if (cached && PIPELINE_STAGES.some((s) => s.id === cached)) {
+      return cached as PipelineStageId;
+    }
+  }
+
+  const desc = (project.stageDescription || "").toLowerCase();
+  if (desc.includes("export") || desc.includes("qc") || desc.includes("stage 10")) return "export";
+  if (desc.includes("render") || desc.includes("stage 09") || desc.includes("stage 9")) return "render";
+  if (desc.includes("sound") || desc.includes("audio") || desc.includes("stage 08") || desc.includes("stage 8")) return "sound";
+  if (desc.includes("3d") || desc.includes("stage 07") || desc.includes("stage 7")) return "3d";
+  if (desc.includes("motion") || desc.includes("animation") || desc.includes("stage 06") || desc.includes("stage 6")) return "motion";
+  if (desc.includes("composition") || desc.includes("bố cục") || desc.includes("stage 05") || desc.includes("stage 5")) return "composition";
+  if (desc.includes("processing") || desc.includes("prep") || desc.includes("tách nền") || desc.includes("stage 04") || desc.includes("stage 4")) return "asset-processing";
+  if (desc.includes("asset") || desc.includes("gen") || desc.includes("stage 03") || desc.includes("stage 3")) return "asset-planning";
+
+  return "storyboard";
+};
+
+export const getProjectStageRoute = (project: {
+  id: string;
+  stageDescription?: string;
+  status?: string;
+}): string => {
+  if (project.status === "waiting_approval") return `/projects/${project.id}/approvals`;
+  if (project.status === "completed") return `/projects/${project.id}/export`;
+  return `/projects/${project.id}/${getProjectCurrentStageId(project)}`;
+};
+

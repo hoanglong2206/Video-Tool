@@ -7,6 +7,7 @@ import { Play, ArrowUpRight, Film, Clock, Sparkles } from "lucide-react";
 import type { ProjectItem } from "../types";
 import { StatusBadge } from "@/components/shared";
 import { Progress, Button } from "@/components/ui";
+import { getProjectStageRoute } from "@/features/pipeline";
 
 interface RecentTwoProjectsProps {
   projects: ProjectItem[];
@@ -66,7 +67,7 @@ export function RecentTwoProjects({ projects }: RecentTwoProjectsProps): React.R
             return (
               <div
                 key={project.id}
-                onClick={() => router.push(`/projects/${project.id}/workflow`)}
+                onClick={() => router.push(getProjectStageRoute(project))}
                 className="bg-[#101520] border border-[#1C2436] hover:border-[#2D3C57] rounded-lg p-2.5 flex flex-col transition-all cursor-pointer group hover:bg-[#121826] relative overflow-hidden h-full min-h-0"
               >
                 {/* Expansive Cinematic Video Preview Area (Fills space with 0 dead gaps) */}

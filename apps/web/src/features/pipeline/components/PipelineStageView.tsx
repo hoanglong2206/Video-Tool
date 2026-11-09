@@ -12,7 +12,9 @@ import {
   type PipelineStageConfig,
 } from "../config/stages";
 import { PipelineJourneyBar } from "./PipelineJourneyBar";
+import { PipelineStagePlaceholderCard } from "./PipelineStagePlaceholderCard";
 import { usePipelineSettingsStore } from "../store/pipelineSettingsStore";
+import { projectService } from "@/services/project";
 import { DashboardSidebar } from "@/features/dashboard/components/DashboardSidebar";
 import { Button } from "@/components/ui";
 import {
@@ -35,12 +37,38 @@ interface PipelineStageViewProps {
 export function PipelineStageView({
   projectId,
   stageId,
-  projectName = "Aurora X1 Launch",
+  projectName: initialProjectName = "Aurora X1 Launch",
 }: PipelineStageViewProps): React.ReactElement {
   const router = useRouter();
   const stage = getStageById(stageId) || PIPELINE_STAGES[0];
   const nextStageId = getNextStageId(stage.id);
   const prevStageId = getPrevStageId(stage.id);
+
+  const [projectName, setProjectName] = useState<string>(initialProjectName);
+  const [projectStatus, setProjectStatus] = useState<string>("in_progress");
+
+  // Sync active stage to client localStorage and backend database
+  useEffect(() => {
+    if (typeof window !== "undefined" && projectId && stageId) {
+      localStorage.setItem(`video_tool_project_stage_${projectId}`, stageId);
+    }
+    const calculatedProgress = Math.min(100, Math.round(((stage.stepNumber - 1) / 9) * 100));
+    projectService
+      .updateProject(projectId, {
+        stage_description: `Stage 0${stage.stepNumber} · ${stage.fullName}`,
+        progress: calculatedProgress,
+      })
+      .then((res) => {
+        if (res?.name) setProjectName(res.name);
+        if (res?.status) {
+          setProjectStatus(res.status);
+          if (res.status === "stopped") setIsPaused(true);
+        }
+      })
+      .catch(() => {
+        // silent fallback for offline / mock dev
+      });
+  }, [projectId, stageId, stage.stepNumber, stage.fullName]);
 
   const { approvalMode, autoProceedDelaySeconds } = usePipelineSettingsStore();
 
@@ -80,7 +108,6 @@ export function PipelineStageView({
     }
   };
 
-  const Icon = stage.icon;
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#0B0F17] text-slate-100 antialiased select-none">
@@ -106,9 +133,15 @@ export function PipelineStageView({
               {projectName}
             </span>
 
-            <span className="text-[10px] font-mono bg-blue-950/80 text-blue-400 border border-blue-800/40 px-1.5 py-0.2 rounded">
-              {projectId}
-            </span>
+            {projectStatus === "stopped" ? (
+              <span className="text-[10px] font-mono bg-rose-950/80 text-rose-300 border border-rose-800/40 px-1.5 py-0.5 rounded flex items-center gap-1">
+                <Pause className="w-2.5 h-2.5" /> Đã dừng
+              </span>
+            ) : (
+              <span className="text-[10px] font-mono bg-blue-950/80 text-blue-400 border border-blue-800/40 px-1.5 py-0.5 rounded">
+                {projectId}
+              </span>
+            )}
           </div>
 
           {/* Mode Pill & Settings link */}
@@ -209,57 +242,12 @@ export function PipelineStageView({
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#141B29_1px,transparent_1px),linear-gradient(to_bottom,#141B29_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20 pointer-events-none" />
 
           {/* Central Placeholder Card */}
-          <div className="max-w-md w-full bg-[#101520]/80 backdrop-blur-md border border-[#1E2638] rounded-2xl p-8 flex flex-col items-center shadow-2xl relative z-10">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600/20 to-indigo-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 mb-4 shadow-lg">
-              <Icon className="w-8 h-8" />
-            </div>
-
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded border font-semibold bg-emerald-950 text-emerald-300 border-emerald-700/60">
-                {stage.approvalLabel}
-              </span>
-              <span className="text-xs font-mono tabular-nums text-slate-400">
-                Bước 0{stage.stepNumber} / 10
-              </span>
-            </div>
-
-            <h2 className="text-base font-bold text-slate-100 mt-2">
-              {stage.fullName}
-            </h2>
-
-            <p className="text-xs text-slate-400 leading-relaxed mt-2">
-              {stage.description}
-            </p>
-
-            <div className="w-full h-px bg-[#1C2436] my-5" />
-
-            <div className="flex items-center gap-2 text-slate-400 text-xs">
-              <Sparkles className="w-4 h-4 text-cyan-400" />
-              <span>Màn hình trống (Sẵn sàng triển khai chi tiết)</span>
-            </div>
-
-            <div className="mt-5 flex items-center gap-2 w-full justify-center">
-              {prevStageId && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => router.push(`/projects/${projectId}/${prevStageId}`)}
-                  className="h-8 text-xs bg-[#0E131E] border-[#1E2638] text-slate-300 flex items-center gap-1 cursor-pointer"
-                >
-                  <ArrowLeft className="w-3 h-3" /> Bước trước
-                </Button>
-              )}
-
-              <Button
-                size="sm"
-                onClick={handleManualApproveAndProceed}
-                className="h-8 text-xs bg-blue-600 hover:bg-blue-500 text-white font-medium flex items-center gap-1 cursor-pointer"
-              >
-                <span>Duyệt bước này</span>
-                <ArrowRight className="w-3 h-3" />
-              </Button>
-            </div>
-          </div>
+          <PipelineStagePlaceholderCard
+            stage={stage}
+            prevStageId={prevStageId}
+            onPrevStage={() => prevStageId && router.push(`/projects/${projectId}/${prevStageId}`)}
+            onProceed={handleManualApproveAndProceed}
+          />
         </main>
       </div>
     </div>

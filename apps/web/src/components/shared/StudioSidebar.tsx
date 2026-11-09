@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { dashboardService } from "@/services/dashboard";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { Button } from "@/components/ui";
+import { getProjectStageRoute } from "@/features/pipeline";
 
 import { ProjectItem } from "@/services/dashboard";
 
@@ -148,7 +149,7 @@ export function StudioSidebar({ className }: StudioSidebarProps): React.ReactEle
                 return (
                   <Link
                     key={project.id}
-                    href={`/projects/${project.id}/workflow`}
+                    href={getProjectStageRoute(project)}
                     className={cn(
                       "flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs transition-all group relative cursor-pointer",
                       isCurrent

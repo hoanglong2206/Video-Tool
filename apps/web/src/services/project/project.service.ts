@@ -35,6 +35,13 @@ export const projectService = {
     return apiPatch<ProjectItem>(API_ENDPOINTS.PROJECT_BY_ID(id), { status });
   },
 
+  updateProject: async (
+    id: string,
+    data: { status?: string; stage_description?: string; progress?: number }
+  ): Promise<ProjectItem> => {
+    return apiPatch<ProjectItem>(API_ENDPOINTS.PROJECT_BY_ID(id), data);
+  },
+
   deleteProject: async (id: string): Promise<void> => {
     return apiDelete<void>(API_ENDPOINTS.PROJECT_BY_ID(id));
   },
