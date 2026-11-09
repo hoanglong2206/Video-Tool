@@ -171,15 +171,13 @@ export function BriefForm({
             />
           </div>
 
-          {/* Right Card 2: Âm thanh & Giọng đọc AI (New component between Media and Production Specs) */}
+          {/* Right Card 2: Âm thanh & Nhạc nền AI (Purely Audio & Soundtrack) */}
           <div className="shrink-0 bg-[#0F141F] border border-[#1C2436] rounded-xl p-3.5 flex flex-col">
             <AudioAtmosphereSelector
-              voiceActor={formData.voiceActor}
               bgmMood={formData.bgmMood}
-              targetChannel={formData.targetChannel}
-              onChangeVoice={(v) => onChangeField("voiceActor", v)}
+              soundMode={formData.soundMode}
               onChangeBgm={(b) => onChangeField("bgmMood", b)}
-              onChangeChannel={(c) => onChangeField("targetChannel", c)}
+              onChangeSoundMode={(m) => onChangeField("soundMode", m)}
             />
           </div>
 

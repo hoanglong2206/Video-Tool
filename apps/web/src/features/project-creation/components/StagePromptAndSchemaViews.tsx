@@ -100,7 +100,7 @@ export function StagePromptAndSchemaViews({
           { label: "Tỷ lệ khung hình", val: formData.aspectRatio },
           { label: "Thời lượng", val: formData.duration },
           { label: "Visual Style", val: formData.stylePreference },
-          { label: "Giọng đọc AI", val: formData.voiceActor || "Trấn Vũ (Nam)" },
+          { label: "Âm thanh & BGM", val: formData.bgmMood || "Cinematic Epic" },
           { label: "Nhạc nền BGM", val: formData.bgmMood || "Cinematic Epic" },
           { label: "Số phân cảnh", val: `${aiOutput.scenes.length} Scenes` },
           { label: "Lỗi cấu trúc", val: "0 Errors" },

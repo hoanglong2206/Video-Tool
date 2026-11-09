@@ -19,7 +19,31 @@ export function generateDynamicAiAnalysis(
 
   const projectName = formData.projectName || "Dự án Video AI";
   const clientName = formData.client || "Thương hiệu";
-  const style = formData.stylePreference || "3D Cinematic Minimal Tech";
+
+  // Auto-infer style if client did not specify (Auto-Detect mode)
+  let style = formData.stylePreference || "3D Cinematic Minimal Tech";
+  if (style.toLowerCase().includes("auto")) {
+    const briefLower = (formData.brief || "").toLowerCase();
+    if (briefLower.includes("neon") || briefLower.includes("cyber")) {
+      style = "Cyberpunk Neon";
+    } else if (briefLower.includes("sang") || briefLower.includes("luxury") || briefLower.includes("vàng")) {
+      style = "Minimal Luxury";
+    } else if (briefLower.includes("nhanh") || briefLower.includes("nhịp") || briefLower.includes("motion")) {
+      style = "Kinetic Motion";
+    } else {
+      style = "3D Cinematic Tech";
+    }
+  }
+
+  // Auto-infer BGM mood if client did not specify
+  let bgm = formData.bgmMood || "Cinematic Epic";
+  if (bgm.toLowerCase().includes("auto")) {
+    bgm = style.includes("Cyber")
+      ? "Cyberpunk Tech (128 BPM)"
+      : style.includes("Luxury")
+      ? "Minimal Luxury (90 BPM)"
+      : "Cinematic Epic (110 BPM)";
+  }
 
   const scenes: SceneBreakdownItem[] = [
     {
@@ -92,7 +116,7 @@ export function generateDynamicAiAnalysis(
   return {
     llm: {
       coreMessage: `Định vị ${projectName} cho ${clientName}: Truyền tải thông điệp đột phá, phong cách ${style} và giá trị vượt trội.`,
-      targetAudience: `Nhà sáng tạo, chuyên gia công nghệ và khách hàng cao cấp từ 20-45 tuổi theo kênh ${formData.targetChannel || "Đa nền tảng"}.`,
+      targetAudience: `Nhà sáng tạo, chuyên gia công nghệ và khách hàng cao cấp từ 20-45 tuổi (Đa nền tảng).`,
       toneOfVoice: `Cinematic, Tinh tế, Uy quyền công nghệ, Trực quan (${style}).`,
       keyHooks: [
         `Công nghệ độc quyền từ ${clientName}`,

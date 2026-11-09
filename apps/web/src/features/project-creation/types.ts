@@ -54,9 +54,8 @@ export interface ProjectBriefFormData {
   brandColors: string[];
   typeface: string;
   files: UploadedMediaItem[];
-  voiceActor?: string;
   bgmMood?: string;
-  targetChannel?: string;
+  soundMode?: string;
 }
 
 export interface FullAiAnalysisOutput {
