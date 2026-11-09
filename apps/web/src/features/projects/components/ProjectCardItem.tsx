@@ -9,6 +9,7 @@ import type { ProjectItem } from "@/services/dashboard";
 interface ProjectCardItemProps {
   project: ProjectItem;
   onOpenStopModal: (project: ProjectItem) => void;
+  onOpenResumeModal: (project: ProjectItem) => void;
   onOpenDeleteModal: (project: ProjectItem) => void;
   onOpenVideoPreview: (project: ProjectItem) => void;
   onNavigate: (project: ProjectItem) => void;
@@ -17,6 +18,7 @@ interface ProjectCardItemProps {
 export function ProjectCardItem({
   project,
   onOpenStopModal,
+  onOpenResumeModal,
   onOpenDeleteModal,
   onOpenVideoPreview,
   onNavigate,
@@ -59,14 +61,21 @@ export function ProjectCardItem({
             </span>
           </div>
         ) : isStopped ? (
-          <div className="flex flex-col items-center gap-1.5 z-10 pointer-events-none">
-            <div className="w-10 h-10 rounded-full bg-rose-950/80 border border-rose-700/50 flex items-center justify-center text-rose-300 shadow-md">
-              <PauseCircle className="w-5 h-5" />
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenResumeModal(project);
+            }}
+            title="Bấm để tiếp tục lại dự án"
+            className="flex flex-col items-center gap-1.5 z-10 cursor-pointer group/resume hover:scale-105 transition-all"
+          >
+            <div className="w-10 h-10 rounded-full bg-rose-950/80 border border-rose-700/50 group-hover/resume:border-emerald-500/80 group-hover/resume:bg-emerald-950/80 flex items-center justify-center text-rose-300 group-hover/resume:text-emerald-300 shadow-md transition-colors">
+              <Play className="w-4 h-4 fill-current ml-0.5" />
             </div>
-            <span className="text-[9px] font-mono text-rose-300 bg-black/60 px-2 py-0.5 rounded border border-rose-800/40">
+            <span className="text-[9px] font-mono text-rose-300 group-hover/resume:text-emerald-300 bg-black/60 px-2 py-0.5 rounded border border-rose-800/40 group-hover/resume:border-emerald-800/40 transition-colors">
               Tiến trình đã tạm dừng
             </span>
-          </div>
+          </button>
         ) : (
           <div className="w-10 h-10 rounded-full bg-slate-900/80 border border-slate-700/50 flex items-center justify-center text-slate-400 z-10 pointer-events-none">
             <Film className="w-4 h-4" />
@@ -95,7 +104,16 @@ export function ProjectCardItem({
             </button>
           ) : isStopped ? (
             <div className="flex items-center gap-1.5">
-              <StatusBadge status="stopped" />
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenResumeModal(project);
+                }}
+                title="Bấm để tiếp tục lại dự án"
+                className="cursor-pointer group/badge transition-transform hover:scale-105"
+              >
+                <StatusBadge status="stopped" className="hover:ring-1 hover:ring-emerald-500/60 cursor-pointer" />
+              </button>
               <button
                 onClick={(e) => {
                   e.stopPropagation();

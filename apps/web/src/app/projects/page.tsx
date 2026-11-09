@@ -13,6 +13,7 @@ import type { ProjectItem } from "@/services/dashboard";
 import {
   ProjectCardItem,
   StopProjectConfirmModal,
+  ResumeProjectConfirmModal,
   DeleteProjectConfirmModal,
   VideoPreviewModal,
 } from "@/features/projects";
@@ -26,9 +27,11 @@ export default function ProjectsPage(): React.ReactElement {
   const [filter, setFilter] = useState<ProjectFilterTab>("all");
 
   const [stopModalProject, setStopModalProject] = useState<ProjectItem | null>(null);
+  const [resumeModalProject, setResumeModalProject] = useState<ProjectItem | null>(null);
   const [deleteModalProject, setDeleteModalProject] = useState<ProjectItem | null>(null);
   const [previewModalProject, setPreviewModalProject] = useState<ProjectItem | null>(null);
   const [isStopping, setIsStopping] = useState(false);
+  const [isResuming, setIsResuming] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const { data } = useQuery({
@@ -54,6 +57,19 @@ export default function ProjectsPage(): React.ReactElement {
       console.error("Failed to stop project:", err);
     } finally {
       setIsStopping(false);
+    }
+  };
+
+  const handleConfirmResume = async (project: ProjectItem) => {
+    setIsResuming(true);
+    try {
+      await projectService.updateProjectStatus(project.id, "in_progress");
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats() });
+      setResumeModalProject(null);
+    } catch (err) {
+      console.error("Failed to resume project:", err);
+    } finally {
+      setIsResuming(false);
     }
   };
 
@@ -163,6 +179,7 @@ export default function ProjectsPage(): React.ReactElement {
                   key={project.id}
                   project={project}
                   onOpenStopModal={(p) => setStopModalProject(p)}
+                  onOpenResumeModal={(p) => setResumeModalProject(p)}
                   onOpenDeleteModal={(p) => setDeleteModalProject(p)}
                   onOpenVideoPreview={(p) => setPreviewModalProject(p)}
                   onNavigate={handleNavigate}
@@ -179,6 +196,14 @@ export default function ProjectsPage(): React.ReactElement {
         onClose={() => setStopModalProject(null)}
         onConfirm={handleConfirmStop}
         isStopping={isStopping}
+      />
+
+      <ResumeProjectConfirmModal
+        project={resumeModalProject}
+        isOpen={Boolean(resumeModalProject)}
+        onClose={() => setResumeModalProject(null)}
+        onConfirm={handleConfirmResume}
+        isResuming={isResuming}
       />
 
       <DeleteProjectConfirmModal

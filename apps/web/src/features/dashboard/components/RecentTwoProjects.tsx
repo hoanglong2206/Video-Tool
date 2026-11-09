@@ -123,6 +123,8 @@ export function RecentTwoProjects({ projects }: RecentTwoProjectsProps): React.R
                           ? "[&>div]:bg-emerald-500"
                           : isWaiting
                           ? "[&>div]:bg-amber-500"
+                          : project.status === "stopped"
+                          ? "[&>div]:bg-rose-500"
                           : "[&>div]:bg-blue-500"
                       }`}
                     />
