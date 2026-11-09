@@ -131,3 +131,4 @@ export async function extractPaletteFromImageFile(
     img.src = objectUrl;
   });
 }
+

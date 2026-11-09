@@ -36,7 +36,7 @@ export function Dashboard(): React.ReactElement {
           {/* Bottom Row: 2-Column Balanced Dashboard Grid */}
           <div className="flex-1 min-h-0 grid grid-cols-12 gap-3 overflow-hidden">
             {/* Left 7 Columns: Analysis Chart + 2 Recent Projects */}
-            <div className="col-span-12 lg:col-span-7 xl:col-span-8 flex flex-col gap-3 min-h-0 h-full overflow-hidden">
+            <div className="col-span-12 lg:col-span-7 xl:col-span-8 flex flex-col gap-2.5 min-h-0 h-full overflow-hidden">
               {/* Biểu đồ Analysis liên quan */}
               <AnalysisChart />
 

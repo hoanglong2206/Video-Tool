@@ -71,7 +71,7 @@ export function AnalysisChart(): React.ReactElement {
   const areaPath = `${linePath} L ${points[points.length - 1].x} ${height - paddingY} L ${points[0].x} ${height - paddingY} Z`;
 
   return (
-    <div className="bg-[#101520] border border-[#1C2436] rounded-lg p-3.5 flex flex-col justify-between flex-1 min-h-0 select-none">
+    <div className="bg-[#101520] border border-[#1C2436] rounded-lg p-3 flex flex-col justify-between shrink-0 h-[205px] select-none">
       {/* Header with Title and Metric Switcher */}
       <div className="flex items-center justify-between gap-2 shrink-0">
         <div className="flex items-center gap-2">
