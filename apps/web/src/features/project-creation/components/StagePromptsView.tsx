@@ -2,7 +2,16 @@
 
 import React, { useState } from "react";
 import type { FullAiAnalysisOutput, ProjectBriefFormData } from "../types";
-import { Camera, Volume2, Copy, Check, Sparkles, ChevronRight, ChevronLeft } from "lucide-react";
+import {
+  Camera,
+  Volume2,
+  Copy,
+  Check,
+  ChevronRight,
+  ChevronLeft,
+  Sliders,
+  ShieldAlert,
+} from "lucide-react";
 
 interface StagePromptsViewProps {
   aiOutput: FullAiAnalysisOutput;
@@ -60,13 +69,14 @@ export function StagePromptsView({
 
       {/* Main Content Area */}
       {selectedSceneIndex === "all" ? (
-        /* View All 6 Scenes in Smooth Scrollable Area */
-        <div className="flex-1 min-h-0 overflow-y-auto pr-1.5 space-y-2 scrollbar-thin">
+        /* View All 6 Scenes in Smooth Scrollable Area with Detailed Prompts */
+        <div className="flex-1 min-h-0 overflow-y-auto pr-1.5 space-y-2.5 scrollbar-thin">
           {scenes.map((scene) => (
             <div
               key={scene.sceneNumber}
-              className="bg-[#0A0D15] border border-[#1E2638] rounded-lg p-2.5 flex flex-col gap-1.5 hover:border-purple-500/40 transition-colors"
+              className="bg-[#0A0D15] border border-[#1E2638] rounded-lg p-2.5 flex flex-col gap-2 hover:border-purple-500/40 transition-colors"
             >
+              {/* Scene Title & Controls */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="w-5 h-5 rounded bg-purple-900/60 text-purple-300 border border-purple-700/40 text-[10px] font-mono flex items-center justify-center font-bold">
@@ -93,13 +103,31 @@ export function StagePromptsView({
                 </div>
               </div>
 
-              <p className="text-[11px] text-slate-300 font-mono bg-[#06080E] p-2 rounded border border-[#161E30] leading-relaxed">
+              {/* Rich Multi-Layered Visual Prompt */}
+              <p className="text-[11px] text-slate-200 font-mono bg-[#06080E] p-2.5 rounded border border-[#161E30] leading-relaxed select-text">
                 {scene.visualPrompt}
               </p>
 
-              <div className="flex items-center justify-between text-[10px] text-slate-400">
-                <span className="flex items-center gap-1 font-mono text-indigo-300">
-                  <Camera className="w-3 h-3 text-indigo-400" /> {scene.cameraMovement}
+              {/* Technical Spec Badges Row */}
+              <div className="flex flex-wrap items-center gap-1.5 text-[9px] font-mono">
+                <span className="bg-purple-950/60 border border-purple-800/40 text-purple-300 px-1.5 py-0.5 rounded">
+                  Optics: 85-100mm Anamorphic
+                </span>
+                <span className="bg-cyan-950/60 border border-cyan-800/40 text-cyan-300 px-1.5 py-0.5 rounded">
+                  Lighting: 4:1 Studio Rim-Light
+                </span>
+                <span className="bg-indigo-950/60 border border-indigo-800/40 text-indigo-300 px-1.5 py-0.5 rounded">
+                  Engine: Octane / UE5.4 Lumen
+                </span>
+                <span className="bg-emerald-950/60 border border-emerald-800/40 text-emerald-300 px-1.5 py-0.5 rounded">
+                  8K Photoreal PBR
+                </span>
+              </div>
+
+              {/* Camera Movement & Voiceover Footer */}
+              <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1 border-t border-[#141B2B]">
+                <span className="flex items-center gap-1 font-mono text-indigo-300 truncate max-w-[240px]">
+                  <Camera className="w-3 h-3 text-indigo-400 shrink-0" /> {scene.cameraMovement}
                 </span>
                 <span className="text-slate-400 italic truncate max-w-sm flex items-center gap-1">
                   <Volume2 className="w-3 h-3 text-slate-500 shrink-0" />
@@ -110,9 +138,10 @@ export function StagePromptsView({
           ))}
         </div>
       ) : activeScene ? (
-        /* Single Scene Deep Focus Inspector (Fills the Height Perfectly) */
+        /* Single Scene Deep Focus Inspector (Full Studio Parameters) */
         <div className="flex-1 min-h-0 bg-[#0A0D15] border border-purple-500/30 rounded-lg p-3 flex flex-col justify-between">
           <div className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-2.5 scrollbar-thin">
+            {/* Header */}
             <div className="flex items-center justify-between pb-2 border-b border-[#1E2638]">
               <div className="flex items-center gap-2">
                 <span className="px-2 py-0.5 rounded bg-purple-600 text-white text-xs font-mono font-bold">
@@ -125,15 +154,16 @@ export function StagePromptsView({
               </span>
             </div>
 
+            {/* Expanded Visual Prompt */}
             <div>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-[10px] font-bold text-purple-400 uppercase tracking-wider">
-                  Visual Prompt (Remotion & ComfyUI Standard)
+                  Visual Prompt (Remotion, Midjourney & ComfyUI Standard)
                 </span>
                 <button
                   type="button"
                   onClick={() => handleCopyPrompt(activeScene.sceneNumber, activeScene.visualPrompt)}
-                  className="text-xs text-slate-300 hover:text-white bg-[#141B2B] border border-[#23324C] px-2 py-0.5 rounded flex items-center gap-1 cursor-pointer"
+                  className="text-xs text-slate-300 hover:text-white bg-[#141B2B] border border-[#23324C] px-2.5 py-1 rounded flex items-center gap-1 cursor-pointer"
                 >
                   {copiedScene === activeScene.sceneNumber ? (
                     <Check className="w-3 h-3 text-emerald-400" />
@@ -143,24 +173,51 @@ export function StagePromptsView({
                   <span>Copy Prompt</span>
                 </button>
               </div>
-              <p className="text-xs text-slate-200 font-mono bg-[#06080E] p-3 rounded-md border border-[#161E30] leading-relaxed">
+              <p className="text-xs text-slate-200 font-mono bg-[#06080E] p-3 rounded-md border border-[#161E30] leading-relaxed select-text">
                 {activeScene.visualPrompt}
               </p>
             </div>
 
+            {/* Negative Prompt & Guardrails */}
+            <div className="bg-[#06080E] border border-[#161E30] p-2.5 rounded-md flex flex-col gap-1">
+              <span className="text-[10px] font-bold text-red-400 uppercase tracking-wider flex items-center gap-1">
+                <ShieldAlert className="w-3 h-3" />
+                <span>Negative Prompt (Bộ lọc loại trừ)</span>
+              </span>
+              <p className="text-[11px] font-mono text-slate-400 leading-snug">
+                --no blur, distortion, motion artifacts, lowres, text watermark, chromatic aberration, oversaturated, deformed geometry, flat lighting
+              </p>
+            </div>
+
+            {/* Technical Parameter Matrix */}
             <div className="grid grid-cols-2 gap-2 text-[11px]">
               <div className="bg-[#06080E] border border-[#161E30] p-2.5 rounded-md">
                 <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider block mb-1">
-                  Chuyển động Camera
+                  Chuyển động Camera & Quang học
                 </span>
-                <p className="text-slate-300 font-mono">{activeScene.cameraMovement}</p>
+                <p className="text-slate-300 font-mono text-[11px]">{activeScene.cameraMovement}</p>
+                <span className="text-[9px] text-slate-500 font-mono block mt-1">
+                  Shutter Angle: 180° • Frame Rate: 24.000 fps
+                </span>
               </div>
               <div className="bg-[#06080E] border border-[#161E30] p-2.5 rounded-md">
                 <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-wider block mb-1">
-                  Lời bình & Giọng đọc (Voiceover)
+                  Lời bình & Voiceover
                 </span>
-                <p className="text-slate-300 italic">"{activeScene.voiceover}"</p>
+                <p className="text-slate-300 italic text-[11px]">"{activeScene.voiceover}"</p>
+                <span className="text-[9px] text-cyan-500 font-mono block mt-1">
+                  Đồng bộ: 0.0s - {activeScene.durationSeconds}.0s
+                </span>
               </div>
+            </div>
+
+            {/* Render Engine Spec Chip */}
+            <div className="bg-[#06080E] border border-[#161E30] px-3 py-2 rounded-md flex items-center justify-between text-[10px] font-mono text-slate-400">
+              <span className="flex items-center gap-1.5 text-purple-400">
+                <Sliders className="w-3 h-3" />
+                <span>Sampler: DPM++ 2M Karras • Steps: 35 • CFG: 7.5</span>
+              </span>
+              <span className="text-emerald-400">Color Workflow: ACEScc Rec.709</span>
             </div>
           </div>
 
@@ -193,4 +250,3 @@ export function StagePromptsView({
     </div>
   );
 }
-

@@ -17,8 +17,8 @@ export function generateDynamicAiAnalysis(
     ? [10, 10, 12, 10, 10, 8]
     : [5, 5, 6, 5, 5, 4]; // 30s
 
-  const projectName = formData.projectName || "Dự án Video AI";
-  const clientName = formData.client || "Thương hiệu";
+  const projectName = formData.projectName || "Aurora X1 Launch";
+  const clientName = formData.client || "Aurora Audio";
 
   // Auto-infer style if client did not specify (Auto-Detect mode)
   let style = formData.stylePreference || "3D Cinematic Minimal Tech";
@@ -31,7 +31,7 @@ export function generateDynamicAiAnalysis(
     } else if (briefLower.includes("nhanh") || briefLower.includes("nhịp") || briefLower.includes("motion")) {
       style = "Kinetic Motion";
     } else {
-      style = "3D Cinematic Tech";
+      style = "3D Cinematic Minimal Tech";
     }
   }
 
@@ -45,67 +45,72 @@ export function generateDynamicAiAnalysis(
       : "Cinematic Epic (110 BPM)";
   }
 
-  const scenes: SceneBreakdownItem[] = [
-    {
-      sceneNumber: 1,
-      title: "Mở đầu ấn tượng & Thiết lập bối cảnh",
-      durationSeconds: sceneDurations[0],
-      visualPrompt: `Extreme macro cinematic close-up introducing ${projectName}, subtle lighting reflection with ${style} atmosphere, 8K hyper-detailed.`,
-      voiceover: `Khởi đầu với ${clientName} — nơi chuẩn mực mới được định hình.`,
-      cameraMovement: "Slow push-in with 24fps smooth orbit",
-    },
-    {
-      sceneNumber: 2,
-      title: "Cận cảnh chi tiết & Vật liệu độc bản",
-      durationSeconds: sceneDurations[1],
-      visualPrompt: `Ultra-detailed shot showcasing premium textures and acoustic ergonomics in ${style} aesthetic, ray-traced reflections.`,
-      voiceover: "Thiết kế cơ học chính xác, mang đến sự tinh tế trong từng đường nét.",
-      cameraMovement: "Horizontal tracking right, shallow depth of field",
-    },
-    {
-      sceneNumber: 3,
-      title: "Bóc tách công nghệ & Trọng tâm tính năng",
-      durationSeconds: sceneDurations[2],
-      visualPrompt: `Seamless 3D exploded diagram of internal components, floating precision engineering elements with dynamic glow.`,
-      voiceover: "Công nghệ tiên phong được tối ưu hóa cho hiệu năng vượt trội.",
-      cameraMovement: "Rotational slow-motion twist around core component",
-    },
-    {
-      sceneNumber: 4,
-      title: "Chuyển động năng động & Hiệu ứng tương tác",
-      durationSeconds: sceneDurations[3],
-      visualPrompt: `Volumetric kinetic particle effects syncing dynamically to audio rhythms, high contrast cinematic motion.`,
-      voiceover: "Trải nghiệm liền mạch và bứt phá mọi giới hạn âm học.",
-      cameraMovement: "Fast kinetic whip-pan zoom into product silhouette",
-    },
-    {
-      sceneNumber: 5,
-      title: "Toàn cảnh sản phẩm & Định vị thương hiệu",
-      durationSeconds: sceneDurations[4],
-      visualPrompt: `Full beauty turntable reveal of ${projectName} in dramatic studio rim-lighting, glowing metallic accents.`,
-      voiceover: `${projectName} — Khẳng định đẳng cấp dẫn đầu thế hệ mới.`,
-      cameraMovement: "Crane down wide shot to hero beauty angle",
-    },
-    {
-      sceneNumber: 6,
-      title: "Logo Reveal & Kêu gọi hành động (CTA)",
-      durationSeconds: sceneDurations[5],
-      visualPrompt: `${clientName} brand logo debossed into matte surface, official CTA badge and website link animation.`,
-      voiceover: "Đặt trước ngay hôm nay để trở thành người dẫn đầu.",
-      cameraMovement: "Locked static hero shot with glowing light flare",
-    },
-  ];
-
   const brandColors =
     formData.brandColors && formData.brandColors.length > 0
       ? formData.brandColors
       : ["#0B0F17", "#3B82F6", "#06B6D4", "#E2E8F0"];
 
+  const primaryCol = brandColors[1] || "#3B82F6";
+  const accentCol = brandColors[2] || "#06B6D4";
+  const aspect = formData.aspectRatio || "16:9";
+
+  // Studio-grade, multi-layered visual prompts (Optics, Lighting, PBR Textures, Motion, Engine)
+  const scenes: SceneBreakdownItem[] = [
+    {
+      sceneNumber: 1,
+      title: "Mở đầu ấn tượng & Thiết lập bối cảnh",
+      durationSeconds: sceneDurations[0],
+      visualPrompt: `Extreme macro cinematic shot of ${projectName} emerging from pitch-black infinity cove; 85mm anamorphic prime lens, f/1.8 shallow depth of field. 4:1 low-key dramatic studio rim-lighting in neon cyan (${accentCol}) and deep cobalt (${primaryCol}) tracing brushed titanium chamfers; subtle volumetric haze, optical anamorphic streak flare. ACEScc color graded, Octane Render 2024, Unreal Engine 5.4 Lumen ray-tracing, photorealistic PBR shaders, 8K ultra-detailed --ar ${aspect} --style raw.`,
+      voiceover: `Khởi đầu với ${clientName} — nơi chuẩn mực âm học và cơ khí chính xác được tái định nghĩa.`,
+      cameraMovement: "Slow push-in with 24fps rotational orbit (15° arc)",
+    },
+    {
+      sceneNumber: 2,
+      title: "Cận cảnh chi tiết & Vật liệu độc bản",
+      durationSeconds: sceneDurations[1],
+      visualPrompt: `Ultra-macro 100mm optical shot focusing on ${projectName} acoustic ear cushions and micro-perforated dual microphone grille; breathable memory foam weave, laser-etched debossed branding. Razor-sharp specular edge highlights, soft top diffusion lighting with high-contrast shadows. Subsurface scattering on premium composite polymer, microscopic dust particles suspended in light beam, 8K hyper-detailed photorealism --ar ${aspect}.`,
+      voiceover: "Thiết kế công thái học hoàn hảo kết hợp vật liệu hàng không, mang đến sự tinh tế trong từng điểm chạm.",
+      cameraMovement: "Smooth horizontal tracking right with depth of field rack focus",
+    },
+    {
+      sceneNumber: 3,
+      title: "Bóc tách công nghệ 3D Exploded View",
+      durationSeconds: sceneDurations[2],
+      visualPrompt: `Seamless 3D exploded engineering diagram of ${projectName}: custom 40mm Beryllium acoustic driver, acoustic resonance chamber, Bluetooth 5.4 chipset and neodymium motor assembly suspended in zero-gravity. Multi-point rim lighting with glowing neon telemetry lines (${accentCol}), ray-traced reflections on copper voice coil, Cinema 4D + Redshift render, crystal-clear schematic presentation, 8K broadcast quality --ar ${aspect}.`,
+      voiceover: "Driver Beryllium 40mm tùy biến cùng công nghệ Hybrid ANC loại bỏ 99.8% tạp âm ngoại cảnh.",
+      cameraMovement: "Rotational slow-motion 360° twist around floating acoustic core",
+    },
+    {
+      sceneNumber: 4,
+      title: "Chuyển động sóng âm & Năng lượng Kinetic",
+      durationSeconds: sceneDurations[3],
+      visualPrompt: `Volumetric kinetic particle waves pulsing dynamically from ${projectName} acoustic drivers, pulsing synchronously to deep sub-bass frequencies. Shockwave ripples in glowing electric cyan (${accentCol}) and cobalt (${primaryCol}) distorting background reflections; high-speed 180° shutter angle, kinetic motion blur, Houdini particle simulation, Unreal Engine 5.4 Niagara VFX, ACEScc color science, 8K masterpiece --ar ${aspect}.`,
+      voiceover: "Âm thanh vòm Spatial Audio định vị chuẩn xác từng nhịp điệu, đưa bạn vào tâm điểm của buổi hòa nhạc.",
+      cameraMovement: "Fast kinetic whip-pan zoom into acoustic cavity with camera shake",
+    },
+    {
+      sceneNumber: 5,
+      title: "Toàn cảnh sản phẩm hoàn thiện & Đẳng cấp",
+      durationSeconds: sceneDurations[4],
+      visualPrompt: `Full beauty turntable reveal of the assembled ${projectName} resting on an acrylic pedestal with subtle mirrored reflections; dramatic 3-point studio lighting, dual-tone edge glow highlighting aerospace titanium headband and obsidian earcups. Golden ratio composition, soft atmospheric backlighting, Octane Render photorealistic studio commercial look, 8K pristine finish --ar ${aspect}.`,
+      voiceover: `${projectName} — Thời lượng pin 40 giờ, biểu tượng đỉnh cao của nghệ thuật cơ khí và âm học tương lai.`,
+      cameraMovement: "Sweeping crane down wide shot settling into 3/4 hero beauty angle",
+    },
+    {
+      sceneNumber: 6,
+      title: "Logo Reveal & Kêu gọi hành động (CTA)",
+      durationSeconds: sceneDurations[5],
+      visualPrompt: `Official vector logo of ${clientName} debossed into matte carbon texture with anamorphic specular light flare sweeping across bevels. Sleek typography subtitle '${projectName} Launch' with animated glowing CTA badge 'Order Now'. Minimalist obsidian background, high-contrast center symmetry, After Effects kinetic typography, 8K ultra-clean commercial lockup --ar ${aspect}.`,
+      voiceover: `${clientName} — Đặt trước ngay hôm nay để nhận ưu đãi giới hạn.`,
+      cameraMovement: "Locked static hero shot with subtle light flare wash across frame",
+    },
+  ];
+
   const detectedObjects = [
     `${projectName} (Sản phẩm chính)`,
-    "Vật liệu hoàn thiện cao cấp",
-    "Logo & Nhận diện vector",
-    "Bảng màu ánh sáng Studio",
+    "Vật liệu hoàn thiện cao cấp (Aerospace Titanium)",
+    "Logo & Nhận diện vector debossed",
+    "Hệ màu ánh sáng Studio 4:1",
   ];
   if (formData.files && formData.files.length > 0) {
     formData.files.slice(0, 3).forEach((f) => {
@@ -119,7 +124,7 @@ export function generateDynamicAiAnalysis(
       targetAudience: `Nhà sáng tạo, chuyên gia công nghệ và khách hàng cao cấp từ 20-45 tuổi (Đa nền tảng).`,
       toneOfVoice: `Cinematic, Tinh tế, Uy quyền công nghệ, Trực quan (${style}).`,
       keyHooks: [
-        `Công nghệ độc quyền từ ${clientName}`,
+        `Công nghệ âm học độc quyền từ ${clientName}`,
         `Thiết kế tối ưu theo phong cách ${style}`,
         `Thời lượng cô đọng ${formData.duration} tối ưu tỷ lệ giữ chân người xem`,
       ],
@@ -152,4 +157,3 @@ export function generateDynamicAiAnalysis(
     scenes,
   };
 }
-
