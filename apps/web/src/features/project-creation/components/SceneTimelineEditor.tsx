@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import type { SceneBreakdownItem } from "../types";
 import { Input, Textarea } from "@/components/ui";
-import { Film, Clock, ChevronLeft, ChevronRight, Copy, Check } from "lucide-react";
+import { Film, Clock, ChevronLeft, ChevronRight, Copy, Check, Wand2 } from "lucide-react";
+import { RegenerateSceneModal } from "./RegenerateSceneModal";
 
 interface SceneTimelineEditorProps {
   scenes: SceneBreakdownItem[];
@@ -18,7 +19,8 @@ export function SceneTimelineEditor({
   onSelectScene,
   onUpdateScene,
 }: SceneTimelineEditorProps): React.ReactElement {
-  const [copied, setCopied] = React.useState(false);
+  const [copied, setCopied] = useState(false);
+  const [showRegenerateModal, setShowRegenerateModal] = useState(false);
   const activeScene = scenes[activeIndex] || scenes[0];
 
   const handleCopyPrompt = () => {
@@ -139,14 +141,24 @@ export function SceneTimelineEditor({
               <label className="text-[10px] font-semibold text-cyan-400 uppercase tracking-wider flex items-center gap-1">
                 Visual Prompt (Prompt tạo hình ảnh / Video AI)
               </label>
-              <button
-                type="button"
-                onClick={handleCopyPrompt}
-                className="text-[10px] text-slate-400 hover:text-cyan-400 flex items-center gap-1 cursor-pointer transition-colors"
-              >
-                {copied ? <Check className="w-2.5 h-2.5 text-emerald-400" /> : <Copy className="w-2.5 h-2.5" />}
-                <span>{copied ? "Đã copy" : "Copy prompt"}</span>
-              </button>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setShowRegenerateModal(true)}
+                  className="text-[10px] text-cyan-300 hover:text-cyan-200 bg-cyan-950/70 border border-cyan-800/50 hover:border-cyan-600 px-2 py-0.5 rounded flex items-center gap-1 cursor-pointer transition-colors shadow-xs"
+                >
+                  <Wand2 className="w-2.5 h-2.5 text-cyan-400" />
+                  <span>Sinh lại cảnh này</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCopyPrompt}
+                  className="text-[10px] text-slate-400 hover:text-cyan-400 flex items-center gap-1 cursor-pointer transition-colors"
+                >
+                  {copied ? <Check className="w-2.5 h-2.5 text-emerald-400" /> : <Copy className="w-2.5 h-2.5" />}
+                  <span>{copied ? "Đã copy" : "Copy prompt"}</span>
+                </button>
+              </div>
             </div>
             <Textarea
               value={activeScene.visualPrompt}
@@ -182,6 +194,19 @@ export function SceneTimelineEditor({
             </div>
           </div>
         </div>
+      )}
+
+      {/* 1-Click AI Single-Scene Regenerator */}
+      {activeScene && (
+        <RegenerateSceneModal
+          isOpen={showRegenerateModal}
+          onClose={() => setShowRegenerateModal(false)}
+          sceneNumber={activeScene.sceneNumber}
+          sceneTitle={activeScene.title}
+          onApplyRegeneration={(updated) => {
+            onUpdateScene(activeIndex, updated);
+          }}
+        />
       )}
     </div>
   );

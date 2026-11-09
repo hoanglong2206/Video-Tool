@@ -168,6 +168,7 @@ export function BriefForm({
               onAddFile={onAddFile}
               onRemoveFile={onRemoveFile}
               onAddDemoFiles={onAddDemoFiles}
+              onAutoExtractedColors={(colors) => onChangeField("brandColors", colors)}
             />
           </div>
 

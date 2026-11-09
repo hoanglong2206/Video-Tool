@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useShallow } from "zustand/react/shallow";
 import { projectService, type CreateProjectInput } from "@/services/project";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { useProjectCreationStore } from "../store";
@@ -33,7 +34,30 @@ export function useProjectCreation() {
     setIsSaving,
     resetForm,
     clearDraft,
-  } = useProjectCreationStore();
+  } = useProjectCreationStore(
+    useShallow((state) => ({
+      step: state.step,
+      formData: state.formData,
+      aiOutput: state.aiOutput,
+      activeAiPipelineStage: state.activeAiPipelineStage,
+      isAnalyzing: state.isAnalyzing,
+      isSaving: state.isSaving,
+      setStep: state.setStep,
+      updateField: state.updateField,
+      addFile: state.addFile,
+      removeFile: state.removeFile,
+      addDemoFiles: state.addDemoFiles,
+      setAiOutput: state.setAiOutput,
+      updateScene: state.updateScene,
+      setActiveAiPipelineStage: state.setActiveAiPipelineStage,
+      _hasHydrated: state._hasHydrated,
+      lastSavedAt: state.lastSavedAt,
+      setIsAnalyzing: state.setIsAnalyzing,
+      setIsSaving: state.setIsSaving,
+      resetForm: state.resetForm,
+      clearDraft: state.clearDraft,
+    }))
+  );
 
   const createProjectMutation = useMutation({
     mutationFn: (data: CreateProjectInput) => projectService.createProject(data),

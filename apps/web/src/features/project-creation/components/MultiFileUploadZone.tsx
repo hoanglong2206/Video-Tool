@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   UploadCloud,
   FileText,
@@ -9,15 +9,18 @@ import {
   Trash2,
   FileCheck,
   Eye,
+  Palette,
 } from "lucide-react";
 import type { UploadedMediaItem, MediaCategory } from "../types";
 import { MediaPreviewDialog } from "./MediaPreviewDialog";
+import { extractPaletteFromImageFile } from "../utils/colorExtractor";
 
 interface MultiFileUploadZoneProps {
   files: UploadedMediaItem[];
   onAddFile: (file: UploadedMediaItem) => void;
   onRemoveFile: (id: string) => void;
   onAddDemoFiles: () => void;
+  onAutoExtractedColors?: (colors: string[], sourceName: string) => void;
 }
 
 export function MultiFileUploadZone({
@@ -25,15 +28,33 @@ export function MultiFileUploadZone({
   onAddFile,
   onRemoveFile,
   onAddDemoFiles,
+  onAutoExtractedColors,
 }: MultiFileUploadZoneProps): React.ReactElement {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const objectUrlsRef = useRef<Set<string>>(new Set());
   const [selectedPreviewFile, setSelectedPreviewFile] = useState<UploadedMediaItem | null>(null);
+  const [extractedBanner, setExtractedBanner] = useState<string | null>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Cleanup object URLs on unmount to completely prevent memory leaks
+  useEffect(() => {
+    const urls = objectUrlsRef.current;
+    return () => {
+      urls.forEach((url) => {
+        try {
+          URL.revokeObjectURL(url);
+        } catch (e) {
+          // ignore
+        }
+      });
+      urls.clear();
+    };
+  }, []);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const uploadedFiles = Array.from(e.target.files);
 
-    uploadedFiles.forEach((f) => {
+    for (const f of uploadedFiles) {
       let category: MediaCategory = "image";
       const name = f.name.toLowerCase();
       if (name.endsWith(".mp4") || name.endsWith(".mov") || name.endsWith(".webm")) {
@@ -42,8 +63,23 @@ export function MultiFileUploadZone({
         category = "pdf";
       } else if (name.endsWith(".doc") || name.endsWith(".docx") || name.endsWith(".txt")) {
         category = "doc";
-      } else if (name.includes("logo")) {
+      } else if (name.includes("logo") || name.endsWith(".svg")) {
         category = "logo";
+      }
+
+      let previewUrl: string | undefined;
+      if (f.type.startsWith("image/")) {
+        previewUrl = URL.createObjectURL(f);
+        objectUrlsRef.current.add(previewUrl);
+
+        // Auto-extract brand color palette from uploaded logo or primary image
+        if (onAutoExtractedColors) {
+          extractPaletteFromImageFile(f).then((colors) => {
+            onAutoExtractedColors(colors, f.name);
+            setExtractedBanner(f.name);
+            setTimeout(() => setExtractedBanner(null), 3500);
+          });
+        }
       }
 
       const sizeStr = `${(f.size / (1024 * 1024)).toFixed(1)} MB`;
@@ -52,13 +88,26 @@ export function MultiFileUploadZone({
         name: f.name,
         size: sizeStr === "0.0 MB" ? `${Math.round(f.size / 1024)} KB` : sizeStr,
         category,
-        previewUrl: f.type.startsWith("image/") ? URL.createObjectURL(f) : undefined,
+        previewUrl,
         visionTags: ["Tài liệu người dùng", category.toUpperCase()],
       };
       onAddFile(newItem);
-    });
+    }
 
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleRemoveItem = (id: string) => {
+    const target = files.find((f) => f.id === id);
+    if (target?.previewUrl && objectUrlsRef.current.has(target.previewUrl)) {
+      try {
+        URL.revokeObjectURL(target.previewUrl);
+        objectUrlsRef.current.delete(target.previewUrl);
+      } catch (e) {
+        // ignore
+      }
+    }
+    onRemoveFile(id);
   };
 
   const getCategoryBadge = (cat: MediaCategory) => {
@@ -80,10 +129,18 @@ export function MultiFileUploadZone({
     <div className="flex-1 min-h-0 flex flex-col gap-2 overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between shrink-0">
-        <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-          <span>Tài liệu & Media ({files.length})</span>
-          <span className="text-[10px] text-slate-400 font-normal lowercase">(click xem popup)</span>
-        </label>
+        <div className="flex items-center gap-2">
+          <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+            <span>Tài liệu & Media ({files.length})</span>
+            <span className="text-[10px] text-slate-400 font-normal lowercase">(click xem popup)</span>
+          </label>
+          {extractedBanner && (
+            <span className="text-[10px] text-cyan-300 bg-cyan-950/70 border border-cyan-700/50 px-2 py-0.5 rounded flex items-center gap-1 animate-pulse">
+              <Palette className="w-2.5 h-2.5 text-cyan-400" />
+              <span>Đã trích màu từ logo</span>
+            </span>
+          )}
+        </div>
         <button
           type="button"
           onClick={onAddDemoFiles}
@@ -102,36 +159,34 @@ export function MultiFileUploadZone({
         onChange={handleFileChange}
       />
 
-      {/* Compact Dropzone Button */}
+      {/* Upload Dropzone */}
       <div
         onClick={() => fileInputRef.current?.click()}
-        className="shrink-0 border border-dashed border-[#242D40] hover:border-blue-500/60 bg-[#0A0D15] hover:bg-[#0E1320] rounded-lg p-2.5 flex items-center justify-between cursor-pointer transition-all group"
+        className="border border-dashed border-[#222E45] hover:border-blue-500/60 bg-[#0B0F17]/90 hover:bg-[#0F1626]/80 rounded-xl p-3 flex items-center justify-between transition-colors cursor-pointer shrink-0"
       >
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-md bg-blue-950/70 border border-blue-800/40 flex items-center justify-center text-blue-400 group-hover:scale-105 transition-transform shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-blue-600/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
             <UploadCloud className="w-4 h-4" />
           </div>
-          <div className="text-left">
-            <span className="text-xs font-medium text-slate-200 block group-hover:text-blue-300">
+          <div>
+            <p className="text-xs font-bold text-slate-200">
               Kéo thả hoặc click để tải thêm file
-            </span>
-            <span className="text-[10px] text-slate-400">
-              Hỗ trợ PNG, JPG, MP4, MOV, PDF, Word, SVG
-            </span>
+            </p>
+            <p className="text-[10px] text-slate-400">
+              Hỗ trợ PNG, JPG, MP4, MOV, PDF, Word, SVG • Tự trích màu Logo
+            </p>
           </div>
         </div>
-        <span className="text-[11px] text-blue-400 bg-blue-950/60 border border-blue-800/40 px-2 py-0.5 rounded font-mono">
+        <span className="text-xs text-blue-400 font-medium px-2.5 py-1 rounded-md bg-blue-950/50 border border-blue-800/40">
           Browse
         </span>
       </div>
 
-      {/* Uploaded Files Gallery - Internal Scroll Only */}
+      {/* Uploaded File Grid */}
       <div className="flex-1 min-h-0 overflow-y-auto pr-1">
         {files.length === 0 ? (
-          <div className="h-full flex items-center justify-center text-center p-4 border border-dashed border-[#1E2638] rounded-lg">
-            <p className="text-xs text-slate-400">
-              Chưa có file nào. Hãy click tải lên hoặc bấm <span className="text-cyan-400">"Nạp file mẫu Aurora X1"</span>.
-            </p>
+          <div className="h-full min-h-[90px] flex flex-col items-center justify-center text-slate-400 text-xs border border-dashed border-[#1C2436] rounded-xl">
+            Chưa có media nào được tải lên
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-2">
@@ -139,10 +194,10 @@ export function MultiFileUploadZone({
               <div
                 key={file.id}
                 onClick={() => setSelectedPreviewFile(file)}
-                className="bg-[#0E131E] border border-[#1E2638] hover:border-blue-500/50 hover:bg-[#121927] rounded-lg p-2 flex items-center gap-2 group relative transition-all cursor-pointer"
+                className="bg-[#0A0D15] border border-[#1E2638] hover:border-blue-500/40 rounded-lg p-2 flex items-center gap-2.5 relative group cursor-pointer transition-colors"
               >
-                {/* Thumbnail */}
-                <div className="w-12 h-10 rounded bg-[#070A10] border border-[#1A2234] flex items-center justify-center shrink-0 overflow-hidden relative">
+                {/* Thumbnail Icon */}
+                <div className="w-9 h-9 rounded-md bg-[#121927] border border-[#223048] flex items-center justify-center shrink-0 overflow-hidden relative">
                   {file.previewUrl ? (
                     <img
                       src={file.previewUrl}
@@ -156,7 +211,6 @@ export function MultiFileUploadZone({
                   ) : (
                     <FileCheck className="w-4 h-4 text-blue-400" />
                   )}
-                  {/* Hover Eye Overlay */}
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                     <Eye className="w-3.5 h-3.5 text-white" />
                   </div>
@@ -180,7 +234,7 @@ export function MultiFileUploadZone({
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    onRemoveFile(file.id);
+                    handleRemoveItem(file.id);
                   }}
                   className="absolute top-2 right-2 w-5 h-5 rounded bg-slate-800/80 hover:bg-red-600 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
                   title="Xoá file"
@@ -198,7 +252,7 @@ export function MultiFileUploadZone({
         file={selectedPreviewFile}
         isOpen={Boolean(selectedPreviewFile)}
         onClose={() => setSelectedPreviewFile(null)}
-        onRemoveFile={onRemoveFile}
+        onRemoveFile={handleRemoveItem}
       />
     </div>
   );
