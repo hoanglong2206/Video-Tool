@@ -32,3 +32,5 @@ export interface RenderQueueItem {
   nextJobTitle?: string;
 }
 
+export type { PerformanceDataPoint, DashboardPerformance } from "@/services/dashboard";
+

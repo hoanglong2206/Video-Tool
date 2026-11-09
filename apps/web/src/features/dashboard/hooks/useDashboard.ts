@@ -18,6 +18,7 @@ export function useDashboard() {
       if (data.projects) store.setProjects(data.projects);
       if (data.approvals) store.setApprovals(data.approvals);
       if (data.renderQueue) store.setRenderQueue(data.renderQueue);
+      if (data.performance) store.setPerformance(data.performance);
     }
   }, [data]);
 
@@ -26,6 +27,7 @@ export function useDashboard() {
     projects: data?.projects || store.projects,
     approvals: data?.approvals || store.approvals,
     renderQueue: data?.renderQueue || store.renderQueue,
+    performance: data?.performance || store.performance,
     isLoading,
     error,
     refetch,

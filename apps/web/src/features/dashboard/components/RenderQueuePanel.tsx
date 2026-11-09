@@ -6,9 +6,10 @@ import { Cpu, Film, Loader2 } from "lucide-react";
 
 interface RenderQueuePanelProps {
   queueItem: RenderQueueItem;
+  gpuName?: string;
 }
 
-export function RenderQueuePanel({ queueItem }: RenderQueuePanelProps): React.ReactElement {
+export function RenderQueuePanel({ queueItem, gpuName }: RenderQueuePanelProps): React.ReactElement {
   const isRendering = queueItem.progress > 0 && queueItem.progress < 100;
 
   return (
@@ -58,7 +59,7 @@ export function RenderQueuePanel({ queueItem }: RenderQueuePanelProps): React.Re
       {/* GPU Worker status footer */}
       <div className="flex items-center justify-between text-[9px] text-slate-400 pt-1.5 border-t border-[#1C2436]/60 shrink-0 font-mono">
         <span className="flex items-center gap-1">
-          <Cpu className="w-2.5 h-2.5 text-emerald-400" /> Node: 2x RTX 4090
+          <Cpu className="w-2.5 h-2.5 text-emerald-400" /> Node: {gpuName || "DirectX 12 Compute"}
         </span>
         <span>Ước tính: ~45s còn lại</span>
       </div>

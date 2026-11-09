@@ -32,10 +32,29 @@ export interface RenderQueueItem {
   nextJobTitle?: string;
 }
 
+export interface PerformanceDataPoint {
+  label: string;
+  date: string;
+  throughput: number;
+  latency: number;
+  renderFps: number;
+}
+
+export interface DashboardPerformance {
+  weeklyData: PerformanceDataPoint[];
+  aiSpeed: string;
+  renderThroughput: string;
+  gpuName: string;
+  gpuVram: string;
+  completionRate: string;
+  trendPercentage: string;
+}
+
 export interface DashboardOverviewResponse {
   stats: DashboardStats;
   projects: ProjectItem[];
   approvals: ApprovalItem[];
   renderQueue: RenderQueueItem;
+  performance?: DashboardPerformance;
 }
 

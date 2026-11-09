@@ -13,7 +13,7 @@ import { RenderQueuePanel } from "./components/RenderQueuePanel";
 
 export function Dashboard(): React.ReactElement {
   const router = useRouter();
-  const { stats, projects, approvals, renderQueue } = useDashboard();
+  const { stats, projects, approvals, renderQueue, performance } = useDashboard();
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#0B0F17] text-slate-100 antialiased select-none">
@@ -37,8 +37,8 @@ export function Dashboard(): React.ReactElement {
           <div className="flex-1 min-h-0 grid grid-cols-12 gap-3 overflow-hidden">
             {/* Left 7 Columns: Analysis Chart + 2 Recent Projects */}
             <div className="col-span-12 lg:col-span-7 xl:col-span-8 flex flex-col gap-2.5 min-h-0 h-full overflow-hidden">
-              {/* Biểu đồ Analysis liên quan */}
-              <AnalysisChart />
+              {/* Biểu đồ Analysis liên quan với dữ liệu thật */}
+              <AnalysisChart performance={performance} />
 
               {/* 2 Dự án gần đây */}
               <RecentTwoProjects projects={projects} />
@@ -47,7 +47,7 @@ export function Dashboard(): React.ReactElement {
             {/* Right 5 Columns: Render Queue & Live Approvals / Milestones */}
             <div className="col-span-12 lg:col-span-5 xl:col-span-4 flex flex-col gap-3 min-h-0 h-full overflow-hidden">
               {/* Tiến độ hàng đợi render */}
-              <RenderQueuePanel queueItem={renderQueue} />
+              <RenderQueuePanel queueItem={renderQueue} gpuName={performance?.gpuName} />
 
               {/* Cần phê duyệt & Nhật ký sự kiện */}
               <ApprovalPanel
