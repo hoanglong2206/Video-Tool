@@ -97,3 +97,4 @@ export function VisionInsightTab({ aiOutput }: VisionInsightTabProps): React.Rea
     </div>
   );
 }
+

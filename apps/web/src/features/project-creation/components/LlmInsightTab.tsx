@@ -82,3 +82,4 @@ export function LlmInsightTab({ aiOutput }: LlmInsightTabProps): React.ReactElem
     </div>
   );
 }
+

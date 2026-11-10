@@ -53,6 +53,7 @@ export default function ProjectsPage(): React.ReactElement {
     try {
       await projectService.updateProjectStatus(project.id, "stopped");
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats() });
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.projects.all });
       setStopModalProject(null);
     } catch (err) {
       console.error("Failed to stop project:", err);
@@ -66,6 +67,7 @@ export default function ProjectsPage(): React.ReactElement {
     try {
       await projectService.updateProjectStatus(project.id, "in_progress");
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats() });
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.projects.all });
       setResumeModalProject(null);
     } catch (err) {
       console.error("Failed to resume project:", err);
@@ -79,6 +81,7 @@ export default function ProjectsPage(): React.ReactElement {
     try {
       await projectService.deleteProject(project.id);
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats() });
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.projects.all });
       setDeleteModalProject(null);
     } catch (err) {
       console.error("Failed to delete project:", err);
