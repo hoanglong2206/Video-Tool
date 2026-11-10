@@ -9,7 +9,7 @@ import type {
 import { EditableBriefForm } from "./EditableBriefForm";
 import { ReferenceMediaBoard } from "./ReferenceMediaBoard";
 import { Button } from "@/components/ui";
-import { ArrowLeft, Sparkles, Loader2, Save } from "lucide-react";
+import { ArrowLeft, Sparkles, Loader2, Save, Shield } from "lucide-react";
 
 interface InspectionStudioViewProps {
   formData: ProjectBriefFormData;
@@ -20,6 +20,8 @@ interface InspectionStudioViewProps {
     value: ProjectBriefFormData[K]
   ) => void;
   onUpdateScene: (index: number, updated: Partial<SceneBreakdownItem>) => void;
+  onRollbackSceneVersion?: (sceneIndex: number, versionNumber: number) => void;
+  onSelectAssetVersion?: (assetId: string, versionNumber: number) => void;
   onBackToInput: () => void;
   onSaveDraft: () => void;
   onConfirmCreate: () => void;
@@ -31,6 +33,8 @@ export function InspectionStudioView({
   isSaving,
   onChangeField,
   onUpdateScene,
+  onRollbackSceneVersion,
+  onSelectAssetVersion,
   onBackToInput,
   onSaveDraft,
   onConfirmCreate,
@@ -39,17 +43,22 @@ export function InspectionStudioView({
     <div className="flex-1 flex flex-col min-h-0 overflow-hidden select-none">
       {/* Top Studio Control Bar */}
       <div className="bg-[#0F172A] border-b border-[#1E2638] px-4 py-2 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="text-xs font-semibold text-emerald-400">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+          <span className="text-xs font-semibold text-emerald-400 truncate">
             Giao diện kiểm tra & Chuẩn hóa Brief
           </span>
-          <span className="text-slate-400 text-xs hidden sm:inline">
-            — Rà soát thông số & 6 phân cảnh AI trước khi sinh Storyboard
+          <span className="text-slate-400 text-xs hidden md:inline truncate">
+            — Rà soát 3D camera, voiceover & lịch sử phân cảnh AI
           </span>
+          {formData.client && (
+            <span className="hidden xl:flex items-center gap-1 text-[10px] bg-blue-950/60 border border-blue-800/40 text-blue-300 px-2 py-0.5 rounded font-mono shrink-0">
+              <Shield className="w-2.5 h-2.5" /> Kit: {formData.client}
+            </span>
+          )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <Button
             type="button"
             variant="outline"
@@ -98,11 +107,13 @@ export function InspectionStudioView({
           aiOutput={aiOutput}
           onChangeField={onChangeField}
           onUpdateScene={onUpdateScene}
+          onRollbackSceneVersion={onRollbackSceneVersion}
         />
 
         <ReferenceMediaBoard
           files={formData.files}
           aiOutput={aiOutput}
+          onSelectAssetVersion={onSelectAssetVersion}
         />
       </div>
     </div>

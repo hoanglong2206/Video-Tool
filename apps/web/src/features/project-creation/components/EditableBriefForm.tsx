@@ -14,6 +14,7 @@ interface EditableBriefFormProps {
     value: ProjectBriefFormData[K]
   ) => void;
   onUpdateScene: (index: number, updated: Partial<SceneBreakdownItem>) => void;
+  onRollbackSceneVersion?: (sceneIndex: number, versionNumber: number) => void;
 }
 
 export function EditableBriefForm({
@@ -21,6 +22,7 @@ export function EditableBriefForm({
   aiOutput,
   onChangeField,
   onUpdateScene,
+  onRollbackSceneVersion,
 }: EditableBriefFormProps): React.ReactElement {
   const [activeSceneIndex, setActiveSceneIndex] = useState<number>(0);
 
@@ -72,7 +74,7 @@ export function EditableBriefForm({
           </div>
         </div>
 
-        {/* 2 Columns Bottom Row: Core message & Audience */}
+        {/* 2 Columns Bottom Row */}
         <div className="grid grid-cols-2 gap-2.5">
           <div>
             <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-0.5">
@@ -99,13 +101,14 @@ export function EditableBriefForm({
         </div>
       </div>
 
-      {/* 2. Storyboard 6 Scenes Studio */}
+      {/* 2. Storyboard 6 Scenes Studio with Version History & 3D Parameters */}
       <div className="flex-1 min-h-0 bg-[#101520] border border-[#1C2436] rounded-xl p-3 flex flex-col overflow-hidden">
         <SceneTimelineEditor
           scenes={aiOutput.scenes}
           activeIndex={activeSceneIndex}
           onSelectScene={setActiveSceneIndex}
           onUpdateScene={onUpdateScene}
+          onRollbackVersion={(verNum) => onRollbackSceneVersion && onRollbackSceneVersion(activeSceneIndex, verNum)}
         />
       </div>
     </div>

@@ -27,6 +27,10 @@ export function useProjectCreation() {
     addDemoFiles,
     setAiOutput,
     updateScene,
+    rollbackSceneVersion,
+    selectAssetVersion,
+    applyBrandKit,
+    applySceneTemplate,
     setActiveAiPipelineStage,
     _hasHydrated,
     lastSavedAt,
@@ -49,6 +53,10 @@ export function useProjectCreation() {
       addDemoFiles: state.addDemoFiles,
       setAiOutput: state.setAiOutput,
       updateScene: state.updateScene,
+      rollbackSceneVersion: state.rollbackSceneVersion,
+      selectAssetVersion: state.selectAssetVersion,
+      applyBrandKit: state.applyBrandKit,
+      applySceneTemplate: state.applySceneTemplate,
       setActiveAiPipelineStage: state.setActiveAiPipelineStage,
       _hasHydrated: state._hasHydrated,
       lastSavedAt: state.lastSavedAt,
@@ -62,7 +70,6 @@ export function useProjectCreation() {
   const createProjectMutation = useMutation({
     mutationFn: (data: CreateProjectInput) => projectService.createProject(data),
     onSuccess: (project) => {
-      // Clear persistent draft on successful creation
       clearDraft();
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.projects.all });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.all });
@@ -80,17 +87,14 @@ export function useProjectCreation() {
     },
   });
 
-  // Orchestrate the 4-component AI pipeline with visual stage progression & dynamic analysis
   const handleRunAiPipeline = async (): Promise<void> => {
     setIsAnalyzing(true);
     setStep("processing");
 
-    // Compute dynamic, contextual analysis matching current project form data
     const dynamicOutput = generateDynamicAiAnalysis(formData);
     setAiOutput(dynamicOutput);
 
     try {
-      // Stage 1: LLM
       setActiveAiPipelineStage(1);
       try {
         await projectService.checkBrief({
@@ -98,28 +102,22 @@ export function useProjectCreation() {
           project_name: formData.projectName,
           client: formData.client,
         });
-      } catch (e) {
-        // Fallback gracefully to dynamicOutput
+      } catch (err) {
+        console.warn("LLM Service fallback engaged:", err);
       }
-      await new Promise((r) => setTimeout(r, 900));
+      await new Promise((r) => setTimeout(r, 700));
 
-      // Stage 2: Vision AI
       setActiveAiPipelineStage(2);
-      await new Promise((r) => setTimeout(r, 1000));
-
-      // Stage 3: Prompt Builder
-      setActiveAiPipelineStage(3);
-      await new Promise((r) => setTimeout(r, 900));
-
-      // Stage 4: JSON Schema Validator
-      setActiveAiPipelineStage(4);
       await new Promise((r) => setTimeout(r, 800));
 
-      // Mark analysis complete (stage 5 = 100% completed for all 4 stages)
+      setActiveAiPipelineStage(3);
+      await new Promise((r) => setTimeout(r, 700));
+
+      setActiveAiPipelineStage(4);
+      await new Promise((r) => setTimeout(r, 600));
+
       setActiveAiPipelineStage(5);
-      setIsAnalyzing(false);
-    } catch (err) {
-      console.error("AI Pipeline error:", err);
+    } finally {
       setIsAnalyzing(false);
     }
   };
@@ -189,6 +187,10 @@ export function useProjectCreation() {
     addDemoFiles,
     setAiOutput,
     updateScene,
+    rollbackSceneVersion,
+    selectAssetVersion,
+    applyBrandKit,
+    applySceneTemplate,
     handleRunAiPipeline,
     handleConfirmAndCreateProject,
     handleSaveDraft,

@@ -24,6 +24,10 @@ export function ProjectCreation(): React.ReactElement {
     removeFile,
     addDemoFiles,
     updateScene,
+    rollbackSceneVersion,
+    selectAssetVersion,
+    applyBrandKit,
+    applySceneTemplate,
     handleRunAiPipeline,
     handleConfirmAndCreateProject,
     handleSaveDraft,
@@ -55,6 +59,8 @@ export function ProjectCreation(): React.ReactElement {
               onAddFile={addFile}
               onRemoveFile={removeFile}
               onAddDemoFiles={addDemoFiles}
+              onSelectBrandKit={applyBrandKit}
+              onSelectTemplate={applySceneTemplate}
               onSubmitAnalyze={handleRunAiPipeline}
             />
           )}
@@ -77,6 +83,8 @@ export function ProjectCreation(): React.ReactElement {
               isSaving={isSaving}
               onChangeField={updateField}
               onUpdateScene={updateScene}
+              onRollbackSceneVersion={rollbackSceneVersion}
+              onSelectAssetVersion={selectAssetVersion}
               onBackToInput={() => setStep("input")}
               onSaveDraft={handleSaveDraft}
               onConfirmCreate={handleConfirmAndCreateProject}

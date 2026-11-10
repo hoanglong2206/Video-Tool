@@ -2,9 +2,9 @@
 
 import React from "react";
 import type { ProjectBriefFormData, UploadedMediaItem } from "../types";
+import { BrandKitPicker } from "./BrandKitPicker";
+import { SceneTemplatePicker } from "./SceneTemplatePicker";
 import { MultiFileUploadZone } from "./MultiFileUploadZone";
-import { VisualStyleSelector } from "./VisualStyleSelector";
-import { BrandPaletteSelector } from "./BrandPaletteSelector";
 import { AudioAtmosphereSelector } from "./AudioAtmosphereSelector";
 import { mergeColorPalettes } from "../utils/colorExtractor";
 import { Input, Textarea, Button } from "@/components/ui";
@@ -19,6 +19,8 @@ interface BriefFormProps {
   onAddFile: (file: UploadedMediaItem) => void;
   onRemoveFile: (id: string) => void;
   onAddDemoFiles: () => void;
+  onSelectBrandKit?: (kitId: string) => void;
+  onSelectTemplate?: (templateId: string) => void;
   onSubmitAnalyze: () => void;
 }
 
@@ -28,12 +30,14 @@ export function BriefForm({
   onAddFile,
   onRemoveFile,
   onAddDemoFiles,
+  onSelectBrandKit,
+  onSelectTemplate,
   onSubmitAnalyze,
 }: BriefFormProps): React.ReactElement {
   return (
     <div className="flex-1 h-full min-h-0 w-full flex flex-col p-4 gap-3 overflow-hidden select-none">
-      {/* Top Banner with Action CTA relocated here */}
-      <div className="bg-linear-to-tr from-[#121826] to-[#0D121D] border border-[#1E2638] rounded-xl px-4 py-2.5 flex items-center justify-between shrink-0">
+      {/* Top Banner with Action CTA */}
+      <div className="bg-gradient-to-r from-[#121826] to-[#0D121D] border border-[#1E2638] rounded-xl px-4 py-2.5 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="w-7 h-7 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0">
             <Sparkles className="w-4 h-4" />
@@ -46,12 +50,11 @@ export function BriefForm({
               </span>
             </h2>
             <p className="text-[11px] text-slate-400 truncate">
-              Nhập brief và media, AI sẽ phân tích kịch bản, vision, prompt chuẩn hóa và schema đầu ra.
+              Tích hợp Brand Kit V2, Mẫu layout phân cảnh và phân luồng âm thanh đa kênh tự động.
             </p>
           </div>
         </div>
 
-        {/* Right side of Banner: Agent Indicators + Primary Launch CTA Button */}
         <div className="flex items-center gap-3 shrink-0">
           <div className="hidden xl:flex items-center gap-2 text-[10px] font-mono text-slate-400 border-r border-[#1E2638] pr-3">
             <span className="flex items-center gap-1 text-slate-300">
@@ -63,18 +66,18 @@ export function BriefForm({
             </span>
             <span>•</span>
             <span className="flex items-center gap-1 text-slate-300">
-              <CheckCircle2 className="w-3 h-3 text-indigo-400" /> Prompt Studio
+              <CheckCircle2 className="w-3 h-3 text-indigo-400" /> Spatial 3D
             </span>
             <span>•</span>
             <span className="flex items-center gap-1 text-slate-300">
-              <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Schema
+              <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Audio Sync
             </span>
           </div>
 
           <Button
             type="button"
             onClick={onSubmitAnalyze}
-            className="bg-linear-to-tr from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-xs h-8.5 px-4 rounded-lg shadow-md shadow-blue-500/25 flex items-center gap-2 cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99] shrink-0"
+            className="bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-xs h-8.5 px-4 rounded-lg shadow-md shadow-blue-500/25 flex items-center gap-2 cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99] shrink-0"
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>Khởi chạy Phân tích AI ➔</span>
@@ -82,9 +85,9 @@ export function BriefForm({
         </div>
       </div>
 
-      {/* Main 2-Column Grid - Equal Gaps & Perfectly Balanced Heights */}
+      {/* Main 2-Column Grid */}
       <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-3.5 overflow-hidden">
-        {/* Left Column: Metadata & Brief + Visual Style + Brand Palette */}
+        {/* Left Column: Metadata & Brief + Brand Kit + Scene Template */}
         <div className="flex flex-col gap-3 min-h-0 h-full overflow-hidden">
           {/* Left Card 1: Project Metadata & Brief */}
           <div className="flex-1 min-h-0 bg-[#0F141F] border border-[#1C2436] rounded-xl p-3.5 flex flex-col gap-2.5 overflow-hidden">
@@ -97,7 +100,7 @@ export function BriefForm({
                   value={formData.projectName}
                   placeholder="Ví dụ: Aurora X1 Launch Commercial"
                   onChange={(e) => onChangeField("projectName", e.target.value)}
-                  className="bg-[#0E131E] border-[#1E2638] focus:border-blue-500 h-8 text-xs"
+                  className="bg-[#0E131E] border-[#1E2638] focus:border-blue-500 h-8 text-xs font-semibold"
                 />
               </div>
 
@@ -141,28 +144,26 @@ export function BriefForm({
             </div>
           </div>
 
-          {/* Left Card 2: Interactive Visual Style Selector */}
-          <div className="shrink-0 bg-[#0F141F] border border-[#1C2436] rounded-xl p-3.5 flex flex-col">
-            <VisualStyleSelector
-              value={formData.stylePreference}
-              onChange={(val) => onChangeField("stylePreference", val)}
+          {/* Left Card 2: Brand Kit 1-Click Picker */}
+          <div className="shrink-0 bg-[#0F141F] border border-[#1C2436] rounded-xl p-3 flex flex-col">
+            <BrandKitPicker
+              selectedKitId={formData.brandKitId}
+              onSelectKit={(kitId) => onSelectBrandKit && onSelectBrandKit(kitId)}
             />
           </div>
 
-          {/* Left Card 3: Interactive Brand Palette Selector */}
-          <div className="shrink-0 bg-[#0F141F] border border-[#1C2436] rounded-xl p-3.5 flex flex-col">
-            <BrandPaletteSelector
-              colors={formData.brandColors}
-              typeface={formData.typeface}
-              onChangeColors={(c) => onChangeField("brandColors", c)}
-              onChangeTypeface={(f) => onChangeField("typeface", f)}
+          {/* Left Card 3: Scene Template Quick Picker */}
+          <div className="shrink-0 bg-[#0F141F] border border-[#1C2436] rounded-xl p-3 flex flex-col">
+            <SceneTemplatePicker
+              selectedTemplateId={formData.templateId}
+              onSelectTemplate={(tmplId) => onSelectTemplate && onSelectTemplate(tmplId)}
             />
           </div>
         </div>
 
-        {/* Right Column: Tài liệu & Media + Âm thanh & Giọng đọc AI + Cấu hình Sản xuất */}
+        {/* Right Column: Media Upload + Multi-Track Audio + Production Specs */}
         <div className="flex flex-col gap-3 min-h-0 h-full overflow-hidden">
-          {/* Right Card 1: Media Zone with Internal Scroll */}
+          {/* Right Card 1: Media Zone */}
           <div className="flex-1 min-h-0 bg-[#0F141F] border border-[#1C2436] rounded-xl p-3.5 flex flex-col overflow-hidden">
             <MultiFileUploadZone
               files={formData.files}
@@ -176,13 +177,15 @@ export function BriefForm({
             />
           </div>
 
-          {/* Right Card 2: Âm thanh & Nhạc nền AI (Purely Audio & Soundtrack) */}
+          {/* Right Card 2: Âm thanh & Multi-Track Audio */}
           <div className="shrink-0 bg-[#0F141F] border border-[#1C2436] rounded-xl p-3.5 flex flex-col">
             <AudioAtmosphereSelector
               bgmMood={formData.bgmMood}
               soundMode={formData.soundMode}
+              autoDucking={formData.autoDucking}
               onChangeBgm={(b) => onChangeField("bgmMood", b)}
               onChangeSoundMode={(m) => onChangeField("soundMode", m)}
+              onToggleAutoDucking={(d) => onChangeField("autoDucking", d)}
             />
           </div>
 

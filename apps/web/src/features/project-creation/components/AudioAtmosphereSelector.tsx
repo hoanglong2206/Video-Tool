@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Volume2, Sparkles, Check, Music, Wand2, Disc, Waves, Zap, Flame } from "lucide-react";
+import { Volume2, Sparkles, Check, Wand2, Disc, Waves, Zap, Flame, Mic } from "lucide-react";
 
 export interface BgmPreset {
   id: string;
@@ -47,28 +47,31 @@ const AUTO_AUDIO_ID = "AI Auto-Mix (Tự động theo Kịch bản)";
 interface AudioAtmosphereSelectorProps {
   bgmMood?: string;
   soundMode?: string;
+  autoDucking?: boolean;
+  voiceoverVoice?: string;
   onChangeBgm: (bgm: string) => void;
   onChangeSoundMode?: (mode: string) => void;
+  onToggleAutoDucking?: (enabled: boolean) => void;
 }
 
 export function AudioAtmosphereSelector({
   bgmMood = "Cinematic Epic",
   soundMode = "full",
+  autoDucking = true,
   onChangeBgm,
   onChangeSoundMode,
+  onToggleAutoDucking,
 }: AudioAtmosphereSelectorProps): React.ReactElement {
   const isAuto = bgmMood === AUTO_AUDIO_ID || bgmMood.toLowerCase().includes("auto");
 
   return (
     <div className="flex flex-col gap-2">
-      {/* Header with smart AI Auto-detect action for when client has no specific sound requirement */}
       <div className="flex items-center justify-between">
         <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
           <Volume2 className="w-3.5 h-3.5 text-cyan-400" />
-          <span>Âm thanh & Nhạc nền AI (Audio & Soundtrack)</span>
+          <span>Âm thanh & Nhạc nền AI (Audio & Multi-Track)</span>
         </label>
 
-        {/* Solution for when client has no requirement */}
         <button
           type="button"
           onClick={() => onChangeBgm(isAuto ? "Cinematic Epic" : AUTO_AUDIO_ID)}
@@ -84,7 +87,7 @@ export function AudioAtmosphereSelector({
         </button>
       </div>
 
-      {/* Preset Cards Grid (2x2) - Matches VisualStyleSelector height */}
+      {/* Preset Cards Grid (2x2) */}
       <div className="grid grid-cols-2 gap-2">
         {BGM_PRESETS.map((preset) => {
           const isSelected = !isAuto && (bgmMood.toLowerCase().includes(preset.id.toLowerCase()) || bgmMood === preset.name);
@@ -105,9 +108,7 @@ export function AudioAtmosphereSelector({
                 <div className="flex items-center gap-1.5 min-w-0">
                   <div
                     className={`w-5 h-5 rounded flex items-center justify-center shrink-0 ${
-                      isSelected
-                        ? "bg-cyan-600 text-white"
-                        : "bg-[#182030] text-slate-400 group-hover:text-cyan-400"
+                      isSelected ? "bg-cyan-600 text-white" : "bg-[#182030] text-slate-400 group-hover:text-cyan-400"
                     }`}
                   >
                     <Icon className="w-3 h-3" />
@@ -134,44 +135,47 @@ export function AudioAtmosphereSelector({
         })}
       </div>
 
-      {/* Auto info banner or Sound Mode Pills */}
-      {isAuto ? (
-        <div className="h-7 px-2.5 rounded bg-cyan-950/40 border border-cyan-800/40 flex items-center justify-between text-[11px] text-cyan-300">
-          <span className="flex items-center gap-1.5 truncate">
-            <Sparkles className="w-3 h-3 text-cyan-400 shrink-0" />
-            <span>AI sẽ tự phân tích nhịp độ video và phối BGM + SFX khớp từng cảnh</span>
-          </span>
-          <span className="text-[9px] font-mono text-emerald-400 shrink-0">Auto Audio</span>
+      {/* Auto-Ducking Switch & Sound Mode Pills */}
+      <div className="flex items-center justify-between gap-2 h-7 bg-[#0E131E] border border-[#1E2638] rounded-lg px-2 text-[10px]">
+        {/* Auto Ducking Toggle */}
+        <label
+          className="flex items-center gap-1.5 text-slate-300 cursor-pointer select-none"
+          title="Tự động hạ âm lượng nhạc nền khi có lời bình voiceover"
+        >
+          <input
+            type="checkbox"
+            checked={autoDucking}
+            onChange={(e) => onToggleAutoDucking && onToggleAutoDucking(e.target.checked)}
+            className="w-3 h-3 rounded accent-cyan-500 cursor-pointer"
+          />
+          <span className="font-medium">Auto-Ducking Beat</span>
+        </label>
+
+        {/* Sound Mode Quick Switch */}
+        <div className="flex items-center gap-1">
+          {[
+            { id: "full", label: "Full BGM + SFX" },
+            { id: "bgm_only", label: "Chỉ BGM" },
+            { id: "voice_only", label: "Voiceover" },
+          ].map((mode) => {
+            const active = soundMode === mode.id;
+            return (
+              <button
+                key={mode.id}
+                type="button"
+                onClick={() => onChangeSoundMode && onChangeSoundMode(mode.id)}
+                className={`px-1.5 py-0.5 rounded font-mono transition-colors cursor-pointer ${
+                  active
+                    ? "bg-cyan-600 text-white font-bold"
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                {mode.label}
+              </button>
+            );
+          })}
         </div>
-      ) : (
-        <div className="flex items-center justify-between gap-1 h-7">
-          <span className="text-[10px] text-slate-400 shrink-0">Hiệu ứng SFX:</span>
-          <div className="grid grid-cols-4 gap-1 flex-1 min-w-0">
-            {[
-              { id: "full", label: "BGM + SFX FX" },
-              { id: "bgm_only", label: "Chỉ BGM" },
-              { id: "sfx_only", label: "Chỉ SFX" },
-              { id: "mute", label: "Mute" },
-            ].map((mode) => {
-              const active = soundMode === mode.id;
-              return (
-                <button
-                  key={mode.id}
-                  type="button"
-                  onClick={() => onChangeSoundMode && onChangeSoundMode(mode.id)}
-                  className={`py-1 text-[10px] rounded font-medium transition-colors cursor-pointer border truncate ${
-                    active
-                      ? "bg-cyan-600 text-white font-bold border-cyan-500"
-                      : "bg-[#0E131E] text-slate-400 border-[#1E2638] hover:text-slate-200"
-                  }`}
-                >
-                  {mode.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 }
