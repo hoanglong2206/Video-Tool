@@ -1,9 +1,13 @@
+import logging
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from server.backend.src.core.config import settings
 from server.backend.src.api.routers import health, dashboard, projects, workflow, storyboard, assets, scenes, threed, approvals, library, render, assistant, events
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -30,6 +34,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    """Ensure any unhandled server exception preserves CORS headers and returns structured JSON."""
+    logger.exception("Unhandled server exception at %s: %s", request.url.path, exc)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": str(exc) if settings.DEBUG else "An unexpected server error occurred."},
+    )
+
 
 # Register routers
 app.include_router(health.router)

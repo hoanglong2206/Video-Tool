@@ -51,11 +51,16 @@ apiClient.interceptors.response.use(
   },
   (error: AxiosError<{ detail?: string; message?: string }>) => {
     const status = error.response?.status;
-    const detail =
+    let detail =
       error.response?.data?.detail ||
       error.response?.data?.message ||
-      error.message ||
-      "An unexpected server error occurred";
+      error.message;
+
+    if (!error.response && error.message === "Network Error") {
+      detail = `Network Error: Cannot connect to API server at ${API_BASE_URL}. Please check if the backend service is running.`;
+    } else if (!detail) {
+      detail = "An unexpected server error occurred";
+    }
 
     const apiError = new ApiError({
       message: typeof detail === "string" ? detail : JSON.stringify(detail),
