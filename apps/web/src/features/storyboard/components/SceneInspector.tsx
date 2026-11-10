@@ -2,11 +2,9 @@
 
 import React, { useState } from "react";
 import type { StoryboardScene } from "../types";
-import { Sparkles, Camera, Volume2, Sliders, Copy, Trash2 } from "lucide-react";
-import { InspectorVisualTab } from "./inspector/InspectorVisualTab";
-import { InspectorCameraTab } from "./inspector/InspectorCameraTab";
-import { InspectorAudioTab } from "./inspector/InspectorAudioTab";
-import { InspectorSettingsTab } from "./inspector/InspectorSettingsTab";
+import { Sparkles, Camera, Copy, Trash2 } from "lucide-react";
+import { InspectorScriptTab } from "./inspector/InspectorScriptTab";
+import { InspectorCinematographyTab } from "./inspector/InspectorCinematographyTab";
 
 interface SceneInspectorProps {
   scene: StoryboardScene;
@@ -23,12 +21,12 @@ export function SceneInspector({
   onRemove,
   onRegenerateFrame,
 }: SceneInspectorProps): React.ReactElement {
-  const [activeTab, setActiveTab] = useState<"visual" | "camera" | "audio" | "settings">("visual");
+  const [activeTab, setActiveTab] = useState<"script" | "cinematography">("script");
 
   return (
-    <aside className="w-[380px] xl:w-[420px] border-l border-[#1E2638] bg-[#0A0E17] flex flex-col shrink-0 select-none overflow-hidden h-full">
-      {/* 1. Header with Scene Info */}
-      <div className="p-3.5 border-b border-[#1C2436] flex items-center justify-between shrink-0 bg-[#0F1422]">
+    <aside className="w-[360px] xl:w-[400px] border-l border-[#1E2638] bg-[#0A0E17] flex flex-col shrink-0 select-none overflow-hidden h-full">
+      {/* 1. Header with Scene Info & Actions */}
+      <div className="p-3 border-b border-[#1C2436] flex items-center justify-between shrink-0 bg-[#0F1422]">
         <div className="flex items-center gap-2 min-w-0">
           <span className="font-mono text-[10px] font-bold bg-blue-950 text-blue-400 border border-blue-800/60 px-1.5 py-0.5 rounded shrink-0">
             CẢNH 0{scene.sceneNumber}
@@ -43,7 +41,7 @@ export function SceneInspector({
             type="button"
             onClick={onDuplicate}
             className="p-1 rounded bg-[#161F30] hover:bg-[#202C44] text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
-            title="Nhân bản"
+            title="Nhân bản phân cảnh này"
           >
             <Copy className="w-3.5 h-3.5" />
           </button>
@@ -51,76 +49,49 @@ export function SceneInspector({
             type="button"
             onClick={onRemove}
             className="p-1 rounded bg-[#161F30] hover:bg-red-950/80 text-slate-400 hover:text-red-400 transition-colors cursor-pointer"
-            title="Xóa cảnh"
+            title="Xóa phân cảnh này"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
 
-      {/* 2. Inspector Tabs Switcher */}
-      <div className="grid grid-cols-4 p-1 bg-[#0D121F] border-b border-[#1C2436] text-[10.5px] font-medium shrink-0">
+      {/* 2. 2-Tab Switcher: Script & Visual vs 3D & Settings */}
+      <div className="grid grid-cols-2 p-1 bg-[#0D121F] border-b border-[#1C2436] text-xs font-medium shrink-0">
         <button
           type="button"
-          onClick={() => setActiveTab("visual")}
-          className={`py-1.5 rounded flex items-center justify-center gap-1 transition-colors cursor-pointer ${
-            activeTab === "visual" ? "bg-blue-600 text-white font-bold" : "text-slate-400 hover:text-slate-200"
+          onClick={() => setActiveTab("script")}
+          className={`py-1.5 rounded flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
+            activeTab === "script" ? "bg-blue-600 text-white font-bold shadow-xs" : "text-slate-400 hover:text-slate-200"
           }`}
         >
-          <Sparkles className="w-3 h-3" /> Visual
+          <Sparkles className="w-3.5 h-3.5 text-cyan-300" />
+          <span>Visual & Lời thoại</span>
         </button>
+
         <button
           type="button"
-          onClick={() => setActiveTab("camera")}
-          className={`py-1.5 rounded flex items-center justify-center gap-1 transition-colors cursor-pointer ${
-            activeTab === "camera" ? "bg-blue-600 text-white font-bold" : "text-slate-400 hover:text-slate-200"
+          onClick={() => setActiveTab("cinematography")}
+          className={`py-1.5 rounded flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
+            activeTab === "cinematography" ? "bg-blue-600 text-white font-bold shadow-xs" : "text-slate-400 hover:text-slate-200"
           }`}
         >
-          <Camera className="w-3 h-3" /> 3D Lens
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab("audio")}
-          className={`py-1.5 rounded flex items-center justify-center gap-1 transition-colors cursor-pointer ${
-            activeTab === "audio" ? "bg-blue-600 text-white font-bold" : "text-slate-400 hover:text-slate-200"
-          }`}
-        >
-          <Volume2 className="w-3 h-3" /> Thoại
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab("settings")}
-          className={`py-1.5 rounded flex items-center justify-center gap-1 transition-colors cursor-pointer ${
-            activeTab === "settings" ? "bg-blue-600 text-white font-bold" : "text-slate-400 hover:text-slate-200"
-          }`}
-        >
-          <Sliders className="w-3 h-3" /> Cài đặt
+          <Camera className="w-3.5 h-3.5 text-indigo-300" />
+          <span>Camera 3D & Cài đặt</span>
         </button>
       </div>
 
-      {/* 3. Tab Body: Cuộn nội bộ */}
-      <div className="flex-1 min-h-0 overflow-y-auto p-3.5 flex flex-col gap-3">
-        {activeTab === "visual" && (
-          <InspectorVisualTab
+      {/* 3. Tab Body: Cuộn nội bộ mượt mà */}
+      <div className="flex-1 min-h-0 overflow-y-auto p-3.5 flex flex-col">
+        {activeTab === "script" && (
+          <InspectorScriptTab
             scene={scene}
             onChangeField={onChangeField}
             onRegenerateFrame={onRegenerateFrame}
           />
         )}
-        {activeTab === "camera" && (
-          <InspectorCameraTab
-            scene={scene}
-            onChangeField={onChangeField}
-          />
-        )}
-        {activeTab === "audio" && (
-          <InspectorAudioTab
-            scene={scene}
-            onChangeField={onChangeField}
-          />
-        )}
-        {activeTab === "settings" && (
-          <InspectorSettingsTab
+        {activeTab === "cinematography" && (
+          <InspectorCinematographyTab
             scene={scene}
             onChangeField={onChangeField}
           />

@@ -42,7 +42,7 @@ export function AnimaticsPreviewModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl bg-[#070A10] border-[#1E2638] p-4 rounded-2xl shadow-2xl text-slate-100 flex flex-col gap-3">
+      <DialogContent className="max-w-4xl bg-[#070A10] border-[#1E2638] p-4 rounded-2xl shadow-2xl text-slate-100 flex flex-col gap-3 [&>button:last-child]:hidden">
         <DialogTitle className="sr-only">Trình chiếu Animatics Storyboard</DialogTitle>
         {/* Header bar */}
         <div className="flex items-center justify-between pb-2 border-b border-[#1C2436]">

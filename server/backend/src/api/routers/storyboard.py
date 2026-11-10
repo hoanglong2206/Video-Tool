@@ -41,8 +41,9 @@ def _build_scene_dto(s: SceneModel, idx: int = 0) -> StoryboardSceneDTO:
     voiceover = s.voiceover_text or props.get("voiceover") or s.creative_direction or ""
 
     versions_dto: list[SceneVersionItemDTO] = []
-    if hasattr(s, "versions") and s.versions:
-        for v in s.versions:
+    versions_raw = s.__dict__.get("versions")
+    if versions_raw and isinstance(versions_raw, (list, tuple)):
+        for v in versions_raw:
             versions_dto.append(
                 SceneVersionItemDTO(
                     versionNumber=v.version_number,

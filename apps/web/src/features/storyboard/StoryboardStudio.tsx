@@ -83,14 +83,8 @@ export function StoryboardStudio({
             isLoading={isLoading || isGenerating}
             onSelectScene={setSelectedSceneId}
             onAddScene={handleAddScene}
-            onDuplicateScene={(id) => {
-              setSelectedSceneId(id);
-              handleDuplicate();
-            }}
-            onRemoveScene={(id) => {
-              setSelectedSceneId(id);
-              handleRemove();
-            }}
+            onDuplicateScene={(id) => handleDuplicate(id)}
+            onRemoveScene={(id) => handleRemove(id)}
             onMoveScene={handleMoveScene}
             onOpenPreview={setLightboxImageUrl}
           />
@@ -98,8 +92,8 @@ export function StoryboardStudio({
           <SceneInspector
             scene={selectedScene}
             onChangeField={updateSelectedScene}
-            onDuplicate={handleDuplicate}
-            onRemove={handleRemove}
+            onDuplicate={() => handleDuplicate(selectedScene.id)}
+            onRemove={() => handleRemove(selectedScene.id)}
             onRegenerateFrame={handleGenerateWithAi}
           />
         </main>

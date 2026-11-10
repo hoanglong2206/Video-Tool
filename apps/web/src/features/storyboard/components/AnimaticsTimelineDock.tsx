@@ -27,6 +27,7 @@ export function AnimaticsTimelineDock({
 }: AnimaticsTimelineDockProps): React.ReactElement {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Auto-play timer
   useEffect(() => {
     if (isPlaying) {
       timerRef.current = setInterval(() => {
@@ -40,16 +41,31 @@ export function AnimaticsTimelineDock({
     };
   }, [isPlaying, currentTime, totalDuration, onSeek]);
 
-  // Determine active scene based on currentTime
+  // Synchronize Playhead when user selects scene while not playing
+  useEffect(() => {
+    if (isPlaying || !selectedSceneId || scenes.length === 0) return;
+    let acc = 0;
+    for (const s of scenes) {
+      if (s.id === selectedSceneId) {
+        onSeek(acc);
+        break;
+      }
+      acc += s.durationSeconds;
+    }
+  }, [selectedSceneId, isPlaying, scenes, onSeek]);
+
+  // Determine active scene
   let accumulatedTime = 0;
-  let currentActiveSceneId = selectedSceneId;
+  let playingActiveSceneId = selectedSceneId;
   for (const s of scenes) {
     if (currentTime >= accumulatedTime && currentTime < accumulatedTime + s.durationSeconds) {
-      currentActiveSceneId = s.id;
+      playingActiveSceneId = s.id;
       break;
     }
     accumulatedTime += s.durationSeconds;
   }
+
+  const effectiveActiveId = isPlaying ? playingActiveSceneId : selectedSceneId;
 
   return (
     <div className="h-14 bg-[#090D15] border-t border-[#1C2436] px-4 flex items-center gap-4 shrink-0 select-none">
@@ -86,21 +102,20 @@ export function AnimaticsTimelineDock({
         {/* Playhead Indicator */}
         {totalDuration > 0 && (
           <div
-            className="absolute top-0 bottom-0 w-0.5 bg-cyan-400 z-10 shadow-[0_0_8px_#22d3ee] pointer-events-none transition-all duration-300"
-            style={{ left: `${(currentTime / totalDuration) * 100}%` }}
+            className="absolute top-0 bottom-0 w-0.5 bg-cyan-400 z-10 shadow-[0_0_8px_#22d3ee] pointer-events-none transition-all duration-200"
+            style={{ left: `${Math.min(100, Math.max(0, (currentTime / totalDuration) * 100))}%` }}
           />
         )}
 
         {scenes.map((scene) => {
           const widthPercent = totalDuration > 0 ? (scene.durationSeconds / totalDuration) * 100 : 16.6;
-          const isCurrent = scene.id === currentActiveSceneId;
+          const isCurrent = scene.id === effectiveActiveId;
           return (
             <button
               key={scene.id}
               type="button"
               onClick={() => {
                 onSelectScene(scene.id);
-                // Seek to start of this scene
                 let acc = 0;
                 for (const s of scenes) {
                   if (s.id === scene.id) break;
@@ -111,7 +126,7 @@ export function AnimaticsTimelineDock({
               style={{ width: `${widthPercent}%` }}
               className={`h-full rounded text-[10px] font-mono flex items-center justify-between px-2 transition-all cursor-pointer relative truncate ${
                 isCurrent
-                  ? "bg-blue-900/80 text-white border border-blue-500 shadow-xs"
+                  ? "bg-blue-900/80 text-white border border-blue-500 shadow-xs ring-1 ring-blue-400/40"
                   : "bg-[#101625] text-slate-400 hover:bg-[#151D2F] border border-transparent"
               }`}
               title={`${scene.title} (${scene.durationSeconds}s)`}

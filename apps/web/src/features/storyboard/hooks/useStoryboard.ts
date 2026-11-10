@@ -138,27 +138,34 @@ export function useStoryboard(
     });
   };
 
-  const handleDuplicate = () => {
-    if (!selectedScene) return;
+  const handleDuplicate = (targetSceneId?: string) => {
+    const target = targetSceneId
+      ? store.scenes.find((s) => s.id === targetSceneId)
+      : selectedScene;
+    if (!target) return;
     addSceneMutation.mutate({
-      title: `${selectedScene.title} (Bản sao)`,
-      durationSeconds: selectedScene.durationSeconds,
-      cameraMovement: selectedScene.cameraMovement,
-      visualPrompt: selectedScene.visualPrompt,
-      voiceover: selectedScene.voiceover,
-      cameraLens: selectedScene.cameraLens,
+      title: `${target.title} (Bản sao)`,
+      durationSeconds: target.durationSeconds,
+      cameraMovement: target.cameraMovement,
+      visualPrompt: target.visualPrompt,
+      voiceover: target.voiceover,
+      cameraLens: target.cameraLens,
     });
   };
 
-  const handleRemove = () => {
+  const handleRemove = (targetSceneId?: string) => {
     if (store.scenes.length <= 1) {
       toast.warning("Dự án cần có ít nhất 1 phân cảnh.");
       return;
     }
-    const targetId = store.selectedSceneId;
+    const targetId = targetSceneId || store.selectedSceneId;
+    if (!targetId) return;
+
     const filtered = store.scenes.filter((s) => s.id !== targetId);
     store.setScenes(filtered.map((s, i) => ({ ...s, sceneNumber: i + 1 })));
-    store.setSelectedSceneId(filtered[0]?.id || "");
+    if (store.selectedSceneId === targetId) {
+      store.setSelectedSceneId(filtered[0]?.id || "");
+    }
     deleteSceneMutation.mutate(targetId);
   };
 

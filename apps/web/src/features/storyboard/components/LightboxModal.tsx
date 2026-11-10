@@ -2,7 +2,6 @@
 
 import React from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { X } from "lucide-react";
 
 interface LightboxModalProps {
   isOpen: boolean;
@@ -19,21 +18,14 @@ export function LightboxModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl bg-[#090D15]/95 border-[#1E2638] p-2 rounded-2xl overflow-hidden shadow-2xl">
+      <DialogContent className="max-w-5xl bg-black/95 border border-[#1E2638] p-0 rounded-2xl overflow-hidden shadow-2xl [&>button]:z-30 [&>button]:text-white [&>button]:bg-black/70 [&>button]:hover:bg-black [&>button]:p-1.5 [&>button]:rounded-full [&>button]:right-3 [&>button]:top-3 [&>button]:border [&>button]:border-white/20 cursor-pointer">
         <DialogTitle className="sr-only">Phóng to ảnh Storyboard Keyframe</DialogTitle>
-        <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black flex items-center justify-center">
+        <div className="w-full aspect-video flex items-center justify-center bg-black/90 p-1">
           <img
             src={imageUrl}
             alt="Storyboard Frame Fullscreen"
-            className="w-full h-full object-contain"
+            className="w-full h-full object-contain select-none"
           />
-          <button
-            type="button"
-            onClick={onClose}
-            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center cursor-pointer transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
         </div>
       </DialogContent>
     </Dialog>
