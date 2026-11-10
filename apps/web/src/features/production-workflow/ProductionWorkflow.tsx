@@ -66,6 +66,7 @@ export function ProductionWorkflow({
           {selectedStage && (
             <StageInspector
               stage={selectedStage}
+              isApproving={isAdvancing}
               onApprove={handleApprove}
               onRequestRevision={handleRequestRevision}
             />

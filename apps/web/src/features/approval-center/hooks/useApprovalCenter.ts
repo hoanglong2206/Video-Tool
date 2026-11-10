@@ -76,6 +76,7 @@ export function useApprovalCenter(
     setComment: store.setReviewerComment,
     setSelectedItemId: store.setSelectedItemId,
     handleDecision,
+    isDeciding: decisionMutation.isPending,
     refetch,
   };
 }

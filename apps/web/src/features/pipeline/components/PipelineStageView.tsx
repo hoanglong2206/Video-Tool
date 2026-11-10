@@ -22,6 +22,7 @@ import {
   ArrowRight,
   CheckCircle2,
   Clock,
+  Loader2,
   Pause,
   Play,
   Settings,
@@ -235,10 +236,16 @@ export function PipelineStageView({
             ) : (
               <Button
                 size="sm"
+                disabled={isApproved}
                 onClick={handleManualApproveAndProceed}
-                className="h-8 px-4 text-xs bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold flex items-center gap-1.5 shadow-md shadow-blue-600/30 cursor-pointer"
+                className="h-8 px-4 text-xs bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold flex items-center gap-1.5 shadow-md shadow-blue-600/30 cursor-pointer disabled:opacity-80 disabled:cursor-not-allowed min-w-[150px] justify-center"
               >
-                {nextStageId ? (
+                {isApproved ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Đang duyệt & chuyển bước...</span>
+                  </>
+                ) : nextStageId ? (
                   <>
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
                     <span>Duyệt & Chuyển sang bước tiếp theo ➔</span>
@@ -263,6 +270,7 @@ export function PipelineStageView({
           <PipelineStagePlaceholderCard
             stage={stage}
             prevStageId={prevStageId}
+            isApproving={isApproved}
             onPrevStage={() => prevStageId && router.push(`/projects/${projectId}/${prevStageId}`)}
             onProceed={handleManualApproveAndProceed}
           />

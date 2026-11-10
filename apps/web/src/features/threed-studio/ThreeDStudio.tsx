@@ -35,6 +35,7 @@ export function ThreeDStudio({
     setMaterial,
     handleRenderPreview,
     handleApproveScene,
+    isApproving,
   } = useThreeDStudio(projectName, projectId);
 
   return (
@@ -51,6 +52,7 @@ export function ThreeDStudio({
           isOrbitMode={isOrbitMode}
           isRendering={isRendering}
           isApproved={isApproved}
+          isApproving={isApproving}
           onToggleOrbit={() => setIsOrbitMode((prev) => !prev)}
           onRenderPreview={handleRenderPreview}
           onApproveScene={handleApproveScene}

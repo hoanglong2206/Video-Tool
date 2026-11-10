@@ -74,9 +74,15 @@ export function useThreeDStudio(
     setTimeout(() => setIsRendering(false), 1200);
   };
 
+  const [isApproving, setIsApproving] = useState<boolean>(false);
+
   const handleApproveScene = (): void => {
-    setIsApproved(true);
+    setIsApproving(true);
     toast.success("Đã phê duyệt phân cảnh 3D thành công!");
+    setTimeout(() => {
+      setIsApproved(true);
+      setIsApproving(false);
+    }, 600);
   };
 
   return {
@@ -107,6 +113,7 @@ export function useThreeDStudio(
     },
     handleRenderPreview,
     handleApproveScene,
+    isApproving,
     refetch,
   };
 }

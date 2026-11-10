@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { Loader2 } from "lucide-react";
 import { Badge, Button } from "@/components/ui";
@@ -9,6 +11,7 @@ interface ThreeDHeaderProps {
   isOrbitMode: boolean;
   isRendering: boolean;
   isApproved: boolean;
+  isApproving?: boolean;
   onToggleOrbit: () => void;
   onRenderPreview: () => void;
   onApproveScene: () => void;
@@ -20,6 +23,7 @@ export function ThreeDHeader({
   isOrbitMode,
   isRendering,
   isApproved,
+  isApproving = false,
   onToggleOrbit,
   onRenderPreview,
   onApproveScene,
@@ -68,12 +72,21 @@ export function ThreeDHeader({
       <Button
         variant="subtle"
         size="sm"
+        disabled={isApproving || isApproved}
         onClick={onApproveScene}
+        className="flex items-center gap-1.5 min-w-[120px] justify-center cursor-pointer disabled:opacity-80 disabled:cursor-not-allowed"
       >
-        Approve 3D scene
+        {isApproving ? (
+          <>
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            <span>Đang duyệt...</span>
+          </>
+        ) : isApproved ? (
+          <span>✓ Đã duyệt 3D</span>
+        ) : (
+          <span>Approve 3D scene</span>
+        )}
       </Button>
     </StudioHeader>
   );
 }
-
-

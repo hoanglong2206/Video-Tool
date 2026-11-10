@@ -1,13 +1,14 @@
 "use client";
 
 import React from "react";
-import { ArrowLeft, ArrowRight, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui";
 import type { PipelineStageConfig, PipelineStageId } from "../config/stages";
 
 interface PipelineStagePlaceholderCardProps {
   stage: PipelineStageConfig;
   prevStageId: PipelineStageId | null;
+  isApproving?: boolean;
   onPrevStage: () => void;
   onProceed: () => void;
 }
@@ -15,6 +16,7 @@ interface PipelineStagePlaceholderCardProps {
 export function PipelineStagePlaceholderCard({
   stage,
   prevStageId,
+  isApproving = false,
   onPrevStage,
   onProceed,
 }: PipelineStagePlaceholderCardProps): React.ReactElement {
@@ -55,8 +57,9 @@ export function PipelineStagePlaceholderCard({
           <Button
             variant="outline"
             size="sm"
+            disabled={isApproving}
             onClick={onPrevStage}
-            className="h-8 text-xs bg-[#0E131E] border-[#1E2638] text-slate-300 flex items-center gap-1 cursor-pointer"
+            className="h-8 text-xs bg-[#0E131E] border-[#1E2638] text-slate-300 flex items-center gap-1 cursor-pointer disabled:cursor-not-allowed"
           >
             <ArrowLeft className="w-3 h-3" /> Bước trước
           </Button>
@@ -64,14 +67,23 @@ export function PipelineStagePlaceholderCard({
 
         <Button
           size="sm"
+          disabled={isApproving}
           onClick={onProceed}
-          className="h-8 text-xs bg-blue-600 hover:bg-blue-500 text-white font-medium flex items-center gap-1 cursor-pointer"
+          className="h-8 text-xs bg-blue-600 hover:bg-blue-500 text-white font-medium flex items-center gap-1 cursor-pointer disabled:opacity-80 disabled:cursor-not-allowed min-w-[130px] justify-center"
         >
-          <span>Duyệt bước này</span>
-          <ArrowRight className="w-3 h-3" />
+          {isApproving ? (
+            <>
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              <span>Đang duyệt...</span>
+            </>
+          ) : (
+            <>
+              <span>Duyệt bước này</span>
+              <ArrowRight className="w-3 h-3" />
+            </>
+          )}
         </Button>
       </div>
     </div>
   );
 }
-

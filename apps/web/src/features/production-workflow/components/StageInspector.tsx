@@ -1,15 +1,20 @@
+"use client";
+
 import React from "react";
+import { Loader2 } from "lucide-react";
 import type { PipelineStage } from "../types";
 import { Badge, Button } from "@/components/ui";
 
 interface StageInspectorProps {
   stage: PipelineStage;
+  isApproving?: boolean;
   onApprove: (stageId: string) => void;
   onRequestRevision: (stageId: string) => void;
 }
 
 export function StageInspector({
   stage,
+  isApproving = false,
   onApprove,
   onRequestRevision,
 }: StageInspectorProps): React.ReactElement {
@@ -61,14 +66,28 @@ export function StageInspector({
 
       {/* Actions */}
       <div className="flex items-center gap-2.5 mt-auto pt-4 border-t border-[#1C2436]/60">
-        <Button size="sm" onClick={() => onApprove(stage.id)}>
-          Approve
+        <Button
+          size="sm"
+          disabled={isApproving}
+          onClick={() => onApprove(stage.id)}
+          className="flex items-center gap-1.5 min-w-[90px] justify-center cursor-pointer disabled:opacity-80 disabled:cursor-not-allowed"
+        >
+          {isApproving ? (
+            <>
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              <span>Đang duyệt...</span>
+            </>
+          ) : (
+            <span>Approve</span>
+          )}
         </Button>
 
         <Button
           variant="outline"
           size="sm"
+          disabled={isApproving}
           onClick={() => onRequestRevision(stage.id)}
+          className="cursor-pointer disabled:cursor-not-allowed"
         >
           Request revision
         </Button>
@@ -76,4 +95,3 @@ export function StageInspector({
     </aside>
   );
 }
-

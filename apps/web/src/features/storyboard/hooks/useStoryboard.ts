@@ -41,6 +41,7 @@ export function useStoryboard(
     reorderMutation,
     approveMutation,
     generateMutation,
+    isApproving,
   } = useStoryboardMutations({
     projectId,
     store,
@@ -289,6 +290,7 @@ export function useStoryboard(
     handleCreateVersion, handleDeleteVersion, handleRollbackVersion,
     handleGenerateWithAi: () => generateMutation.mutate(),
     handleApproveAndProceed: () => approveMutation.mutate(),
+    isApproving,
     refetch,
   };
 }

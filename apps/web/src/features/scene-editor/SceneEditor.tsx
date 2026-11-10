@@ -36,6 +36,7 @@ export function SceneEditor({
     togglePlay,
     applySuggestion,
     handleApproveScene,
+    isApproving,
   } = useSceneEditor(projectName, projectId, sceneId);
 
   return (
@@ -51,6 +52,7 @@ export function SceneEditor({
           sceneName={sceneName}
           isPlaying={isPlaying}
           isApproved={isApproved}
+          isApproving={isApproving}
           onTogglePlay={togglePlay}
           onApproveScene={handleApproveScene}
           onSaveVersion={() => console.log("Save version")}

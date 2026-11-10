@@ -13,6 +13,7 @@ interface StoryboardHeaderProps {
   totalDuration: number;
   viewMode: StoryboardViewMode;
   isGenerating?: boolean;
+  isApproving?: boolean;
   onToggleViewMode: (mode: StoryboardViewMode) => void;
   onGenerateWithAi: () => void;
   onPlayAnimatics: () => void;
@@ -26,6 +27,7 @@ export function StoryboardHeader({
   totalDuration,
   viewMode,
   isGenerating = false,
+  isApproving = false,
   onToggleViewMode,
   onGenerateWithAi,
   onPlayAnimatics,
@@ -33,40 +35,40 @@ export function StoryboardHeader({
 }: StoryboardHeaderProps): React.ReactElement {
   return (
     <header className="h-12 border-b border-[#1E2638] px-4 flex items-center justify-between bg-[#0A0E17] shrink-0 select-none">
-      {/* Left: Back & Project Info */}
-      <div className="flex items-center gap-3 min-w-0">
+      {/* 1. Left Project Metadata */}
+      <div className="flex items-center gap-3">
         <Link
-          href={`/projects/${projectId}`}
-          className="text-xs text-slate-400 hover:text-slate-200 flex items-center gap-1 transition-colors cursor-pointer shrink-0"
+          href={`/projects`}
+          className="p-1.5 text-slate-400 hover:text-slate-100 hover:bg-[#161F30] rounded-md transition-colors"
+          title="Quay lại danh sách dự án"
         >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">Tổng quan</span>
+          <ArrowLeft className="w-4 h-4" />
         </Link>
-
-        <span className="text-slate-600">/</span>
-
-        <h1 className="text-xs font-bold text-slate-100 uppercase tracking-wide truncate max-w-[200px] xl:max-w-[280px]">
-          {projectName}
-        </h1>
-
-        <span className="text-[10px] bg-blue-950/80 text-blue-300 border border-blue-800/50 px-2 py-0.5 rounded font-mono font-semibold shrink-0">
-          Stage 01 · Storyboard Studio
-        </span>
-
-        {/* Runtime Stats Pill */}
-        <div className="hidden lg:flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#111827] border border-[#1F293D] text-[10px] font-mono text-cyan-400 shrink-0">
-          <Film className="w-3 h-3 text-cyan-400" />
-          <span>{totalScenes} Cảnh</span>
-          <span>•</span>
-          <span className="tabular-nums font-bold">{totalDuration}s</span>
-          <span>(16:9 UHD)</span>
+        <div className="flex items-center gap-2">
+          <Film className="w-4 h-4 text-blue-400" />
+          <span className="font-semibold text-xs text-slate-100 tracking-tight truncate max-w-[200px]">
+            {projectName}
+          </span>
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded border font-semibold bg-emerald-950/80 text-emerald-300 border-emerald-700/60">
+            Human approval #2
+          </span>
         </div>
       </div>
 
-      {/* Right Controls: View Switcher & Action CTAs */}
-      <div className="flex items-center gap-2 shrink-0">
-        {/* View Switcher Pills */}
-        <div className="flex items-center bg-[#101520] border border-[#1E2638] rounded-md p-0.5 text-xs">
+      {/* 2. Middle Stats Badges */}
+      <div className="hidden sm:flex items-center gap-2 text-xs font-mono">
+        <span className="px-2 py-0.5 rounded bg-[#101520] border border-[#1E2638] text-slate-300">
+          Tổng phân cảnh: <strong className="text-white font-bold">{totalScenes}</strong>
+        </span>
+        <span className="px-2 py-0.5 rounded bg-[#101520] border border-[#1E2638] text-slate-300">
+          Thời lượng: <strong className="text-cyan-400 font-bold">{totalDuration}s</strong>
+        </span>
+      </div>
+
+      {/* 3. Right Action Tools */}
+      <div className="flex items-center gap-2">
+        {/* View Mode Toggle Switcher */}
+        <div className="flex items-center bg-[#101520] border border-[#1E2638] rounded-md p-0.5">
           <button
             type="button"
             onClick={() => onToggleViewMode("grid")}
@@ -75,7 +77,7 @@ export function StoryboardHeader({
                 ? "bg-blue-600 text-white font-bold shadow-xs"
                 : "text-slate-400 hover:text-slate-200"
             }`}
-            title="Xem theo lưới ma trận 3x2"
+            title="Xem dạng thẻ phân cảnh (Storyboard Grid)"
           >
             <LayoutGrid className="w-3 h-3" />
             <span className="hidden md:inline">Lưới (Grid)</span>
@@ -131,15 +133,25 @@ export function StoryboardHeader({
           <span>Xem Animatics</span>
         </Button>
 
-        {/* Approve & Proceed CTA */}
+        {/* Approve & Proceed CTA with Spinner */}
         <Button
           type="button"
           size="sm"
+          disabled={isApproving}
           onClick={onApproveAndProceed}
-          className="h-7 text-xs bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold flex items-center gap-1 shadow-md shadow-blue-600/30 cursor-pointer transition-all"
+          className="h-7 text-xs bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold flex items-center gap-1 shadow-md shadow-blue-600/30 cursor-pointer transition-all disabled:opacity-80 disabled:cursor-not-allowed min-w-[130px] justify-center"
         >
-          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
-          <span>Duyệt Storyboard ➔</span>
+          {isApproving ? (
+            <>
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              <span>Đang duyệt...</span>
+            </>
+          ) : (
+            <>
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
+              <span>Duyệt Storyboard ➔</span>
+            </>
+          )}
         </Button>
       </div>
     </header>

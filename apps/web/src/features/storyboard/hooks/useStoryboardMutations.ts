@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui";
@@ -23,6 +24,7 @@ export function useStoryboardMutations({
 }: UseStoryboardMutationsProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const [isApproving, setIsApproving] = useState<boolean>(false);
 
   const updateSceneMutation = useMutation({
     mutationFn: ({ sceneId, input }: { sceneId: string; input: UpdateSceneInput }) =>
@@ -118,9 +120,14 @@ export function useStoryboardMutations({
 
   const approveMutation = useMutation({
     mutationFn: () => storyboardService.approveStoryboard(projectId),
+    onMutate: () => setIsApproving(true),
     onSuccess: () => {
-      toast.success("Duyệt Storyboard thành công! Chuyển sang Bước 2: Asset Planning.");
+      toast.success("Duyệt Storyboard thành công! Đang chuyển sang Bước 03: Asset Planning...");
       router.push(`/projects/${projectId}/asset-planning`);
+    },
+    onError: () => {
+      setIsApproving(false);
+      toast.error("Không thể duyệt Storyboard. Vui lòng thử lại!");
     },
   });
 
@@ -152,5 +159,6 @@ export function useStoryboardMutations({
     reorderMutation,
     approveMutation,
     generateMutation,
+    isApproving: isApproving || approveMutation.isPending,
   };
 }

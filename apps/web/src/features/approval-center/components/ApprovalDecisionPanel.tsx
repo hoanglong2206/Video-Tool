@@ -1,10 +1,14 @@
+"use client";
+
 import React from "react";
+import { Loader2 } from "lucide-react";
 import type { PendingApprovalItem, DecisionType } from "../types";
 import { Button, Textarea } from "@/components/ui";
 
 interface ApprovalDecisionPanelProps {
   item: PendingApprovalItem;
   comment: string;
+  isDeciding?: boolean;
   onCommentChange: (val: string) => void;
   onDecision: (type: DecisionType) => void;
 }
@@ -12,6 +16,7 @@ interface ApprovalDecisionPanelProps {
 export function ApprovalDecisionPanel({
   item,
   comment,
+  isDeciding = false,
   onCommentChange,
   onDecision,
 }: ApprovalDecisionPanelProps): React.ReactElement {
@@ -43,17 +48,26 @@ export function ApprovalDecisionPanel({
       <div className="flex flex-col gap-2 mt-auto pt-4 border-t border-[#1C2436]/60">
         <Button
           size="sm"
+          disabled={isDeciding}
           onClick={() => onDecision("approve")}
-          className="w-full font-semibold"
+          className="w-full font-semibold flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-80 disabled:cursor-not-allowed"
         >
-          Approve
+          {isDeciding ? (
+            <>
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              <span>Đang duyệt...</span>
+            </>
+          ) : (
+            <span>Approve</span>
+          )}
         </Button>
 
         <Button
           variant="outline"
           size="sm"
+          disabled={isDeciding}
           onClick={() => onDecision("revision")}
-          className="w-full"
+          className="w-full cursor-pointer disabled:cursor-not-allowed"
         >
           Request revision
         </Button>
@@ -61,8 +75,9 @@ export function ApprovalDecisionPanel({
         <Button
           variant="outline"
           size="sm"
+          disabled={isDeciding}
           onClick={() => onDecision("reject")}
-          className="w-full text-slate-400 hover:text-rose-400 hover:border-rose-900/40"
+          className="w-full text-slate-400 hover:text-rose-400 hover:border-rose-900/40 cursor-pointer disabled:cursor-not-allowed"
         >
           Reject
         </Button>
@@ -70,4 +85,3 @@ export function ApprovalDecisionPanel({
     </aside>
   );
 }
-

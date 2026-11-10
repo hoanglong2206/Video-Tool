@@ -52,6 +52,7 @@ export function StoryboardStudio({
     isDeletingVersion,
     handleGenerateWithAi,
     handleApproveAndProceed,
+    isApproving,
   } = useStoryboard(projectName, projectId);
 
   // Centralized playback timer that runs seamlessly across Grid and Timeline views
@@ -90,6 +91,7 @@ export function StoryboardStudio({
           onToggleViewMode={setViewMode}
           onGenerateWithAi={handleGenerateWithAi}
           onPlayAnimatics={() => setShowAnimaticsModal(true)}
+          isApproving={isApproving}
           onApproveAndProceed={handleApproveAndProceed}
         />
 

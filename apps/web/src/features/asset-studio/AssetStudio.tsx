@@ -1,6 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "@/components/ui";
 import { DashboardSidebar } from "@/features/dashboard/components/DashboardSidebar";
 import { useAssetStudio } from "./hooks/useAssetStudio";
 import { AssetStudioHeader } from "./components/AssetStudioHeader";
@@ -18,6 +20,9 @@ export function AssetStudio({
   projectName = "Aurora X1 Launch",
   projectId = "proj-1",
 }: AssetStudioProps): React.ReactElement {
+  const router = useRouter();
+  const [isApproving, setIsApproving] = useState<boolean>(false);
+
   const {
     categories,
     selectedCategoryId,
@@ -34,6 +39,12 @@ export function AssetStudio({
     setSelectedAssetId,
   } = useAssetStudio(projectName, projectId);
 
+  const handleApprove = () => {
+    setIsApproving(true);
+    toast.success("Đã phê duyệt tài nguyên! Đang chuyển sang Bước 05: Composition...");
+    router.push(`/projects/${projectId}/composition`);
+  };
+
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#0B0F17] text-slate-100 antialiased select-none">
       {/* Far-left Icon Navigation Rail */}
@@ -44,9 +55,10 @@ export function AssetStudio({
         {/* Top Header */}
         <AssetStudioHeader
           projectName={projectName}
+          isApproving={isApproving}
           onUpload={() => console.log("Upload asset")}
           onGenerateImage={() => console.log("Generate AI image")}
-          onApproveSelected={() => console.log("Approve selected asset")}
+          onApproveSelected={handleApprove}
         />
 
         {/* Pipeline Journey Bar */}

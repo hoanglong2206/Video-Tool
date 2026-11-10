@@ -26,6 +26,7 @@ export function ApprovalCenter({
     setSelectedItemId,
     handleDecision,
     isLoading,
+    isDeciding,
   } = useApprovalCenter(projectName, projectId);
 
   return (
@@ -97,6 +98,7 @@ export function ApprovalCenter({
                   <ApprovalDecisionPanel
                     item={selectedItem}
                     comment={comment}
+                    isDeciding={isDeciding}
                     onCommentChange={setComment}
                     onDecision={handleDecision}
                   />

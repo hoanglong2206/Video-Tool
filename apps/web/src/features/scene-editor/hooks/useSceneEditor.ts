@@ -72,8 +72,15 @@ export function useSceneEditor(
     updatePropsMutation.mutate(updatedProps);
   };
 
+  const [isApproving, setIsApproving] = useState<boolean>(false);
+
   const handleApproveScene = (): void => {
-    setIsApproved(true);
+    setIsApproving(true);
+    toast.success('Đã phê duyệt phân cảnh thành công!');
+    setTimeout(() => {
+      setIsApproved(true);
+      setIsApproving(false);
+    }, 600);
   };
 
   return {
@@ -103,6 +110,7 @@ export function useSceneEditor(
     togglePlay,
     applySuggestion,
     handleApproveScene,
+    isApproving,
     refetch,
   };
 }
