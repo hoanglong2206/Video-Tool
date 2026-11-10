@@ -1,10 +1,11 @@
-import { apiGet, apiPost, apiPut } from "@/lib/axios";
+import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/axios";
 import { API_ENDPOINTS } from "@/constants/api";
 import type {
   StoryboardResponse,
   GenerateStoryboardInput,
   GenerateStoryboardResponse,
   UpdateSceneInput,
+  CreateSceneInput,
   StoryboardScene,
 } from "./types";
 
@@ -23,6 +24,16 @@ export const storyboardService = {
     );
   },
 
+  createScene: async (
+    projectId: string,
+    data: CreateSceneInput
+  ): Promise<StoryboardScene> => {
+    return apiPost<StoryboardScene, CreateSceneInput>(
+      API_ENDPOINTS.STORYBOARD_SCENES(projectId),
+      data
+    );
+  },
+
   updateScene: async (
     projectId: string,
     sceneId: string,
@@ -33,5 +44,32 @@ export const storyboardService = {
       data
     );
   },
-};
 
+  deleteScene: async (
+    projectId: string,
+    sceneId: string
+  ): Promise<{ status: string; sceneId: string }> => {
+    return apiDelete<{ status: string; sceneId: string }>(
+      API_ENDPOINTS.STORYBOARD_SCENE(projectId, sceneId)
+    );
+  },
+
+  reorderScenes: async (
+    projectId: string,
+    sceneIds: string[]
+  ): Promise<{ status: string; count: number }> => {
+    return apiPut<{ status: string; count: number }, { sceneIds: string[] }>(
+      API_ENDPOINTS.STORYBOARD_REORDER(projectId),
+      { sceneIds }
+    );
+  },
+
+  approveStoryboard: async (
+    projectId: string
+  ): Promise<{ status: string; projectId: string; nextStage: string }> => {
+    return apiPost<{ status: string; projectId: string; nextStage: string }, Record<string, never>>(
+      API_ENDPOINTS.STORYBOARD_APPROVE(projectId),
+      {}
+    );
+  },
+};

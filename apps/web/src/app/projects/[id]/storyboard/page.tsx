@@ -1,5 +1,5 @@
 import React from "react";
-import { PipelineStageView } from "@/features/pipeline";
+import { StoryboardStudio } from "@/features/storyboard";
 
 interface StoryboardPageProps {
   params: Promise<{ id: string }>;
@@ -10,9 +10,8 @@ export default async function ProjectStoryboardPage({
 }: StoryboardPageProps): Promise<React.ReactElement> {
   const resolvedParams = await params;
   return (
-    <PipelineStageView
+    <StoryboardStudio
       projectId={resolvedParams.id}
-      stageId="storyboard"
       projectName="Aurora X1 Launch"
     />
   );

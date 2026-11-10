@@ -29,8 +29,14 @@ export const API_ENDPOINTS = {
     `/api/v1/projects/${projectId}/storyboard`,
   STORYBOARD_GENERATE: (projectId: string) =>
     `/api/v1/projects/${projectId}/storyboard/generate`,
+  STORYBOARD_SCENES: (projectId: string) =>
+    `/api/v1/projects/${projectId}/storyboard/scenes`,
   STORYBOARD_SCENE: (projectId: string, sceneId: string) =>
     `/api/v1/projects/${projectId}/storyboard/scenes/${sceneId}`,
+  STORYBOARD_REORDER: (projectId: string) =>
+    `/api/v1/projects/${projectId}/storyboard/reorder`,
+  STORYBOARD_APPROVE: (projectId: string) =>
+    `/api/v1/projects/${projectId}/storyboard/approve`,
 
   // Asset Studio
   ASSETS: (projectId: string) => `/api/v1/projects/${projectId}/assets`,

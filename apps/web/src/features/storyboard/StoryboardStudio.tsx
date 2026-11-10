@@ -1,12 +1,15 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { DashboardSidebar } from "@/features/dashboard/components/DashboardSidebar";
+import { PipelineJourneyBar } from "@/features/pipeline/components/PipelineJourneyBar";
 import { useStoryboard } from "./hooks/useStoryboard";
 import { StoryboardHeader } from "./components/StoryboardHeader";
-import { JourneySubheader } from "./components/JourneySubheader";
 import { SceneGrid } from "./components/SceneGrid";
 import { SceneInspector } from "./components/SceneInspector";
+import { AnimaticsTimelineDock } from "./components/AnimaticsTimelineDock";
+import { LightboxModal } from "./components/LightboxModal";
+import { AnimaticsPreviewModal } from "./components/AnimaticsPreviewModal";
 
 interface StoryboardStudioProps {
   projectName?: string;
@@ -18,58 +21,114 @@ export function StoryboardStudio({
   projectId = "proj-1",
 }: StoryboardStudioProps): React.ReactElement {
   const {
+    projectName: resolvedProjectName,
     scenes,
     selectedScene,
     totalDuration,
     isLoading,
     isGenerating,
+    viewMode,
+    isPlayingAnimatics,
+    playbackCurrentTime,
+    setViewMode,
+    setIsPlayingAnimatics,
+    setPlaybackCurrentTime,
     setSelectedSceneId,
     updateSelectedScene,
     handleAddScene,
     handleDuplicate,
     handleRemove,
+    handleMoveScene,
     handleGenerateWithAi,
+    handleApproveAndProceed,
   } = useStoryboard(projectName, projectId);
+
+  const [lightboxImageUrl, setLightboxImageUrl] = useState<string | null>(null);
+  const [showAnimaticsModal, setShowAnimaticsModal] = useState<boolean>(false);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#0B0F17] text-slate-100 antialiased select-none">
-      {/* Far-left Icon Navigation Rail */}
+      {/* 1. Left Icon Navigation Rail */}
       <DashboardSidebar />
 
-      {/* Main View Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Top Header with AI Generation Button */}
+      {/* 2. Main Studio Viewport */}
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+        {/* Top Header with Studio Actions */}
         <StoryboardHeader
-          projectName={projectName}
-          onGenerateWithAi={handleGenerateWithAi}
+          projectName={resolvedProjectName}
+          projectId={projectId}
+          totalScenes={scenes.length}
+          totalDuration={totalDuration}
+          viewMode={viewMode}
           isGenerating={isGenerating}
-          onPreview={() => console.log("Preview storyboard")}
-          onReopenRevision={() => console.log("Reopen revision")}
+          onToggleViewMode={setViewMode}
+          onGenerateWithAi={handleGenerateWithAi}
+          onPlayAnimatics={() => setShowAnimaticsModal(true)}
+          onApproveAndProceed={handleApproveAndProceed}
         />
 
-        {/* Pipeline Journey Bar */}
-        <JourneySubheader />
+        {/* 9-Stage Pipeline Journey Bar */}
+        <PipelineJourneyBar
+          projectId={projectId}
+          currentStageId="storyboard"
+        />
 
-        {/* Matrix Grid vs Inspector Split */}
+        {/* Center Canvas vs Right Inspector */}
         <main className="flex-1 flex min-h-0 overflow-hidden">
           <SceneGrid
             scenes={scenes}
             totalDuration={totalDuration}
             selectedSceneId={selectedScene.id}
+            viewMode={viewMode}
             isLoading={isLoading || isGenerating}
             onSelectScene={setSelectedSceneId}
             onAddScene={handleAddScene}
+            onDuplicateScene={(id) => {
+              setSelectedSceneId(id);
+              handleDuplicate();
+            }}
+            onRemoveScene={(id) => {
+              setSelectedSceneId(id);
+              handleRemove();
+            }}
+            onMoveScene={handleMoveScene}
+            onOpenPreview={setLightboxImageUrl}
           />
 
           <SceneInspector
             scene={selectedScene}
-            onChangeDescription={(desc) => updateSelectedScene("description", desc)}
+            onChangeField={updateSelectedScene}
             onDuplicate={handleDuplicate}
             onRemove={handleRemove}
             onRegenerateFrame={handleGenerateWithAi}
           />
         </main>
+
+        {/* Bottom Animatics Timeline Dock */}
+        <AnimaticsTimelineDock
+          scenes={scenes}
+          selectedSceneId={selectedScene.id}
+          totalDuration={totalDuration}
+          isPlaying={isPlayingAnimatics}
+          currentTime={playbackCurrentTime}
+          onTogglePlay={setIsPlayingAnimatics}
+          onSeek={setPlaybackCurrentTime}
+          onSelectScene={setSelectedSceneId}
+        />
       </div>
+
+      {/* Modals & Overlays */}
+      <LightboxModal
+        isOpen={!!lightboxImageUrl}
+        imageUrl={lightboxImageUrl}
+        onClose={() => setLightboxImageUrl(null)}
+      />
+
+      <AnimaticsPreviewModal
+        isOpen={showAnimaticsModal}
+        scenes={scenes}
+        onClose={() => setShowAnimaticsModal(false)}
+      />
     </div>
   );
 }

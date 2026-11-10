@@ -1,20 +1,13 @@
-export interface StoryboardScene {
-  id: string;
-  sceneNumber: number;
-  title: string;
-  durationSeconds: number;
-  cameraMovement: string;
-  transitionType: string;
-  description: string;
-  creativeDirection?: string;
-  hasVisualDraft?: boolean;
-}
+import type { StoryboardScene, SceneVersionItem } from "@/services/storyboard/types";
+
+export type { StoryboardScene, SceneVersionItem };
+
+export type StoryboardViewMode = "grid" | "timeline";
 
 export interface StoryboardData {
   projectName: string;
-  approvalStatus: "Approved" | "Revision" | "Draft";
+  approvalStatus: string;
   version: string;
   totalDurationSeconds: number;
   scenes: StoryboardScene[];
 }
-
