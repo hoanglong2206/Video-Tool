@@ -3,12 +3,14 @@
 import React, { useState } from "react";
 import { Activity, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui";
 import type { DashboardPerformance, PerformanceDataPoint } from "@/services/dashboard";
 
 type ChartMetric = "throughput" | "latency" | "render_fps";
 
 interface AnalysisChartProps {
   performance?: DashboardPerformance;
+  isLoading?: boolean;
 }
 
 const DEFAULT_WEEKLY_DATA: PerformanceDataPoint[] = [
@@ -21,8 +23,34 @@ const DEFAULT_WEEKLY_DATA: PerformanceDataPoint[] = [
   { label: "CN", date: "", throughput: 0, latency: 1.0, renderFps: 48 },
 ];
 
-export function AnalysisChart({ performance }: AnalysisChartProps): React.ReactElement {
+export function AnalysisChart({ performance, isLoading }: AnalysisChartProps): React.ReactElement {
   const [activeMetric, setActiveMetric] = useState<ChartMetric>("throughput");
+
+  if (isLoading) {
+    return (
+      <div className="bg-[#101520] border border-[#1C2436] rounded-lg p-3 flex flex-col justify-between shrink-0 h-[178px] select-none">
+        <div className="flex items-center justify-between shrink-0">
+          <Skeleton className="h-4 w-44 rounded" />
+          <Skeleton className="h-5 w-36 rounded" />
+        </div>
+        <div className="flex-1 flex items-end gap-3 pt-3 pb-1">
+          {Array.from({ length: 7 }).map((_, i) => (
+            <div key={i} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+              <Skeleton
+                className="w-full rounded"
+                style={{ height: `${30 + (i % 4) * 20}%` }}
+              />
+              <Skeleton className="h-2.5 w-6 rounded" />
+            </div>
+          ))}
+        </div>
+        <div className="flex items-center justify-between pt-1.5 border-t border-[#1C2436]/60">
+          <Skeleton className="h-2.5 w-24 rounded" />
+          <Skeleton className="h-2.5 w-20 rounded" />
+        </div>
+      </div>
+    );
+  }
 
   const chartData = performance?.weeklyData?.length ? performance.weeklyData : DEFAULT_WEEKLY_DATA;
 

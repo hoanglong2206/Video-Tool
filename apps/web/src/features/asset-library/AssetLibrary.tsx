@@ -25,6 +25,7 @@ export function AssetLibrary(): React.ReactElement {
     setSelectedTemplateId,
     brandKit,
     isApplied,
+    isLoading,
     handleApplyBrandKit,
   } = useAssetLibrary();
 
@@ -57,6 +58,7 @@ export function AssetLibrary(): React.ReactElement {
             sceneTemplates={sceneTemplates}
             motionPresets={motionPresets}
             selectedTemplateId={selectedTemplateId}
+            isLoading={isLoading}
             onSelectTemplate={setSelectedTemplateId}
           />
 

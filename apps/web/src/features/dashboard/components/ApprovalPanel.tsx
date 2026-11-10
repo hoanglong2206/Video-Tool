@@ -3,15 +3,18 @@
 import React from "react";
 import type { ApprovalItem } from "../types";
 import { CheckCircle2, Clock, ShieldCheck, Sparkles } from "lucide-react";
+import { Skeleton } from "@/components/ui";
 
 interface ApprovalPanelProps {
   approvals: ApprovalItem[];
   onSelectApproval?: (item: ApprovalItem) => void;
+  isLoading?: boolean;
 }
 
 export function ApprovalPanel({
   approvals,
   onSelectApproval,
+  isLoading,
 }: ApprovalPanelProps): React.ReactElement {
   return (
     <div className="bg-[#101520] border border-[#1C2436] rounded-lg p-3 flex flex-col justify-between flex-1 min-h-0 select-none">
@@ -28,7 +31,17 @@ export function ApprovalPanel({
       </div>
 
       <div className="flex flex-col gap-1.5 flex-1 min-h-0 overflow-hidden my-1">
-        {approvals.length > 0 ? (
+        {isLoading ? (
+          Array.from({ length: 2 }).map((_, idx) => (
+            <div key={idx} className="bg-[#0B0F17] border border-[#1A2234] rounded p-2 space-y-1.5">
+              <Skeleton className="h-3 w-3/4 rounded" />
+              <div className="flex justify-between">
+                <Skeleton className="h-2 w-16 rounded" />
+                <Skeleton className="h-2 w-12 rounded" />
+              </div>
+            </div>
+          ))
+        ) : approvals.length > 0 ? (
           approvals.map((item) => (
             <div
               key={item.id}

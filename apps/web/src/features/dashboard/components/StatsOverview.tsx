@@ -1,12 +1,35 @@
 import React from "react";
 import type { DashboardStats } from "../types";
 import { FolderGit2, AlertCircle, PlayCircle, Sparkles, TrendingUp } from "lucide-react";
+import { Skeleton } from "@/components/ui";
 
 interface StatsOverviewProps {
   stats: DashboardStats;
+  isLoading?: boolean;
 }
 
-export function StatsOverview({ stats }: StatsOverviewProps): React.ReactElement {
+export function StatsOverview({ stats, isLoading }: StatsOverviewProps): React.ReactElement {
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-4 gap-3 shrink-0">
+        {Array.from({ length: 4 }).map((_, idx) => (
+          <div
+            key={idx}
+            className="bg-[#101520] border border-[#1C2436] rounded-lg p-3 flex flex-col justify-between h-[68px]"
+          >
+            <div className="flex items-center justify-between">
+              <Skeleton className="h-3 w-20 rounded" />
+              <Skeleton className="h-5 w-5 rounded" />
+            </div>
+            <div className="flex items-baseline justify-between mt-1">
+              <Skeleton className="h-6 w-12 rounded" />
+              <Skeleton className="h-3 w-16 rounded" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
   return (
     <div className="grid grid-cols-4 gap-3 shrink-0">
       {/* 1. Active projects */}

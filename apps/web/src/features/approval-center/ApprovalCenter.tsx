@@ -2,6 +2,7 @@
 
 import React from "react";
 import { DashboardSidebar } from "@/features/dashboard/components/DashboardSidebar";
+import { Skeleton } from "@/components/ui";
 import { useApprovalCenter } from "./hooks/useApprovalCenter";
 import { ApprovalHeader } from "./components/ApprovalHeader";
 import { ApprovalQueueSidebar } from "./components/ApprovalQueueSidebar";
@@ -24,6 +25,7 @@ export function ApprovalCenter({
     setComment,
     setSelectedItemId,
     handleDecision,
+    isLoading,
   } = useApprovalCenter(projectName, projectId);
 
   return (
@@ -38,7 +40,50 @@ export function ApprovalCenter({
 
         {/* 3-Column Studio Body Split */}
         <main className="flex-1 flex min-h-0 overflow-hidden">
-          {items.length > 0 ? (
+          {isLoading ? (
+            <div className="flex-1 flex min-h-0 overflow-hidden">
+              {/* Queue Skeleton */}
+              <div className="w-72 bg-[#0E131E] border-r border-[#1C2436] p-3 flex flex-col gap-2 shrink-0">
+                <Skeleton className="h-4 w-28 rounded mb-2" />
+                {Array.from({ length: 3 }).map((_, idx) => (
+                  <div key={idx} className="bg-[#121826] border border-[#1C2436] rounded-lg p-2.5 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Skeleton className="h-4 w-20 rounded" />
+                      <Skeleton className="h-3 w-10 rounded" />
+                    </div>
+                    <Skeleton className="h-3.5 w-3/4 rounded" />
+                    <Skeleton className="h-2.5 w-1/2 rounded" />
+                  </div>
+                ))}
+              </div>
+
+              {/* Viewport Skeleton */}
+              <div className="flex-1 bg-[#0B0F17] p-5 flex flex-col gap-3 min-w-0">
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-5 w-48 rounded" />
+                  <Skeleton className="h-5 w-24 rounded" />
+                </div>
+                <Skeleton className="flex-1 rounded-xl bg-[#121826]" />
+                <div className="flex justify-between">
+                  <Skeleton className="h-3 w-36 rounded" />
+                  <Skeleton className="h-3 w-28 rounded" />
+                </div>
+              </div>
+
+              {/* Decision Panel Skeleton */}
+              <div className="w-80 bg-[#0E131E] border-l border-[#1C2436] p-4 flex flex-col justify-between shrink-0">
+                <div className="space-y-4">
+                  <Skeleton className="h-4 w-32 rounded" />
+                  <Skeleton className="h-24 w-full rounded-lg" />
+                  <Skeleton className="h-16 w-full rounded-lg" />
+                </div>
+                <div className="flex gap-2">
+                  <Skeleton className="h-9 flex-1 rounded-lg" />
+                  <Skeleton className="h-9 flex-1 rounded-lg" />
+                </div>
+              </div>
+            </div>
+          ) : items.length > 0 ? (
             <>
               <ApprovalQueueSidebar
                 items={items}

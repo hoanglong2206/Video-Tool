@@ -7,7 +7,7 @@ import { DashboardSidebar } from "@/features/dashboard/components/DashboardSideb
 import { dashboardService } from "@/services/dashboard";
 import { projectService } from "@/services/project";
 import { QUERY_KEYS } from "@/constants/query-keys";
-import { Button, Input, toast } from "@/components/ui";
+import { Button, Input, toast, Skeleton } from "@/components/ui";
 import { Plus, Search, Film } from "lucide-react";
 import type { ProjectItem } from "@/services/dashboard";
 import { getProjectStageRoute } from "@/features/pipeline";
@@ -35,7 +35,7 @@ export default function ProjectsPage(): React.ReactElement {
   const [isResuming, setIsResuming] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: QUERY_KEYS.dashboard.stats(),
     queryFn: () => dashboardService.getOverview(),
   });
@@ -163,7 +163,37 @@ export default function ProjectsPage(): React.ReactElement {
 
         {/* Projects Grid */}
         <main className="flex-1 min-h-0 overflow-y-auto p-5">
-          {filteredProjects.length === 0 ? (
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Array.from({ length: 6 }).map((_, idx) => (
+                <div
+                  key={idx}
+                  className="bg-[#101520] border border-[#1C2436] rounded-xl p-4 flex flex-col gap-3 shadow-sm"
+                >
+                  <div className="flex items-center justify-between">
+                    <Skeleton className="h-5 w-24 rounded-full" />
+                    <Skeleton className="h-4 w-12 rounded" />
+                  </div>
+                  <Skeleton className="h-5 w-3/4 rounded mt-1" />
+                  <Skeleton className="h-3.5 w-1/2 rounded" />
+                  <div className="space-y-1.5 pt-2">
+                    <div className="flex justify-between">
+                      <Skeleton className="h-3 w-16" />
+                      <Skeleton className="h-3 w-8" />
+                    </div>
+                    <Skeleton className="h-1.5 w-full rounded-full" />
+                  </div>
+                  <div className="pt-3 border-t border-[#1C2436]/60 flex items-center justify-between">
+                    <Skeleton className="h-3 w-24" />
+                    <div className="flex gap-1.5">
+                      <Skeleton className="h-6 w-6 rounded" />
+                      <Skeleton className="h-6 w-6 rounded" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : filteredProjects.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-[#1E2638] rounded-xl bg-[#0E131E] my-8 max-w-lg mx-auto">
               <div className="w-12 h-12 rounded-full bg-blue-950/60 border border-blue-800/40 flex items-center justify-center text-blue-400 mb-3">
                 <Film className="w-6 h-6" />

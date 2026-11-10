@@ -22,6 +22,7 @@ export function ProductionWorkflow({
     stages,
     selectedStage,
     logs,
+    isLoading,
     isAdvancing,
     handleStartPipeline,
     setSelectedStageId,
@@ -52,6 +53,7 @@ export function ProductionWorkflow({
             <StageGrid
               stages={stages}
               selectedStageId={selectedStage?.id || ""}
+              isLoading={isLoading}
               onSelectStage={setSelectedStageId}
             />
 

@@ -3,14 +3,38 @@
 import React from "react";
 import type { RenderQueueItem } from "../types";
 import { Cpu, Film, Loader2 } from "lucide-react";
+import { Skeleton } from "@/components/ui";
 
 interface RenderQueuePanelProps {
   queueItem: RenderQueueItem;
   gpuName?: string;
+  isLoading?: boolean;
 }
 
-export function RenderQueuePanel({ queueItem, gpuName }: RenderQueuePanelProps): React.ReactElement {
+export function RenderQueuePanel({ queueItem, gpuName, isLoading }: RenderQueuePanelProps): React.ReactElement {
   const isRendering = queueItem.progress > 0 && queueItem.progress < 100;
+
+  if (isLoading) {
+    return (
+      <div className="bg-[#101520] border border-[#1C2436] rounded-lg p-3 flex flex-col justify-between flex-1 min-h-0 select-none">
+        <div className="flex items-center justify-between shrink-0">
+          <Skeleton className="h-4 w-36 rounded" />
+          <Skeleton className="h-4 w-16 rounded" />
+        </div>
+        <div className="bg-[#0B0F17] border border-[#1A2234] rounded p-2.5 my-1.5 flex flex-col justify-between flex-1 min-h-0">
+          <div className="space-y-1.5">
+            <Skeleton className="h-3.5 w-3/4 rounded" />
+            <Skeleton className="h-2.5 w-1/2 rounded" />
+          </div>
+          <Skeleton className="h-2 w-full rounded-full mt-2" />
+        </div>
+        <div className="flex items-center justify-between pt-1.5 border-t border-[#1C2436]/60">
+          <Skeleton className="h-2.5 w-24 rounded" />
+          <Skeleton className="h-2.5 w-16 rounded" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#101520] border border-[#1C2436] rounded-lg p-3 flex flex-col justify-between flex-1 min-h-0 select-none">

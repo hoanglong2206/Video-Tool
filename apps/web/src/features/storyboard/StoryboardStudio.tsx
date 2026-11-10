@@ -21,6 +21,7 @@ export function StoryboardStudio({
     scenes,
     selectedScene,
     totalDuration,
+    isLoading,
     isGenerating,
     setSelectedSceneId,
     updateSelectedScene,
@@ -55,6 +56,7 @@ export function StoryboardStudio({
             scenes={scenes}
             totalDuration={totalDuration}
             selectedSceneId={selectedScene.id}
+            isLoading={isLoading || isGenerating}
             onSelectScene={setSelectedSceneId}
             onAddScene={handleAddScene}
           />

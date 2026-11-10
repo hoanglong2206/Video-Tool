@@ -55,3 +55,4 @@ export const toast = {
     useToastStore.getState().addToast({ type: "warning", message, title, duration }),
   dismiss: (id: string): void => useToastStore.getState().removeToast(id),
 };
+

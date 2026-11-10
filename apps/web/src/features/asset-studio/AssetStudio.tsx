@@ -25,6 +25,7 @@ export function AssetStudio({
     searchQuery,
     filteredAssets,
     selectedAsset,
+    isLoading,
     isRemovingBg,
     handleRemoveBackground,
     setSelectedCategoryId,
@@ -64,6 +65,7 @@ export function AssetStudio({
             selectedAssetId={selectedAsset.id}
             sourceFilter={sourceFilter}
             searchQuery={searchQuery}
+            isLoading={isLoading}
             onSelectAsset={setSelectedAssetId}
             onSourceFilterChange={setSourceFilter}
             onSearchChange={setSearchQuery}

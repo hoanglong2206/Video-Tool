@@ -6,14 +6,15 @@ import { useRouter } from "next/navigation";
 import { Play, ArrowUpRight, Film, Clock, Sparkles } from "lucide-react";
 import type { ProjectItem } from "../types";
 import { StatusBadge } from "@/components/shared";
-import { Progress, Button } from "@/components/ui";
+import { Progress, Button, Skeleton } from "@/components/ui";
 import { getProjectStageRoute } from "@/features/pipeline";
 
 interface RecentTwoProjectsProps {
   projects: ProjectItem[];
+  isLoading?: boolean;
 }
 
-export function RecentTwoProjects({ projects }: RecentTwoProjectsProps): React.ReactElement {
+export function RecentTwoProjects({ projects, isLoading }: RecentTwoProjectsProps): React.ReactElement {
   const router = useRouter();
 
   // Pick up to 2 recent projects purely from live API
@@ -41,7 +42,29 @@ export function RecentTwoProjects({ projects }: RecentTwoProjectsProps): React.R
       </div>
 
       {/* 2 Projects Grid or Clean Empty State */}
-      {displayProjects.length === 0 ? (
+      {isLoading ? (
+        <div className="grid grid-cols-2 gap-2.5 flex-1 min-h-0 overflow-hidden">
+          {Array.from({ length: 2 }).map((_, idx) => (
+            <div
+              key={idx}
+              className="bg-[#101520] border border-[#1C2436] rounded-lg p-2.5 flex flex-col h-full min-h-0 justify-between"
+            >
+              <Skeleton className="w-full flex-1 min-h-[90px] rounded bg-[#141B29]" />
+              <div className="mt-2 shrink-0 space-y-2">
+                <Skeleton className="h-3.5 w-3/4 rounded" />
+                <Skeleton className="h-2.5 w-1/2 rounded" />
+                <div className="pt-1.5 border-t border-[#1C2436]/60 space-y-1">
+                  <div className="flex justify-between">
+                    <Skeleton className="h-2.5 w-10" />
+                    <Skeleton className="h-2.5 w-6" />
+                  </div>
+                  <Skeleton className="h-1.5 w-full rounded-full" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : displayProjects.length === 0 ? (
         <div className="flex-1 min-h-0 bg-[#101520] border border-dashed border-[#1C2436] rounded-lg p-5 flex flex-col items-center justify-center text-center">
           <div className="w-9 h-9 rounded-full bg-blue-950/60 border border-blue-800/40 flex items-center justify-center text-blue-400 mb-2">
             <Film className="w-4 h-4" />

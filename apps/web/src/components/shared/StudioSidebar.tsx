@@ -18,7 +18,7 @@ import {
 import { cn } from "@/lib/utils";
 import { dashboardService } from "@/services/dashboard";
 import { QUERY_KEYS } from "@/constants/query-keys";
-import { Button } from "@/components/ui";
+import { Button, Skeleton } from "@/components/ui";
 import { getProjectStageRoute } from "@/features/pipeline";
 
 import { ProjectItem } from "@/services/dashboard";
@@ -31,7 +31,7 @@ export function StudioSidebar({ className }: StudioSidebarProps): React.ReactEle
   const pathname = usePathname();
   const router = useRouter();
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: QUERY_KEYS.dashboard.stats(),
     queryFn: () => dashboardService.getOverview(),
     staleTime: 10000,
@@ -118,8 +118,8 @@ export function StudioSidebar({ className }: StudioSidebarProps): React.ReactEle
           >
             <FolderKanban className={cn("w-4 h-4", isProjects ? "text-blue-400" : "text-slate-400")} />
             <span className="flex-1">Danh sách dự án</span>
-            <span className="text-[10px] bg-[#1A2234] text-slate-400 px-1.5 py-0.5 rounded-full font-mono">
-              {recentProjects.length}
+            <span className="text-[10px] bg-[#1A2234] text-slate-400 px-1.5 py-0.5 rounded-full font-mono min-w-4 text-center">
+              {isLoading ? "..." : recentProjects.length}
             </span>
           </Link>
         </nav>
@@ -131,12 +131,24 @@ export function StudioSidebar({ className }: StudioSidebarProps): React.ReactEle
               Dự án gần đây
             </span>
             <span className="text-[10px] text-slate-400 font-mono">
-              {recentProjects.length}/5
+              {isLoading ? "..." : `${recentProjects.length}/5`}
             </span>
           </div>
 
           <div className="flex flex-col gap-1">
-            {recentProjects.length === 0 ? (
+            {isLoading ? (
+              <div className="flex flex-col gap-1.5 px-0.5 py-1">
+                {Array.from({ length: 3 }).map((_, idx) => (
+                  <div key={idx} className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg bg-[#0E131E]/60 border border-[#161D2C]">
+                    <Skeleton className="w-2 h-2 rounded-full shrink-0" />
+                    <div className="flex-1 space-y-1.5 min-w-0">
+                      <Skeleton className="h-3 w-3/4 rounded" />
+                      <Skeleton className="h-2 w-1/2 rounded" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : recentProjects.length === 0 ? (
               <div className="px-2.5 py-3 text-center rounded-lg bg-[#0E131E] border border-dashed border-[#1E2638]">
                 <p className="text-[11px] text-slate-500">Chưa có dự án nào</p>
               </div>

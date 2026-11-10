@@ -26,7 +26,7 @@ export function HierarchySidebar({
               key={node.id}
               type="button"
               onClick={() => onSelectNode(node.id)}
-              className={`w-full text-left px-2.5 py-1.5 rounded-md transition-colors border ${
+              className={`w-full text-left px-2.5 py-1.5 rounded-md transition-colors border cursor-pointer ${
                 isSelected
                   ? "bg-[#14233D] text-slate-100 border-[#2563EB] font-medium"
                   : "bg-transparent text-slate-400 border-transparent hover:text-slate-200 hover:bg-[#101520]"
