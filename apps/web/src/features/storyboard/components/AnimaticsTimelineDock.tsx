@@ -25,27 +25,6 @@ export function AnimaticsTimelineDock({
   onSeek,
   onSelectScene,
 }: AnimaticsTimelineDockProps): React.ReactElement {
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Smooth 100ms real-time playback timer
-  useEffect(() => {
-    if (isPlaying) {
-      timerRef.current = setInterval(() => {
-        if (currentTime >= totalDuration) {
-          onTogglePlay(false);
-          onSeek(0);
-        } else {
-          onSeek(Math.min(totalDuration, +(currentTime + 0.1).toFixed(2)));
-        }
-      }, 100);
-    } else if (timerRef.current) {
-      clearInterval(timerRef.current);
-    }
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [isPlaying, currentTime, totalDuration, onSeek, onTogglePlay]);
-
   // Synchronize Playhead when user selects scene while not playing
   useEffect(() => {
     if (isPlaying || !selectedSceneId || scenes.length === 0) return;

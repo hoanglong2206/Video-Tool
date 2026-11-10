@@ -39,7 +39,7 @@ export function SceneCard({
       }}
       onDrop={(e) => onDrop && onDrop(e, index)}
       onClick={() => onSelect(scene.id)}
-      className={`bg-[#0D121F] border rounded-xl p-3 flex flex-col justify-between transition-all cursor-pointer select-none group relative min-h-[310px] h-full overflow-hidden ${
+      className={`bg-[#0D121F] border rounded-xl p-3 flex flex-col transition-all cursor-pointer select-none group relative min-h-63 h-full overflow-hidden ${
         isSelected
           ? "border-cyan-400 shadow-xl shadow-cyan-500/20 ring-2 ring-cyan-400/50 bg-[#0D172A]"
           : "border-[#1C2436] hover:border-[#2C3852] hover:bg-[#101726]"

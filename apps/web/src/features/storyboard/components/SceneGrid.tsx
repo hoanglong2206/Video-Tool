@@ -10,7 +10,7 @@ interface SceneGridProps {
   scenes: StoryboardScene[];
   totalDuration: number;
   selectedSceneId: string;
-  viewMode: StoryboardViewMode;
+  viewMode?: StoryboardViewMode;
   isLoading?: boolean;
   isAddingScene?: boolean;
   onSelectScene: (sceneId: string) => void;
@@ -100,7 +100,7 @@ export function SceneGrid({
             <Plus className="w-3 h-3 mr-1" /> Thêm cảnh mới
           </Button>
         </div>
-      ) : viewMode === "grid" ? (
+      ) : (
         /* 3. Grid Matrix View (3x2 or responsive) */
         <div className="flex-1 min-h-0 overflow-y-auto pr-1">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3.5 pb-4">
@@ -120,26 +120,6 @@ export function SceneGrid({
               />
             ))}
           </div>
-        </div>
-      ) : (
-        /* 4. Timeline Reel View (Cuộn ngang dòng thời gian) */
-        <div className="flex-1 min-h-0 flex items-center overflow-x-auto gap-3.5 pb-2 scrollbar-thin">
-          {scenes.map((scene, idx) => (
-            <div key={scene.id} className="w-[320px] shrink-0 h-full flex flex-col justify-center">
-              <SceneCard
-                scene={scene}
-                index={idx}
-                isSelected={scene.id === selectedSceneId}
-                onSelect={onSelectScene}
-                onDuplicate={onDuplicateScene}
-                onRemove={onRemoveScene}
-                onOpenPreview={onOpenPreview}
-                onDragStart={handleDragStart}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={handleDrop}
-              />
-            </div>
-          ))}
         </div>
       )}
     </section>

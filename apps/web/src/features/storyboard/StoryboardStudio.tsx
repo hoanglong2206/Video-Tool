@@ -4,9 +4,11 @@ import React, { useState } from "react";
 import { DashboardSidebar } from "@/features/dashboard/components/DashboardSidebar";
 import { PipelineJourneyBar } from "@/features/pipeline/components/PipelineJourneyBar";
 import { useStoryboard } from "./hooks/useStoryboard";
+import { useStoryboardPlayback } from "./hooks/useStoryboardPlayback";
 import { StoryboardHeader } from "./components/StoryboardHeader";
 import { SceneGrid } from "./components/SceneGrid";
 import { SceneInspector } from "./components/SceneInspector";
+import { StoryboardTimelineView } from "./components/timeline/StoryboardTimelineView";
 import { AnimaticsTimelineDock } from "./components/AnimaticsTimelineDock";
 import { LightboxModal } from "./components/LightboxModal";
 import { AnimaticsPreviewModal } from "./components/AnimaticsPreviewModal";
@@ -52,6 +54,9 @@ export function StoryboardStudio({
     handleApproveAndProceed,
   } = useStoryboard(projectName, projectId);
 
+  // Centralized playback timer that runs seamlessly across Grid and Timeline views
+  useStoryboardPlayback(totalDuration);
+
   const [lightboxImageUrl, setLightboxImageUrl] = useState<string | null>(null);
   const [showAnimaticsModal, setShowAnimaticsModal] = useState<boolean>(false);
 
@@ -96,23 +101,47 @@ export function StoryboardStudio({
 
         {/* Center Canvas vs Right Inspector */}
         <main className="flex-1 flex min-h-0 overflow-hidden">
-          <SceneGrid
-            scenes={scenes}
-            totalDuration={totalDuration}
-            selectedSceneId={effectiveScene.id}
-            viewMode={viewMode}
-            isLoading={isLoading || isGenerating}
-            isAddingScene={isAddingScene}
-            onSelectScene={(id) => {
-              if (isPlayingAnimatics) setIsPlayingAnimatics(false);
-              setSelectedSceneId(id);
-            }}
-            onAddScene={handleAddScene}
-            onDuplicateScene={(id) => handleDuplicate(id)}
-            onRemoveScene={(id) => handleRemove(id)}
-            onMoveScene={handleMoveScene}
-            onOpenPreview={setLightboxImageUrl}
-          />
+          {viewMode === "grid" ? (
+            <SceneGrid
+              scenes={scenes}
+              totalDuration={totalDuration}
+              selectedSceneId={effectiveScene.id}
+              viewMode={viewMode}
+              isLoading={isLoading || isGenerating}
+              isAddingScene={isAddingScene}
+              onSelectScene={(id) => {
+                if (isPlayingAnimatics) setIsPlayingAnimatics(false);
+                setSelectedSceneId(id);
+              }}
+              onAddScene={handleAddScene}
+              onDuplicateScene={(id) => handleDuplicate(id)}
+              onRemoveScene={(id) => handleRemove(id)}
+              onMoveScene={handleMoveScene}
+              onOpenPreview={setLightboxImageUrl}
+            />
+          ) : (
+            <StoryboardTimelineView
+              scenes={scenes}
+              selectedScene={effectiveScene}
+              totalDuration={totalDuration}
+              isPlaying={isPlayingAnimatics}
+              currentTime={playbackCurrentTime}
+              onTogglePlay={setIsPlayingAnimatics}
+              onSeek={setPlaybackCurrentTime}
+              onSelectScene={(id) => {
+                if (isPlayingAnimatics) setIsPlayingAnimatics(false);
+                setSelectedSceneId(id);
+              }}
+              onAddScene={handleAddScene}
+              onMoveScene={handleMoveScene}
+              onUpdateTransition={(sceneId, transition) => {
+                updateSelectedScene("transitionType", transition);
+                handleSaveScene(sceneId);
+              }}
+              onOpenPreview={setLightboxImageUrl}
+              isAddingScene={isAddingScene}
+            />
+          )}
 
           <SceneInspector
             scene={effectiveScene}
@@ -131,20 +160,22 @@ export function StoryboardStudio({
           />
         </main>
 
-        {/* Bottom Animatics Timeline Dock */}
-        <AnimaticsTimelineDock
-          scenes={scenes}
-          selectedSceneId={effectiveScene.id}
-          totalDuration={totalDuration}
-          isPlaying={isPlayingAnimatics}
-          currentTime={playbackCurrentTime}
-          onTogglePlay={setIsPlayingAnimatics}
-          onSeek={setPlaybackCurrentTime}
-          onSelectScene={(id) => {
-            if (isPlayingAnimatics) setIsPlayingAnimatics(false);
-            setSelectedSceneId(id);
-          }}
-        />
+        {/* Bottom Animatics Timeline Dock only active in Grid mode */}
+        {viewMode === "grid" && (
+          <AnimaticsTimelineDock
+            scenes={scenes}
+            selectedSceneId={effectiveScene.id}
+            totalDuration={totalDuration}
+            isPlaying={isPlayingAnimatics}
+            currentTime={playbackCurrentTime}
+            onTogglePlay={setIsPlayingAnimatics}
+            onSeek={setPlaybackCurrentTime}
+            onSelectScene={(id) => {
+              if (isPlayingAnimatics) setIsPlayingAnimatics(false);
+              setSelectedSceneId(id);
+            }}
+          />
+        )}
       </div>
 
       {/* Modals & Overlays */}
