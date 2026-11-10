@@ -1,9 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { Film, Sparkles } from "lucide-react";
+import { Film, Sparkles, ChevronDown } from "lucide-react";
 import { TRANSITION_PRESETS } from "../../config/cinematography";
 import { PropertyExplainer } from "./PropertyExplainer";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+} from "@/components/ui/dropdown-menu";
 
 interface TransitionSectionProps {
   currentTransition: string;
@@ -34,7 +39,8 @@ export function TransitionSection({
     sceneNumber === 1 ? "Fade to Black" : sceneNumber % 2 === 0 ? "Whip Pan Blur" : "Cross Dissolve";
 
   return (
-    <div className="relative">
+    <div>
+      {/* Header with Title & AI Suggestion */}
       <div className="flex items-center justify-between mb-1.5">
         <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1">
           <Film className="w-3 h-3 text-cyan-400" /> Hiệu ứng chuyển cảnh (Transition)
@@ -49,14 +55,53 @@ export function TransitionSection({
         </button>
       </div>
 
-      {/* Dropdown Box */}
-      <div
-        onClick={() => setShowDropdown(!showDropdown)}
-        className="bg-[#070A10] border border-[#1E2638] hover:border-cyan-500 h-8 px-2.5 rounded flex items-center justify-between cursor-pointer text-slate-200 transition-colors"
-      >
-        <span className="font-semibold text-cyan-300 truncate">{currentTransition || "Cut"}</span>
-        <span className="text-[9px] text-slate-500 font-mono">Thay đổi ▾</span>
-      </div>
+      {/* Dropdown Menu Trigger & Content via Radix Portal */}
+      <DropdownMenu open={showDropdown} onOpenChange={setShowDropdown}>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            className="w-full bg-[#070A10] border border-[#1E2638] hover:border-cyan-500 h-8 px-2.5 rounded flex items-center justify-between cursor-pointer text-slate-200 transition-colors"
+          >
+            <span className="font-semibold text-cyan-300 truncate">{currentTransition || "Cut"}</span>
+            <span className="text-[9px] text-slate-400 font-mono flex items-center gap-0.5">
+              Thay đổi <ChevronDown className="w-3 h-3 text-slate-400" />
+            </span>
+          </button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent
+          side="bottom"
+          align="start"
+          sideOffset={4}
+          className="w-[330px] xl:w-[370px] bg-[#0A0E18] border border-[#1E2638] rounded-lg shadow-2xl p-2 z-50 flex flex-col gap-1 max-h-60 overflow-y-auto"
+        >
+          <input
+            type="text"
+            placeholder="Tìm kiếm 14 hiệu ứng chuyển cảnh..."
+            value={transitionSearch}
+            onChange={(e) => setTransitionSearch(e.target.value)}
+            onKeyDown={(e) => e.stopPropagation()}
+            className="bg-[#121927] border border-[#1E2638] rounded px-2 py-1 text-xs text-slate-200 mb-1 focus:outline-none focus:border-cyan-500 shrink-0"
+            autoFocus
+          />
+          {filteredTransitions.map((t) => (
+            <div
+              key={t.id}
+              onClick={() => {
+                onSelectTransition(t.id);
+                setShowDropdown(false);
+                setTransitionSearch("");
+              }}
+              className={`p-1.5 rounded flex items-center justify-between cursor-pointer transition-colors ${
+                currentTransition === t.id ? "bg-cyan-600 text-white font-bold" : "hover:bg-[#141B2B] text-slate-300"
+              }`}
+            >
+              <span className="font-semibold text-[11px]">{t.id}</span>
+              <span className="text-[9px] opacity-75 truncate max-w-[150px]">{t.desc}</span>
+            </div>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       {/* Quick Selection Pills */}
       <div className="flex items-center gap-1 flex-wrap mt-1.5">
@@ -80,36 +125,6 @@ export function TransitionSection({
           );
         })}
       </div>
-
-      {/* Dropdown Modal */}
-      {showDropdown && (
-        <div className="absolute left-0 right-0 top-full mt-1 bg-[#0A0E18] border border-[#1E2638] rounded-lg shadow-2xl p-2 z-40 flex flex-col gap-1 max-h-56 overflow-y-auto">
-          <input
-            type="text"
-            placeholder="Tìm kiếm 14 hiệu ứng chuyển cảnh..."
-            value={transitionSearch}
-            onChange={(e) => setTransitionSearch(e.target.value)}
-            className="bg-[#121927] border border-[#1E2638] rounded px-2 py-1 text-xs text-slate-200 mb-1 focus:outline-none focus:border-cyan-500"
-            autoFocus
-          />
-          {filteredTransitions.map((t) => (
-            <div
-              key={t.id}
-              onClick={() => {
-                onSelectTransition(t.id);
-                setShowDropdown(false);
-                setTransitionSearch("");
-              }}
-              className={`p-1.5 rounded flex items-center justify-between cursor-pointer transition-colors ${
-                currentTransition === t.id ? "bg-cyan-600 text-white font-bold" : "hover:bg-[#141B2B] text-slate-300"
-              }`}
-            >
-              <span className="font-semibold text-[11px]">{t.id}</span>
-              <span className="text-[9px] opacity-75 truncate max-w-[150px]">{t.desc}</span>
-            </div>
-          ))}
-        </div>
-      )}
 
       <PropertyExplainer badge={currentTransitionObj.id} badgeColor="cyan" text={currentTransitionObj.desc} />
     </div>
