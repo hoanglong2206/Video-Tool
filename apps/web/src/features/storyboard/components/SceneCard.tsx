@@ -130,11 +130,24 @@ export function SceneCard({
           </button>
         )}
 
-        {/* Camera Tag Overlay */}
-        <div className="absolute bottom-1 left-1 flex items-center gap-1 bg-black/80 backdrop-blur-xs px-1.5 py-0.5 rounded text-[8.5px] font-mono text-cyan-300 border border-cyan-800/40">
-          <Camera className="w-2.5 h-2.5" />
-          <span className="truncate max-w-[120px]">{scene.cameraLens || "85mm"} · {scene.cameraMovement.split(" ")[0]}</span>
+        {/* Camera Tag Overlay (Lens + DoF + Movement) */}
+        <div className="absolute bottom-1 left-1 flex items-center gap-1 bg-black/85 backdrop-blur-xs px-1.5 py-0.5 rounded text-[8.5px] font-mono text-cyan-300 border border-cyan-800/40">
+          <Camera className="w-2.5 h-2.5 text-cyan-400" />
+          <span className="truncate max-w-[130px]">
+            {scene.cameraLens || "85mm"} · f/{scene.cameraDof || 1.8} · {scene.cameraMovement?.split(" ")[0] || "Static"}
+          </span>
         </div>
+
+        {/* Transition Tag Overlay */}
+        {scene.transitionType && (
+          <div
+            className="absolute bottom-1 right-1 flex items-center gap-0.5 bg-black/85 backdrop-blur-xs px-1.5 py-0.5 rounded text-[8.5px] font-mono text-slate-300 border border-slate-700/50"
+            title={`Hiệu ứng chuyển tiếp: ${scene.transitionType}`}
+          >
+            <span className="text-cyan-400">⚡</span>
+            <span className="truncate max-w-[75px]">{scene.transitionType}</span>
+          </div>
+        )}
       </div>
 
       {/* 3. Scene Title & Voiceover Preview */}

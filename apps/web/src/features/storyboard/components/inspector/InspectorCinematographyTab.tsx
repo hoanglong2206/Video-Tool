@@ -120,10 +120,10 @@ export function InspectorCinematographyTab({
           Chuyển động Camera (Camera Movement)
         </label>
         <Textarea
-          rows={6}
+          rows={4}
           value={scene.cameraMovement || ""}
           onChange={(e) => onChangeField("cameraMovement", e.target.value)}
-          className="bg-[#070A10] border-[#1E2638] text-xs font-mono h-[125px] resize-none leading-relaxed text-slate-200"
+          className="bg-[#070A10] border-[#1E2638] text-xs font-mono h-[96px] resize-none leading-relaxed text-slate-200"
           placeholder="Mô tả quỹ đạo camera..."
         />
         <div className="flex items-center gap-1 flex-wrap mt-1.5">

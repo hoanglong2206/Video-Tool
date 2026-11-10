@@ -20,8 +20,7 @@ export function PropertyExplainer({
 
   return (
     <div className="mt-1.5 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-[#070B14] to-[#0A101E] border border-[#172238] flex items-center gap-2 text-[10px] leading-relaxed shadow-xs">
-      <span className="text-[11px] shrink-0 leading-none">💡</span>
-      <div className="flex-1 min-w-0 flex items-center gap-1.5 flex-wrap">
+      <div className="flex-1 min-w-0 flex items-center gap-1.5">
         {badge && (
           <span className={`font-mono text-[9px] px-1 py-0.2 rounded border font-semibold shrink-0 ${colorMap[badgeColor]}`}>
             {badge}
