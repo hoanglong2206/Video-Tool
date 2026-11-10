@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Sparkles, CheckCircle2, Cpu, Cloud, ArrowRight, Loader2 } from "lucide-react";
-import { Button, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui";
+import { Button, Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui";
 import type { AssetPlanningCoverage, EngineMode } from "../types";
 
 interface AssetPlanningHeaderProps {
@@ -78,24 +78,26 @@ export function AssetPlanningHeader({
 
       {/* Right: Coverage Metric & Action CTAs */}
       <div className="flex items-center gap-3">
-        {/* Coverage Badge */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#111726] border border-[#1E283E]">
-              <span className="text-[11px] text-slate-400">Độ phủ:</span>
-              <span className="text-xs font-mono tabular-nums font-bold text-emerald-400">
-                {coverage.ready}/{coverage.total} Ready ({coverage.percent}%)
-              </span>
-            </div>
-          </TooltipTrigger>
-          <TooltipContent side="bottom" sideOffset={6}>
-            <p className="text-xs">
-              {coverage.missing > 0
-                ? `${coverage.missing} asset cần AI sinh hoặc tải lên.`
-                : "Tất cả các cảnh đã có đầy đủ tài nguyên!"}
-            </p>
-          </TooltipContent>
-        </Tooltip>
+        {/* Coverage Badge wrapped in TooltipProvider */}
+        <TooltipProvider delayDuration={100} skipDelayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#111726] border border-[#1E283E]">
+                <span className="text-[11px] text-slate-400">Độ phủ:</span>
+                <span className="text-xs font-mono tabular-nums font-bold text-emerald-400">
+                  {coverage.ready}/{coverage.total} Ready ({coverage.percent}%)
+                </span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" sideOffset={6}>
+              <p className="text-xs">
+                {coverage.missing > 0
+                  ? `${coverage.missing} asset cần AI sinh hoặc tải lên.`
+                  : "Tất cả các cảnh đã có đầy đủ tài nguyên!"}
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
         {/* 1-Click Bulk Generate */}
         <Button
@@ -113,20 +115,25 @@ export function AssetPlanningHeader({
           <span>Sinh tự động {coverage.missing > 0 ? `(${coverage.missing})` : ""}</span>
         </Button>
 
-        {/* HITL Gate Approve Button */}
+        {/* HITL Gate Approve Button with Spinner */}
         <Button
           size="sm"
           disabled={isApproving}
           onClick={onApprove}
-          className="h-8 text-xs bg-blue-600 hover:bg-blue-500 text-white font-medium flex items-center gap-1.5 cursor-pointer shadow-md shadow-blue-900/30"
+          className="h-8 text-xs bg-blue-600 hover:bg-blue-500 text-white font-medium flex items-center gap-1.5 cursor-pointer shadow-md shadow-blue-900/30 disabled:opacity-80 disabled:cursor-not-allowed min-w-[136px] justify-center"
         >
           {isApproving ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            <>
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              <span>Đang duyệt...</span>
+            </>
           ) : (
-            <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+            <>
+              <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+              <span>Duyệt kế hoạch</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </>
           )}
-          <span>Duyệt kế hoạch</span>
-          <ArrowRight className="w-3.5 h-3.5" />
         </Button>
       </div>
     </header>

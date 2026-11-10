@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { assetService } from "@/services/asset";
@@ -9,6 +10,7 @@ export function useAssetPlanning(projectId: string = "proj-1") {
   const router = useRouter();
   const queryClient = useQueryClient();
   const store = useAssetPlanningStore();
+  const [isApproving, setIsApproving] = useState<boolean>(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["asset-planning", projectId],
@@ -44,11 +46,15 @@ export function useAssetPlanning(projectId: string = "proj-1") {
 
   const approveMutation = useMutation({
     mutationFn: () => assetService.approveAssetPlanning(projectId),
+    onMutate: () => {
+      setIsApproving(true);
+    },
     onSuccess: (res) => {
-      toast.success("Đã duyệt bảng kế hoạch tài nguyên! Chuyển sang Bước 04.");
+      toast.success("Đã duyệt bảng kế hoạch tài nguyên! Đang chuyển sang Bước 04...");
       router.push(`/projects/${projectId}/${res.nextStageId || "asset-processing"}`);
     },
     onError: () => {
+      setIsApproving(false);
       toast.error("Lỗi khi ghi nhận phê duyệt. Vui lòng thử lại!");
     },
   });
@@ -92,6 +98,6 @@ export function useAssetPlanning(projectId: string = "proj-1") {
     handleGenerateAsset: (assetId: string) => generateMutation.mutate({ assetId }),
     handleBulkGenerate,
     handleApproveStage: () => approveMutation.mutate(),
-    isApproving: approveMutation.isPending,
+    isApproving: isApproving || approveMutation.isPending,
   };
 }
