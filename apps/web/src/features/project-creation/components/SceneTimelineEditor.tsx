@@ -23,6 +23,8 @@ interface SceneTimelineEditorProps {
   activeIndex: number;
   onSelectScene: (index: number) => void;
   onUpdateScene: (index: number, updated: Partial<SceneBreakdownItem>) => void;
+  onRegenerateScene?: (index: number, updated: Partial<SceneBreakdownItem>) => void;
+  onCreateSnapshot?: (index: number, description?: string) => void;
   onRollbackVersion?: (versionNumber: number) => void;
 }
 
@@ -31,6 +33,8 @@ export function SceneTimelineEditor({
   activeIndex,
   onSelectScene,
   onUpdateScene,
+  onRegenerateScene,
+  onCreateSnapshot,
   onRollbackVersion,
 }: SceneTimelineEditorProps): React.ReactElement {
   const [copied, setCopied] = useState(false);
@@ -51,6 +55,11 @@ export function SceneTimelineEditor({
     setTimeout(() => setTemplateSaved(false), 2000);
   };
 
+  const handleApplyRegen = (updated: Partial<SceneBreakdownItem>) => {
+    if (onRegenerateScene) onRegenerateScene(activeIndex, updated);
+    else onUpdateScene(activeIndex, updated);
+  };
+
   return (
     <div className="flex-1 min-h-0 flex flex-col gap-2 overflow-hidden">
       {/* 1. Scene Timeline Header */}
@@ -63,9 +72,7 @@ export function SceneTimelineEditor({
         </div>
         <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono">
           <span>Tổng:</span>
-          <span className="text-cyan-400 font-bold">
-            {scenes.reduce((acc, s) => acc + s.durationSeconds, 0)}s
-          </span>
+          <span className="text-cyan-400 font-bold">{scenes.reduce((acc, s) => acc + s.durationSeconds, 0)}s</span>
         </div>
       </div>
 
@@ -75,7 +82,7 @@ export function SceneTimelineEditor({
           const isSelected = activeIndex === idx;
           return (
             <button
-              key={scene.sceneNumber}
+              key={`scene-tab-${scene.sceneNumber}-${idx}`}
               type="button"
               onClick={() => onSelectScene(idx)}
               className={`p-1.5 rounded-lg border text-left transition-all cursor-pointer flex flex-col justify-between ${
@@ -85,23 +92,14 @@ export function SceneTimelineEditor({
               }`}
             >
               <div className="flex items-center justify-between">
-                <span
-                  className={`text-[10px] font-mono font-bold px-1 rounded ${
-                    isSelected ? "bg-blue-600 text-white" : "bg-[#182030] text-slate-400"
-                  }`}
-                >
+                <span className={`text-[10px] font-mono font-bold px-1 rounded ${isSelected ? "bg-blue-600 text-white" : "bg-[#182030] text-slate-400"}`}>
                   0{scene.sceneNumber}
                 </span>
                 <span className="text-[9px] text-slate-400 font-mono flex items-center gap-0.5">
                   <Clock className="w-2 h-2" /> {scene.durationSeconds}s
                 </span>
               </div>
-              <span
-                className={`text-[10px] truncate mt-1 block font-medium ${
-                  isSelected ? "text-blue-300 font-bold" : "text-slate-300"
-                }`}
-                title={scene.title}
-              >
+              <span className={`text-[10px] truncate mt-1 block font-medium ${isSelected ? "text-blue-300 font-bold" : "text-slate-300"}`} title={scene.title}>
                 {scene.title}
               </span>
             </button>
@@ -132,18 +130,27 @@ export function SceneTimelineEditor({
                 </button>
 
                 {showVersionDropdown && (
-                  <div className="absolute left-0 top-full mt-1 w-52 bg-[#0E131E] border border-[#1E2638] rounded-lg shadow-xl p-1 z-30 flex flex-col gap-1">
-                    <span className="text-[9px] text-slate-400 px-1.5 py-0.5 font-semibold uppercase">
-                      Lịch sử phiên bản
-                    </span>
-                    {(activeScene.versions || []).map((ver) => (
+                  <div className="absolute left-0 top-full mt-1 w-56 bg-[#0E131E] border border-[#1E2638] rounded-lg shadow-xl p-1 z-30 flex flex-col gap-1">
+                    <div className="flex items-center justify-between px-1.5 py-0.5">
+                      <span className="text-[9px] text-slate-400 font-semibold uppercase">Lịch sử phiên bản</span>
+                      {onCreateSnapshot && (
+                        <button
+                          type="button"
+                          onClick={() => onCreateSnapshot(activeIndex, "Lưu thủ công")}
+                          className="text-[9px] text-cyan-400 hover:text-cyan-300 font-mono cursor-pointer"
+                        >
+                          + Lưu snapshot
+                        </button>
+                      )}
+                    </div>
+                    {(activeScene.versions || []).map((ver, vIdx) => (
                       <div
-                        key={ver.versionNumber}
+                        key={`scene-${activeScene.sceneNumber}-v-${ver.versionNumber}-${vIdx}`}
                         className="flex items-center justify-between px-1.5 py-1 rounded bg-[#121927] hover:bg-[#182235] text-[10px]"
                       >
                         <div className="flex flex-col min-w-0">
                           <span className="font-bold text-slate-200">v{ver.versionNumber}</span>
-                          <span className="text-[8px] text-slate-400 truncate max-w-[110px]">{ver.createdAt}</span>
+                          <span className="text-[8px] text-slate-400 truncate max-w-[120px]">{ver.createdAt}</span>
                         </div>
                         {ver.versionNumber !== activeScene.activeVersion && onRollbackVersion && (
                           <button
@@ -270,9 +277,7 @@ export function SceneTimelineEditor({
           onClose={() => setShowRegenerateModal(false)}
           sceneNumber={activeScene.sceneNumber}
           sceneTitle={activeScene.title}
-          onApplyRegeneration={(updated) => {
-            onUpdateScene(activeIndex, updated);
-          }}
+          onApplyRegeneration={(updated) => handleApplyRegen(updated)}
         />
       )}
     </div>

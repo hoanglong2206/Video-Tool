@@ -36,10 +36,12 @@ interface ProjectCreationStoreState {
   addDemoFiles: () => void;
   setAiOutput: (output: FullAiAnalysisOutput) => void;
   updateScene: (index: number, updated: Partial<SceneBreakdownItem>) => void;
+  createSceneVersionSnapshot: (sceneIndex: number, description?: string) => void;
+  regenerateScene: (sceneIndex: number, updated: Partial<SceneBreakdownItem>) => void;
   rollbackSceneVersion: (sceneIndex: number, versionNumber: number) => void;
   selectAssetVersion: (assetId: string, versionNumber: number) => void;
-  applyBrandKit: (kitId: string) => void;
-  applySceneTemplate: (templateId: string) => void;
+  applyBrandKit: (kitId?: string) => void;
+  applySceneTemplate: (templateId?: string) => void;
   setActiveAiPipelineStage: (stage: number) => void;
   setIsAnalyzing: (analyzing: boolean) => void;
   setIsSaving: (saving: boolean) => void;
@@ -88,26 +90,65 @@ export const useProjectCreationStore = create<ProjectCreationStoreState>()(
         set((state) => {
           const newScenes = [...state.aiOutput.scenes];
           const curr = newScenes[index];
-          const prevVersions = curr.versions || [];
-          // If title/prompt changed, push to snapshot history if not duplicate
-          const nextVerNum = (curr.activeVersion || 1) + 1;
-          const updatedVersions = [
-            ...prevVersions,
-            {
-              versionNumber: nextVerNum,
-              title: updated.title ?? curr.title,
-              visualPrompt: updated.visualPrompt ?? curr.visualPrompt,
-              voiceover: updated.voiceover ?? curr.voiceover,
-              cameraMovement: updated.cameraMovement ?? curr.cameraMovement,
-              createdAt: "Bản sửa đổi",
-              role: "human_editor",
-            },
-          ];
+          if (!curr) return state;
           newScenes[index] = {
             ...curr,
             ...updated,
+          };
+          return {
+            aiOutput: { ...state.aiOutput, scenes: newScenes },
+            lastSavedAt: Date.now(),
+          };
+        }),
+      createSceneVersionSnapshot: (sceneIndex, description) =>
+        set((state) => {
+          const newScenes = [...state.aiOutput.scenes];
+          const curr = newScenes[sceneIndex];
+          if (!curr) return state;
+          const prevVersions = curr.versions || [];
+          const maxVer = prevVersions.reduce((m, v) => Math.max(m, v.versionNumber), 0);
+          const nextVerNum = Math.max(maxVer, curr.activeVersion || 1) + 1;
+          const snapshot = {
+            versionNumber: nextVerNum,
+            title: curr.title,
+            visualPrompt: curr.visualPrompt,
+            voiceover: curr.voiceover,
+            cameraMovement: curr.cameraMovement,
+            createdAt: description || "Bản lưu chụp",
+            role: "human_editor" as const,
+          };
+          newScenes[sceneIndex] = {
+            ...curr,
             activeVersion: nextVerNum,
-            versions: updatedVersions,
+            versions: [...prevVersions, snapshot],
+          };
+          return {
+            aiOutput: { ...state.aiOutput, scenes: newScenes },
+            lastSavedAt: Date.now(),
+          };
+        }),
+      regenerateScene: (sceneIndex, updated) =>
+        set((state) => {
+          const newScenes = [...state.aiOutput.scenes];
+          const curr = newScenes[sceneIndex];
+          if (!curr) return state;
+          const prevVersions = curr.versions || [];
+          const maxVer = prevVersions.reduce((m, v) => Math.max(m, v.versionNumber), 0);
+          const nextVerNum = Math.max(maxVer, curr.activeVersion || 1) + 1;
+          const snapshot = {
+            versionNumber: nextVerNum,
+            title: updated.title ?? curr.title,
+            visualPrompt: updated.visualPrompt ?? curr.visualPrompt,
+            voiceover: updated.voiceover ?? curr.voiceover,
+            cameraMovement: updated.cameraMovement ?? curr.cameraMovement,
+            createdAt: "AI Tái tạo theo yêu cầu",
+            role: "ai_regenerator" as const,
+          };
+          newScenes[sceneIndex] = {
+            ...curr,
+            ...updated,
+            activeVersion: nextVerNum,
+            versions: [...prevVersions, snapshot],
           };
           return {
             aiOutput: { ...state.aiOutput, scenes: newScenes },
@@ -154,6 +195,16 @@ export const useProjectCreationStore = create<ProjectCreationStoreState>()(
         }),
       applyBrandKit: (kitId) =>
         set((state) => {
+          // Toggle off if clicking the already selected kit or passing undefined
+          if (!kitId || state.formData.brandKitId === kitId) {
+            return {
+              formData: {
+                ...state.formData,
+                brandKitId: undefined,
+              },
+              lastSavedAt: Date.now(),
+            };
+          }
           const kit = BRAND_KIT_PRESETS.find((k) => k.id === kitId);
           if (!kit) return state;
           return {
@@ -169,6 +220,16 @@ export const useProjectCreationStore = create<ProjectCreationStoreState>()(
         }),
       applySceneTemplate: (templateId) =>
         set((state) => {
+          // Toggle off if clicking the already selected template or passing undefined
+          if (!templateId || state.formData.templateId === templateId) {
+            return {
+              formData: {
+                ...state.formData,
+                templateId: undefined,
+              },
+              lastSavedAt: Date.now(),
+            };
+          }
           const tmpl = SCENE_TEMPLATE_PRESETS.find((t) => t.id === templateId);
           if (!tmpl) return state;
           return {

@@ -9,6 +9,7 @@ interface CreationHeaderProps {
   step: CreationStep;
   onBackToOverview: () => void;
   onResetDraft?: () => void;
+  onSelectStep?: (step: CreationStep) => void;
   lastSavedAt?: number | null;
 }
 
@@ -16,6 +17,7 @@ export function CreationHeader({
   step,
   onBackToOverview,
   onResetDraft,
+  onSelectStep,
   lastSavedAt,
 }: CreationHeaderProps): React.ReactElement {
   const [showResetModal, setShowResetModal] = useState<boolean>(false);
@@ -50,39 +52,45 @@ export function CreationHeader({
         {/* Step Progress Pill & Actions */}
         <div className="flex items-center gap-3">
           <div className="hidden md:flex items-center gap-2 text-xs">
-            <span
-              className={`px-2 py-0.5 rounded font-mono text-[10px] ${
+            <button
+              type="button"
+              onClick={() => onSelectStep && onSelectStep("input")}
+              className={`px-2 py-0.5 rounded font-mono text-[10px] transition-colors cursor-pointer ${
                 step === "input"
                   ? "bg-blue-900/60 text-blue-400 border border-blue-700/60 font-semibold"
-                  : "text-slate-400"
+                  : "text-slate-400 hover:text-slate-200 hover:bg-[#141B2B]"
               }`}
             >
               1. Nhập yêu cầu & Media
-            </span>
+            </button>
 
             <ChevronRight className="w-3 h-3 text-slate-600" />
 
-            <span
-              className={`px-2 py-0.5 rounded font-mono text-[10px] ${
+            <button
+              type="button"
+              onClick={() => onSelectStep && onSelectStep("processing")}
+              className={`px-2 py-0.5 rounded font-mono text-[10px] transition-colors cursor-pointer ${
                 step === "processing"
                   ? "bg-blue-900/60 text-blue-400 border border-blue-700/60 font-semibold animate-pulse"
-                  : "text-slate-400"
+                  : "text-slate-400 hover:text-slate-200 hover:bg-[#141B2B]"
               }`}
             >
               2. Phân tích AI đa tầng
-            </span>
+            </button>
 
             <ChevronRight className="w-3 h-3 text-slate-600" />
 
-            <span
-              className={`px-2 py-0.5 rounded font-mono text-[10px] ${
+            <button
+              type="button"
+              onClick={() => onSelectStep && onSelectStep("inspection")}
+              className={`px-2 py-0.5 rounded font-mono text-[10px] transition-colors cursor-pointer ${
                 step === "inspection"
                   ? "bg-emerald-900/60 text-emerald-400 border border-emerald-700/60 font-semibold"
-                  : "text-slate-400"
+                  : "text-slate-400 hover:text-slate-200 hover:bg-[#141B2B]"
               }`}
             >
               3. Giao diện kiểm tra
-            </span>
+            </button>
           </div>
 
           {/* Reset Draft Button */}
@@ -100,17 +108,15 @@ export function CreationHeader({
         </div>
       </header>
 
-      {/* Confirmation Modal */}
-      {onResetDraft && (
-        <ResetDraftConfirmDialog
-          isOpen={showResetModal}
-          onClose={() => setShowResetModal(false)}
-          onConfirmReset={() => {
-            setShowResetModal(false);
-            onResetDraft();
-          }}
-        />
-      )}
+      {/* Reset Draft Confirmation Dialog */}
+      <ResetDraftConfirmDialog
+        isOpen={showResetModal}
+        onClose={() => setShowResetModal(false)}
+        onConfirmReset={() => {
+          onResetDraft && onResetDraft();
+          setShowResetModal(false);
+        }}
+      />
     </>
   );
 }

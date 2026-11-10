@@ -83,9 +83,9 @@ export function ReferenceMediaBoard({
                   <div className="flex items-center gap-1 mt-1 pt-1 border-t border-[#1C2436]/60">
                     <Layers className="w-2.5 h-2.5 text-cyan-400 shrink-0" />
                     <div className="flex items-center gap-0.5 flex-1">
-                      {file.versions.map((ver) => (
+                      {file.versions.map((ver, vIdx) => (
                         <button
-                          key={ver.versionNumber}
+                          key={`file-${file.id}-v-${ver.versionNumber}-${vIdx}`}
                           type="button"
                           onClick={() => onSelectAssetVersion && onSelectAssetVersion(file.id, ver.versionNumber)}
                           className={`flex-1 text-[8px] font-mono py-0.5 rounded cursor-pointer transition-colors ${
@@ -117,7 +117,7 @@ export function ReferenceMediaBoard({
           </span>
           <div className="flex items-center gap-1.5">
             {aiOutput.vision.colorPalette.map((hex, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
+              <div key={`color-swatch-${hex}-${i}`} className="flex-1 flex flex-col items-center gap-0.5">
                 <div
                   className="w-full h-3.5 rounded border border-slate-700 shadow-xs"
                   style={{ backgroundColor: hex }}

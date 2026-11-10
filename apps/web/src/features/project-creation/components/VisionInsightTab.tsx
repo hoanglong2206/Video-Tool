@@ -52,7 +52,7 @@ export function VisionInsightTab({ aiOutput }: VisionInsightTabProps): React.Rea
         <div className="flex flex-wrap gap-1">
           {aiOutput.vision.detectedObjects.map((obj, i) => (
             <span
-              key={i}
+              key={`vision-obj-${obj}-${i}`}
               className="text-[9px] bg-blue-950/80 text-blue-300 border border-blue-800/50 px-2 py-0.5 rounded font-mono truncate max-w-full"
             >
               #{obj}
@@ -88,7 +88,7 @@ export function VisionInsightTab({ aiOutput }: VisionInsightTabProps): React.Rea
         </span>
         <div className="grid grid-cols-2 gap-1 text-[9px] font-mono text-emerald-400">
           {specs.map((item, idx) => (
-            <span key={idx} className="flex items-center gap-1 truncate">
+            <span key={`spec-item-${item}-${idx}`} className="flex items-center gap-1 truncate">
               <Check className="w-2.5 h-2.5 shrink-0 text-emerald-400" /> {item}
             </span>
           ))}

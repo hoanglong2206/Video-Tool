@@ -14,6 +14,8 @@ interface EditableBriefFormProps {
     value: ProjectBriefFormData[K]
   ) => void;
   onUpdateScene: (index: number, updated: Partial<SceneBreakdownItem>) => void;
+  onRegenerateScene?: (index: number, updated: Partial<SceneBreakdownItem>) => void;
+  onCreateSnapshot?: (index: number, description?: string) => void;
   onRollbackSceneVersion?: (sceneIndex: number, versionNumber: number) => void;
 }
 
@@ -22,6 +24,8 @@ export function EditableBriefForm({
   aiOutput,
   onChangeField,
   onUpdateScene,
+  onRegenerateScene,
+  onCreateSnapshot,
   onRollbackSceneVersion,
 }: EditableBriefFormProps): React.ReactElement {
   const [activeSceneIndex, setActiveSceneIndex] = useState<number>(0);
@@ -108,6 +112,8 @@ export function EditableBriefForm({
           activeIndex={activeSceneIndex}
           onSelectScene={setActiveSceneIndex}
           onUpdateScene={onUpdateScene}
+          onRegenerateScene={onRegenerateScene}
+          onCreateSnapshot={onCreateSnapshot}
           onRollbackVersion={(verNum) => onRollbackSceneVersion && onRollbackSceneVersion(activeSceneIndex, verNum)}
         />
       </div>

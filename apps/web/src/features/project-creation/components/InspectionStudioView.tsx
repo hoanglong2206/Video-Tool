@@ -20,9 +20,12 @@ interface InspectionStudioViewProps {
     value: ProjectBriefFormData[K]
   ) => void;
   onUpdateScene: (index: number, updated: Partial<SceneBreakdownItem>) => void;
+  onRegenerateScene?: (index: number, updated: Partial<SceneBreakdownItem>) => void;
+  onCreateSnapshot?: (index: number, description?: string) => void;
   onRollbackSceneVersion?: (sceneIndex: number, versionNumber: number) => void;
   onSelectAssetVersion?: (assetId: string, versionNumber: number) => void;
   onBackToInput: () => void;
+  onBackToProcessing?: () => void;
   onSaveDraft: () => void;
   onConfirmCreate: () => void;
 }
@@ -33,9 +36,12 @@ export function InspectionStudioView({
   isSaving,
   onChangeField,
   onUpdateScene,
+  onRegenerateScene,
+  onCreateSnapshot,
   onRollbackSceneVersion,
   onSelectAssetVersion,
   onBackToInput,
+  onBackToProcessing,
   onSaveDraft,
   onConfirmCreate,
 }: InspectionStudioViewProps): React.ReactElement {
@@ -65,9 +71,24 @@ export function InspectionStudioView({
             size="sm"
             onClick={onBackToInput}
             className="h-7 text-xs bg-[#101520] border-[#1E2638] text-slate-300 hover:text-white flex items-center gap-1 cursor-pointer transition-colors"
+            title="Quay lại bước 1 để chỉnh sửa form brief và tệp media"
           >
-            <ArrowLeft className="w-3 h-3" /> Sửa lại file & brief
+            <ArrowLeft className="w-3 h-3" /> Bước 1: File & Brief
           </Button>
+
+          {onBackToProcessing && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={onBackToProcessing}
+              className="h-7 text-xs bg-[#101520] border-[#1E2638] text-cyan-300 hover:text-white flex items-center gap-1 cursor-pointer transition-colors"
+              title="Xem lại tiến trình phân tích AI đa tầng (Bước 2)"
+            >
+              <Sparkles className="w-3 h-3 text-cyan-400" />
+              <span>Bước 2: Phân tích AI</span>
+            </Button>
+          )}
 
           <Button
             type="button"
@@ -107,6 +128,8 @@ export function InspectionStudioView({
           aiOutput={aiOutput}
           onChangeField={onChangeField}
           onUpdateScene={onUpdateScene}
+          onRegenerateScene={onRegenerateScene}
+          onCreateSnapshot={onCreateSnapshot}
           onRollbackSceneVersion={onRollbackSceneVersion}
         />
 

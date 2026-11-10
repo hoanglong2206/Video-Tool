@@ -24,6 +24,8 @@ export function ProjectCreation(): React.ReactElement {
     removeFile,
     addDemoFiles,
     updateScene,
+    createSceneVersionSnapshot,
+    regenerateScene,
     rollbackSceneVersion,
     selectAssetVersion,
     applyBrandKit,
@@ -42,11 +44,12 @@ export function ProjectCreation(): React.ReactElement {
 
       {/* 2. Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
-        {/* Top Header */}
+        {/* Top Header with Interactive Step Navigation */}
         <CreationHeader
           step={step}
           onBackToOverview={() => router.push("/")}
           onResetDraft={clearDraft}
+          onSelectStep={setStep}
           lastSavedAt={lastSavedAt}
         />
 
@@ -83,9 +86,12 @@ export function ProjectCreation(): React.ReactElement {
               isSaving={isSaving}
               onChangeField={updateField}
               onUpdateScene={updateScene}
+              onRegenerateScene={regenerateScene}
+              onCreateSnapshot={createSceneVersionSnapshot}
               onRollbackSceneVersion={rollbackSceneVersion}
               onSelectAssetVersion={selectAssetVersion}
               onBackToInput={() => setStep("input")}
+              onBackToProcessing={() => setStep("processing")}
               onSaveDraft={handleSaveDraft}
               onConfirmCreate={handleConfirmAndCreateProject}
             />

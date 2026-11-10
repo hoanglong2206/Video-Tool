@@ -19,8 +19,8 @@ interface BriefFormProps {
   onAddFile: (file: UploadedMediaItem) => void;
   onRemoveFile: (id: string) => void;
   onAddDemoFiles: () => void;
-  onSelectBrandKit?: (kitId: string) => void;
-  onSelectTemplate?: (templateId: string) => void;
+  onSelectBrandKit?: (kitId?: string) => void;
+  onSelectTemplate?: (templateId?: string) => void;
   onSubmitAnalyze: () => void;
 }
 

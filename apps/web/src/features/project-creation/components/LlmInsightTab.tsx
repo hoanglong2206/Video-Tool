@@ -20,7 +20,7 @@ export function LlmInsightTab({ aiOutput }: LlmInsightTabProps): React.ReactElem
         <div className="flex gap-1">
           {aiOutput.promptBuilder.targetEngines.map((eng, i) => (
             <span
-              key={i}
+              key={`target-eng-${eng}-${i}`}
               className="text-[9px] bg-purple-950/80 text-purple-300 border border-purple-800/40 px-1.5 py-0.5 rounded font-mono"
             >
               {eng.split(" ")[0]}
@@ -46,7 +46,7 @@ export function LlmInsightTab({ aiOutput }: LlmInsightTabProps): React.ReactElem
         </span>
         <div className="flex flex-col gap-1">
           {aiOutput.llm.keyHooks.map((hook, i) => (
-            <div key={i} className="flex items-start gap-1.5 text-[10px] text-slate-300">
+            <div key={`key-hook-${i}`} className="flex items-start gap-1.5 text-[10px] text-slate-300">
               <span className="w-3.5 h-3.5 rounded bg-purple-900/60 text-purple-300 text-[9px] font-mono flex items-center justify-center shrink-0 mt-0.5">
                 {i + 1}
               </span>
