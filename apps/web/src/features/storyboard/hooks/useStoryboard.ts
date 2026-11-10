@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/components/ui";
 import { storyboardService, type UpdateSceneInput } from "@/services/storyboard";
@@ -29,8 +29,10 @@ export function useStoryboard(
   const pendingUpdatesRef = useRef<Record<string, UpdateSceneInput>>({});
   const lastSavedRef = useRef<Record<string, Record<string, any>>>({});
   const isUpdatingSceneRef = useRef(false);
-  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reorderTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Manual save tracking: which scenes have unsaved local changes
+  const [dirtyScenes, setDirtyScenes] = useState<Record<string, boolean>>({});
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: QUERY_KEYS.storyboard.byProject(projectId),
@@ -51,12 +53,7 @@ export function useStoryboard(
     store,
     lastSavedRef,
     isUpdatingSceneRef,
-    onFlushNextPending: () => {
-      const pendingKeys = Object.keys(pendingUpdatesRef.current);
-      if (pendingKeys.length > 0) {
-        flushPendingUpdates(pendingKeys[0]);
-      }
-    },
+    onFlushNextPending: () => {},
   });
 
   useEffect(() => {
@@ -73,42 +70,8 @@ export function useStoryboard(
     }
   }, [data]);
 
-  const flushPendingUpdates = (targetSceneId?: string) => {
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-      debounceTimerRef.current = null;
-    }
-    const sceneId = targetSceneId || store.selectedSceneId;
-    if (!sceneId || !pendingUpdatesRef.current[sceneId]) return;
-
-    const rawInput = { ...pendingUpdatesRef.current[sceneId] };
-    delete pendingUpdatesRef.current[sceneId];
-
-    const dirtyInput: UpdateSceneInput = {};
-    const lastSaved = lastSavedRef.current[sceneId] || {};
-    for (const [k, v] of Object.entries(rawInput)) {
-      if (lastSaved[k] !== v) {
-        (dirtyInput as any)[k] = v;
-      }
-    }
-
-    if (Object.keys(dirtyInput).length === 0) return;
-
-    if (isUpdatingSceneRef.current) {
-      pendingUpdatesRef.current[sceneId] = {
-        ...(pendingUpdatesRef.current[sceneId] || {}),
-        ...dirtyInput,
-      };
-      return;
-    }
-
-    isUpdatingSceneRef.current = true;
-    updateSceneMutation.mutate({ sceneId, input: dirtyInput });
-  };
-
   useEffect(() => {
     return () => {
-      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
       if (reorderTimerRef.current) clearTimeout(reorderTimerRef.current);
     };
   }, []);
@@ -119,7 +82,9 @@ export function useStoryboard(
     FALLBACK_EMPTY_SCENE;
 
   const totalDuration = store.scenes.reduce((acc, s) => acc + (s.durationSeconds || 0), 0);
+  const hasUnsavedChanges = Boolean(store.selectedSceneId && dirtyScenes[store.selectedSceneId]);
 
+  // Update field locally without triggering any automatic API calls
   const updateSelectedScene = (field: keyof StoryboardScene, value: any) => {
     if (!store.selectedSceneId) return;
     const targetId = store.selectedSceneId;
@@ -134,22 +99,69 @@ export function useStoryboard(
     }
     (pendingUpdatesRef.current[targetId] as any)[field] = value;
 
-    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-    debounceTimerRef.current = setTimeout(() => {
-      flushPendingUpdates(targetId);
-    }, 800);
+    setDirtyScenes((prev) => ({ ...prev, [targetId]: true }));
   };
 
   const setSelectedSceneId = (sceneId: string) => {
-    if (store.selectedSceneId && store.selectedSceneId !== sceneId) {
-      flushPendingUpdates(store.selectedSceneId);
-    }
     store.setSelectedSceneId(sceneId);
   };
 
+  // Manual save handler: triggers only when clicking Save button or pressing Ctrl+S
+  const handleSaveScene = (targetSceneId?: string) => {
+    const sceneId = targetSceneId || store.selectedSceneId;
+    if (!sceneId) return;
+
+    const rawInput = pendingUpdatesRef.current[sceneId] || {};
+    const lastSaved = lastSavedRef.current[sceneId] || {};
+    const currentScene = useStoryboardStore.getState().scenes.find((s) => s.id === sceneId);
+
+    const dirtyInput: UpdateSceneInput = {};
+    if (currentScene) {
+      if (currentScene.title !== lastSaved.title) dirtyInput.title = currentScene.title;
+      if (currentScene.durationSeconds !== lastSaved.durationSeconds) dirtyInput.durationSeconds = currentScene.durationSeconds;
+      if (currentScene.cameraMovement !== lastSaved.cameraMovement) dirtyInput.cameraMovement = currentScene.cameraMovement;
+      if (currentScene.transitionType !== lastSaved.transitionType) dirtyInput.transitionType = currentScene.transitionType;
+      if (currentScene.visualPrompt !== lastSaved.visualPrompt) dirtyInput.visualPrompt = currentScene.visualPrompt;
+      if (currentScene.voiceover !== lastSaved.voiceover) dirtyInput.voiceover = currentScene.voiceover;
+      if (currentScene.cameraLens !== lastSaved.cameraLens) dirtyInput.cameraLens = currentScene.cameraLens;
+      if (currentScene.cameraFov !== lastSaved.cameraFov) dirtyInput.cameraFov = currentScene.cameraFov;
+      if (currentScene.cameraDof !== lastSaved.cameraDof) dirtyInput.cameraDof = currentScene.cameraDof;
+      if (currentScene.lightingRimColor !== lastSaved.lightingRimColor) dirtyInput.lightingRimColor = currentScene.lightingRimColor;
+    }
+    Object.assign(dirtyInput, rawInput);
+
+    if (Object.keys(dirtyInput).length === 0) {
+      toast.info("Không có thay đổi mới nào để lưu.");
+      return;
+    }
+
+    isUpdatingSceneRef.current = true;
+    updateSceneMutation.mutate(
+      { sceneId, input: dirtyInput },
+      {
+        onSuccess: (updated) => {
+          lastSavedRef.current[sceneId] = { ...(lastSavedRef.current[sceneId] || {}), ...updated };
+          delete pendingUpdatesRef.current[sceneId];
+          setDirtyScenes((prev) => ({ ...prev, [sceneId]: false }));
+        },
+      }
+    );
+  };
+
+  // Keyboard shortcut Ctrl+S / Cmd+S for quick saving
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        handleSaveScene();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [store.selectedSceneId]);
+
   const handleAddScene = () => {
     if (addSceneMutation.isPending) return;
-    flushPendingUpdates();
     const currentScenes = useStoryboardStore.getState().scenes;
     const nextNum = currentScenes.length + 1;
     addSceneMutation.mutate({
@@ -163,7 +175,6 @@ export function useStoryboard(
 
   const handleDuplicate = (targetSceneId?: string) => {
     if (addSceneMutation.isPending) return;
-    flushPendingUpdates();
     const currentScenes = useStoryboardStore.getState().scenes;
     const target = targetSceneId ? currentScenes.find((s) => s.id === targetSceneId) : selectedScene;
     if (!target) return;
@@ -191,6 +202,7 @@ export function useStoryboard(
     if (pendingUpdatesRef.current[targetId]) {
       delete pendingUpdatesRef.current[targetId];
     }
+    setDirtyScenes((prev) => ({ ...prev, [targetId]: false }));
 
     const filtered = currentScenes.filter((s) => s.id !== targetId);
     const resequenced = filtered.map((s, i) => ({ ...s, sceneNumber: i + 1 }));
@@ -230,7 +242,6 @@ export function useStoryboard(
   const handleCreateVersion = (targetSceneId?: string, customTitle?: string) => {
     const sceneId = targetSceneId || store.selectedSceneId;
     if (!sceneId) return;
-    flushPendingUpdates(sceneId);
     createVersionMutation.mutate({
       sceneId,
       payload: customTitle ? { title: customTitle } : undefined,
@@ -247,7 +258,7 @@ export function useStoryboard(
     if (version.visualPrompt) updateSelectedScene("visualPrompt", version.visualPrompt);
     if (version.voiceover) updateSelectedScene("voiceover", version.voiceover);
     if (version.cameraMovement) updateSelectedScene("cameraMovement", version.cameraMovement);
-    toast.success(`Đã khôi phục về phiên bản v${version.versionNumber}!`);
+    toast.success(`Đã khôi phục về phiên bản v${version.versionNumber}! Bấm Lưu để lưu vào máy chủ.`);
   };
 
   return {
@@ -259,6 +270,7 @@ export function useStoryboard(
     isLoading,
     isAddingScene: addSceneMutation.isPending,
     isSavingScene: isUpdatingSceneRef.current || updateSceneMutation.isPending,
+    hasUnsavedChanges,
     isGenerating: store.isGenerating,
     isCreatingVersion: createVersionMutation.isPending,
     isDeletingVersion: deleteVersionMutation.isPending,
@@ -270,6 +282,7 @@ export function useStoryboard(
     setPlaybackCurrentTime: store.setPlaybackCurrentTime,
     setSelectedSceneId,
     updateSelectedScene,
+    handleSaveScene,
     handleAddScene,
     handleDuplicate,
     handleRemove,

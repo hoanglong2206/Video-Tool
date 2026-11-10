@@ -2,13 +2,15 @@
 
 import React, { useState } from "react";
 import type { StoryboardScene, SceneVersionItem } from "../types";
-import { Sparkles, Camera, Copy, Trash2 } from "lucide-react";
+import { Sparkles, Camera, Copy, Trash2, Save } from "lucide-react";
 import { InspectorScriptTab } from "./inspector/InspectorScriptTab";
 import { InspectorCinematographyTab } from "./inspector/InspectorCinematographyTab";
 
 interface SceneInspectorProps {
   scene: StoryboardScene;
   isSaving?: boolean;
+  hasUnsavedChanges?: boolean;
+  onSaveScene?: () => void;
   onChangeField: (field: keyof StoryboardScene, value: any) => void;
   onDuplicate: () => void;
   onRemove: () => void;
@@ -23,6 +25,8 @@ interface SceneInspectorProps {
 export function SceneInspector({
   scene,
   isSaving,
+  hasUnsavedChanges,
+  onSaveScene,
   onChangeField,
   onDuplicate,
   onRemove,
@@ -43,7 +47,18 @@ export function SceneInspector({
           <span className="font-mono text-[10px] font-bold bg-blue-950 text-blue-400 border border-blue-800/60 px-1.5 py-0.5 rounded shrink-0">
             CẢNH 0{scene.sceneNumber}
           </span>
-          {isSaving ? (
+          {hasUnsavedChanges ? (
+            <button
+              type="button"
+              onClick={onSaveScene}
+              disabled={isSaving}
+              className="flex items-center gap-1 px-2 py-0.5 rounded bg-blue-600 hover:bg-blue-500 text-white font-mono text-[9.5px] font-bold shadow-sm shadow-blue-500/30 cursor-pointer transition-all animate-pulse hover:animate-none shrink-0"
+              title="Lưu tất cả thay đổi phân cảnh này (Ctrl+S)"
+            >
+              <Save className="w-2.5 h-2.5" />
+              <span>{isSaving ? "Đang lưu..." : "Lưu thay đổi (Ctrl+S)"}</span>
+            </button>
+          ) : isSaving ? (
             <span className="font-mono text-[9px] text-amber-400 bg-amber-950/60 border border-amber-800/60 px-1 py-0.2 rounded animate-pulse shrink-0">
               ● Đang lưu
             </span>

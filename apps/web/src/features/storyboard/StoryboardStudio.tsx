@@ -37,6 +37,8 @@ export function StoryboardStudio({
     setPlaybackCurrentTime,
     setSelectedSceneId,
     updateSelectedScene,
+    handleSaveScene,
+    hasUnsavedChanges,
     handleAddScene,
     handleDuplicate,
     handleRemove,
@@ -115,6 +117,8 @@ export function StoryboardStudio({
           <SceneInspector
             scene={effectiveScene}
             isSaving={isSavingScene}
+            hasUnsavedChanges={hasUnsavedChanges}
+            onSaveScene={handleSaveScene}
             onChangeField={updateSelectedScene}
             onDuplicate={() => handleDuplicate(effectiveScene.id)}
             onRemove={() => handleRemove(effectiveScene.id)}

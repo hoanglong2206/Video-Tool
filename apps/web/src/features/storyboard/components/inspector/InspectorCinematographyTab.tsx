@@ -11,6 +11,7 @@ import {
 } from "../../config/cinematography";
 import { PropertyExplainer } from "./PropertyExplainer";
 import { TransitionSection } from "./TransitionSection";
+import { StudioColorPicker } from "./StudioColorPicker";
 
 interface InspectorCinematographyTabProps {
   scene: StoryboardScene;
@@ -147,33 +148,10 @@ export function InspectorCinematographyTab({
         <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-1.5">
           <SunMedium className="w-3 h-3 text-cyan-400" /> Đèn viền Studio (Rim-Light)
         </label>
-        <div className="flex items-center gap-2 bg-[#070A10] p-1.5 rounded-lg border border-[#1E2638]">
-          <input
-            type="color"
-            value={scene.lightingRimColor || "#06B6D4"}
-            onChange={(e) => onChangeField("lightingRimColor", e.target.value)}
-            className="w-6 h-6 rounded cursor-pointer bg-transparent border-0"
-          />
-          <span className="text-xs font-mono text-cyan-300 font-bold">{scene.lightingRimColor || "#06B6D4"}</span>
-
-          {/* Quick preset color swatches */}
-          <div className="flex items-center gap-1.5 ml-auto">
-            {RIM_LIGHT_PRESETS.map((col) => (
-              <button
-                key={col}
-                type="button"
-                onClick={() => onChangeField("lightingRimColor", col)}
-                className={`w-3.5 h-3.5 rounded-full border cursor-pointer transition-transform hover:scale-110 ${
-                  (scene.lightingRimColor || "#06B6D4").toLowerCase() === col.toLowerCase()
-                    ? "ring-1 ring-white scale-110 border-white"
-                    : "border-transparent"
-                }`}
-                style={{ backgroundColor: col }}
-                title={`Chọn màu ${col}`}
-              />
-            ))}
-          </div>
-        </div>
+        <StudioColorPicker
+          color={scene.lightingRimColor || "#06B6D4"}
+          onChange={(newColor) => onChangeField("lightingRimColor", newColor)}
+        />
         <PropertyExplainer badge="Đèn viền 4:1" badgeColor="cyan" text="Tách khối sản phẩm khỏi phông nền tối, tôn bật cạnh kim loại sắc nét." />
       </div>
 
