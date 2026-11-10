@@ -1,11 +1,11 @@
 import { useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/components/ui";
 import { storyboardService, type UpdateSceneInput } from "@/services/storyboard";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { useStoryboardStore } from "../store";
 import type { StoryboardScene } from "../types";
+import { useStoryboardMutations } from "./useStoryboardMutations";
 
 const FALLBACK_EMPTY_SCENE: StoryboardScene = {
   id: "scene-empty",
@@ -22,12 +22,13 @@ export function useStoryboard(
   projectName: string = "Aurora X1 Launch",
   projectId: string = "proj-1"
 ) {
-  const router = useRouter();
   const queryClient = useQueryClient();
   const store = useStoryboardStore();
 
   const isInitializedRef = useRef(false);
   const pendingUpdatesRef = useRef<Record<string, UpdateSceneInput>>({});
+  const lastSavedRef = useRef<Record<string, Record<string, any>>>({});
+  const isUpdatingSceneRef = useRef(false);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reorderTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -36,32 +37,71 @@ export function useStoryboard(
     queryFn: () => storyboardService.getStoryboard(projectId),
   });
 
-  // Only initialize store from remote query once on load or when store is empty
+  const {
+    updateSceneMutation,
+    addSceneMutation,
+    deleteSceneMutation,
+    reorderMutation,
+    approveMutation,
+    generateMutation,
+  } = useStoryboardMutations({
+    projectId,
+    store,
+    lastSavedRef,
+    isUpdatingSceneRef,
+    onFlushNextPending: () => {
+      const pendingKeys = Object.keys(pendingUpdatesRef.current);
+      if (pendingKeys.length > 0) {
+        flushPendingUpdates(pendingKeys[0]);
+      }
+    },
+  });
+
   useEffect(() => {
     if (data?.scenes && data.scenes.length > 0) {
       if (!isInitializedRef.current || store.scenes.length === 0) {
         store.setScenes(data.scenes);
         if (data.approvalStatus) store.setApprovalStatus(data.approvalStatus);
         if (data.version) store.setVersion(data.version);
+        data.scenes.forEach((s) => {
+          lastSavedRef.current[s.id] = { ...s };
+        });
         isInitializedRef.current = true;
       }
     }
   }, [data]);
 
-  // Flush accumulated changes for a specific scene or currently selected scene
   const flushPendingUpdates = (targetSceneId?: string) => {
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
       debounceTimerRef.current = null;
     }
     const sceneId = targetSceneId || store.selectedSceneId;
-    if (sceneId && pendingUpdatesRef.current[sceneId]) {
-      const input = { ...pendingUpdatesRef.current[sceneId] };
-      delete pendingUpdatesRef.current[sceneId];
-      if (Object.keys(input).length > 0) {
-        updateSceneMutation.mutate({ sceneId, input });
+    if (!sceneId || !pendingUpdatesRef.current[sceneId]) return;
+
+    const rawInput = { ...pendingUpdatesRef.current[sceneId] };
+    delete pendingUpdatesRef.current[sceneId];
+
+    const dirtyInput: UpdateSceneInput = {};
+    const lastSaved = lastSavedRef.current[sceneId] || {};
+    for (const [k, v] of Object.entries(rawInput)) {
+      if (lastSaved[k] !== v) {
+        (dirtyInput as any)[k] = v;
       }
     }
+
+    if (Object.keys(dirtyInput).length === 0) return;
+
+    if (isUpdatingSceneRef.current) {
+      pendingUpdatesRef.current[sceneId] = {
+        ...(pendingUpdatesRef.current[sceneId] || {}),
+        ...dirtyInput,
+      };
+      return;
+    }
+
+    isUpdatingSceneRef.current = true;
+    updateSceneMutation.mutate({ sceneId, input: dirtyInput });
   };
 
   useEffect(() => {
@@ -70,81 +110,6 @@ export function useStoryboard(
       if (reorderTimerRef.current) clearTimeout(reorderTimerRef.current);
     };
   }, []);
-
-  const updateSceneMutation = useMutation({
-    mutationFn: ({ sceneId, input }: { sceneId: string; input: UpdateSceneInput }) =>
-      storyboardService.updateScene(projectId, sceneId, input),
-    onSuccess: (updated) => {
-      // Silently update React Query cache without invalidating queries
-      queryClient.setQueryData(QUERY_KEYS.storyboard.byProject(projectId), (old: any) => {
-        if (!old?.scenes) return old;
-        return {
-          ...old,
-          scenes: old.scenes.map((s: StoryboardScene) => (s.id === updated.id ? { ...s, ...updated } : s)),
-        };
-      });
-    },
-    onError: () => toast.error("Không thể lưu cập nhật phân cảnh."),
-  });
-
-  const addSceneMutation = useMutation({
-    mutationFn: (newScene: Partial<StoryboardScene>) =>
-      storyboardService.createScene(projectId, {
-        title: newScene.title || "Phân cảnh mới",
-        durationSeconds: newScene.durationSeconds || 5,
-        cameraMovement: newScene.cameraMovement || "Slow push-in 24fps",
-        transitionType: newScene.transitionType || "Cut",
-        visualPrompt: newScene.visualPrompt,
-        voiceover: newScene.voiceover,
-        cameraLens: newScene.cameraLens || "85mm",
-      }),
-    onSuccess: (created) => {
-      const currentScenes = useStoryboardStore.getState().scenes;
-      const nextScenes = [...currentScenes, created];
-      store.setScenes(nextScenes);
-      store.setSelectedSceneId(created.id);
-      queryClient.setQueryData(QUERY_KEYS.storyboard.byProject(projectId), (old: any) =>
-        old ? { ...old, scenes: nextScenes } : old
-      );
-      toast.success(`Đã thêm Cảnh 0${created.sceneNumber} thành công!`);
-    },
-    onError: () => toast.error("Không thể thêm phân cảnh mới."),
-  });
-
-  const deleteSceneMutation = useMutation({
-    mutationFn: (sceneId: string) => storyboardService.deleteScene(projectId, sceneId),
-    onError: () => toast.error("Không thể xóa phân cảnh."),
-    onSuccess: () => toast.success("Đã xóa phân cảnh và đánh số lại thành công!"),
-  });
-
-  const reorderMutation = useMutation({
-    mutationFn: (sceneIds: string[]) => storyboardService.reorderScenes(projectId, sceneIds),
-    onError: () => toast.error("Không thể lưu thứ tự phân cảnh."),
-  });
-
-  const approveMutation = useMutation({
-    mutationFn: () => storyboardService.approveStoryboard(projectId),
-    onSuccess: () => {
-      toast.success("Duyệt Storyboard thành công! Chuyển sang Bước 2: Asset Planning.");
-      router.push(`/projects/${projectId}/asset-planning`);
-    },
-  });
-
-  const generateMutation = useMutation({
-    mutationFn: () => storyboardService.generateStoryboard(projectId),
-    onMutate: () => store.setIsGenerating(true),
-    onSuccess: (res) => {
-      if (res.scenes && res.scenes.length > 0) {
-        store.setScenes(res.scenes);
-        store.setSelectedSceneId(res.scenes[0].id);
-        queryClient.setQueryData(QUERY_KEYS.storyboard.byProject(projectId), (old: any) =>
-          old ? { ...old, scenes: res.scenes } : old
-        );
-      }
-      toast.success("AI đã tạo lại Storyboard thành công!");
-    },
-    onSettled: () => store.setIsGenerating(false),
-  });
 
   const selectedScene =
     store.scenes.find((s) => s.id === store.selectedSceneId) ||
@@ -156,6 +121,10 @@ export function useStoryboard(
   const updateSelectedScene = (field: keyof StoryboardScene, value: any) => {
     if (!store.selectedSceneId) return;
     const targetId = store.selectedSceneId;
+    const currentScene = useStoryboardStore.getState().scenes.find((s) => s.id === targetId);
+
+    if (currentScene && (currentScene as any)[field] === value) return;
+
     store.updateSceneLocal(targetId, { [field]: value });
 
     if (!pendingUpdatesRef.current[targetId]) {
@@ -166,7 +135,7 @@ export function useStoryboard(
     if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
     debounceTimerRef.current = setTimeout(() => {
       flushPendingUpdates(targetId);
-    }, 500);
+    }, 800);
   };
 
   const setSelectedSceneId = (sceneId: string) => {
@@ -264,6 +233,7 @@ export function useStoryboard(
     totalDuration,
     isLoading,
     isAddingScene: addSceneMutation.isPending,
+    isSavingScene: isUpdatingSceneRef.current || updateSceneMutation.isPending,
     isGenerating: store.isGenerating,
     viewMode: store.viewMode,
     isPlayingAnimatics: store.isPlayingAnimatics,

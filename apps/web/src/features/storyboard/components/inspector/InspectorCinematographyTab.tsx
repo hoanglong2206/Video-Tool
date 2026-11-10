@@ -25,28 +25,33 @@ export function InspectorCinematographyTab({
 
   const DURATION_PRESETS = [3, 5, 8, 10];
 
-  const currentLensObj = CAMERA_LENSES.find((l) => (scene.cameraLens || "85mm").includes(l.id)) || CAMERA_LENSES[3];
-  const currentDofObj = DOF_PRESETS.find((d) => (scene.cameraDof || 1.8) === d.val) || DOF_PRESETS[1];
+  const currentLensObj =
+    CAMERA_LENSES.find((l) => (scene.cameraLens || "85mm").includes(l.id)) || CAMERA_LENSES[3];
+  const currentDofObj =
+    DOF_PRESETS.find((d) => (scene.cameraDof || 1.8) === d.val) || DOF_PRESETS[1];
+  const currentTransitionObj =
+    TRANSITION_PRESETS.find((t) => t.id === (scene.transitionType || "Cut")) || TRANSITION_PRESETS[0];
 
   const filteredTransitions = TRANSITION_PRESETS.filter(
-    (t) => t.id.toLowerCase().includes(transitionSearch.toLowerCase()) || t.desc.toLowerCase().includes(transitionSearch.toLowerCase())
+    (t) =>
+      t.id.toLowerCase().includes(transitionSearch.toLowerCase()) ||
+      t.desc.toLowerCase().includes(transitionSearch.toLowerCase())
   );
 
-  // AI Transition suggestion based on scene number
-  const aiSuggestedTransition = scene.sceneNumber === 1 ? "Fade to Black" : scene.sceneNumber % 2 === 0 ? "Whip Pan Blur" : "Cross Dissolve";
+  const aiSuggestedTransition =
+    scene.sceneNumber === 1
+      ? "Fade to Black"
+      : scene.sceneNumber % 2 === 0
+      ? "Whip Pan Blur"
+      : "Cross Dissolve";
 
   return (
-    <div className="flex flex-col gap-3 text-xs">
+    <div className="flex flex-col gap-3.5 text-xs">
       {/* 1. Tiêu cự ống kính quang học (Lens) */}
       <div>
-        <div className="flex items-center justify-between mb-1">
-          <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-            <Camera className="w-3 h-3 text-indigo-400" /> Tiêu cự ống kính (Focal Lens)
-          </label>
-          <span className="text-[9px] text-indigo-300 font-mono truncate max-w-[160px]">
-            {currentLensObj.desc}
-          </span>
-        </div>
+        <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-1.5">
+          <Camera className="w-3 h-3 text-indigo-400" /> Tiêu cự ống kính (Focal Lens)
+        </label>
         <div className="grid grid-cols-3 gap-1">
           {CAMERA_LENSES.map((lens) => {
             const isMatch = (scene.cameraLens || "85mm").includes(lens.id);
@@ -54,7 +59,7 @@ export function InspectorCinematographyTab({
               <button
                 key={lens.id}
                 type="button"
-                onClick={() => onChangeField("cameraLens", lens.id)}
+                onClick={() => !isMatch && onChangeField("cameraLens", lens.id)}
                 className={`py-1 px-1 rounded border text-[10px] font-mono transition-colors cursor-pointer truncate ${
                   isMatch
                     ? "bg-indigo-950/90 border-indigo-500 text-indigo-300 font-bold shadow-xs"
@@ -67,18 +72,17 @@ export function InspectorCinematographyTab({
             );
           })}
         </div>
+        {/* Phần giải thích đặt ở dưới cùng của thẻ */}
+        <p className="text-[9.5px] text-indigo-300/80 font-mono mt-1.5 flex items-center gap-1">
+          ℹ️ {currentLensObj.name}: {currentLensObj.desc}
+        </p>
       </div>
 
       {/* 2. Khẩu độ DoF (Depth of Field) */}
       <div>
-        <div className="flex items-center justify-between mb-1">
-          <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-            <SlidersHorizontal className="w-3 h-3 text-indigo-400" /> Khẩu độ quang học (DoF)
-          </label>
-          <span className="text-[9px] text-indigo-300 font-mono">
-            {currentDofObj.desc}
-          </span>
-        </div>
+        <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-1.5">
+          <SlidersHorizontal className="w-3 h-3 text-indigo-400" /> Khẩu độ quang học (DoF)
+        </label>
         <div className="grid grid-cols-4 gap-1">
           {DOF_PRESETS.map((dof) => {
             const isMatch = (scene.cameraDof || 1.8) === dof.val;
@@ -86,7 +90,7 @@ export function InspectorCinematographyTab({
               <button
                 key={dof.val}
                 type="button"
-                onClick={() => onChangeField("cameraDof", dof.val)}
+                onClick={() => !isMatch && onChangeField("cameraDof", dof.val)}
                 className={`py-1 text-center rounded border font-mono transition-colors cursor-pointer text-[10.5px] ${
                   isMatch
                     ? "bg-indigo-950/90 border-indigo-500 text-indigo-300 font-bold shadow-xs"
@@ -99,22 +103,26 @@ export function InspectorCinematographyTab({
             );
           })}
         </div>
+        {/* Phần giải thích đặt ở dưới cùng của thẻ */}
+        <p className="text-[9.5px] text-indigo-300/80 font-mono mt-1.5 flex items-center gap-1">
+          ℹ️ f/{currentDofObj.val}: {currentDofObj.desc}
+        </p>
       </div>
 
-      {/* 3. Chuyển động Camera (Textarea fix không bị cắt text) */}
+      {/* 3. Chuyển động Camera (Nâng lên 6 dòng textarea) */}
       <div>
-        <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+        <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">
           Chuyển động Camera (Camera Movement)
         </label>
         <Textarea
-          rows={2}
+          rows={6}
           value={scene.cameraMovement || ""}
           onChange={(e) => onChangeField("cameraMovement", e.target.value)}
-          className="bg-[#070A10] border-[#1E2638] text-xs font-mono h-14 resize-none leading-relaxed text-slate-200"
+          className="bg-[#070A10] border-[#1E2638] text-xs font-mono h-[125px] resize-none leading-relaxed text-slate-200"
           placeholder="Mô tả quỹ đạo camera..."
         />
         {/* Quick chip suggestions */}
-        <div className="flex items-center gap-1 flex-wrap mt-1">
+        <div className="flex items-center gap-1 flex-wrap mt-1.5">
           {CAMERA_MOVEMENTS_QUICK.map((m) => (
             <button
               key={m}
@@ -127,16 +135,17 @@ export function InspectorCinematographyTab({
             </button>
           ))}
         </div>
+        {/* Phần giải thích đặt ở dưới cùng */}
+        <p className="text-[9.5px] text-slate-400 font-mono mt-1.5">
+          ℹ️ Bấm chip để chèn nhanh quỹ đạo quay điện ảnh chuẩn studio
+        </p>
       </div>
 
       {/* 4. Dàn đèn Rim-Light Studio */}
       <div className="pt-2 border-t border-[#1C2436]">
-        <div className="flex items-center justify-between mb-1">
-          <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-            <SunMedium className="w-3 h-3 text-cyan-400" /> Đèn viền Studio (Rim-Light)
-          </label>
-          <span className="text-[9px] text-cyan-400 font-mono">Tôn cạnh phản chiếu kim loại</span>
-        </div>
+        <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-1.5">
+          <SunMedium className="w-3 h-3 text-cyan-400" /> Đèn viền Studio (Rim-Light)
+        </label>
         <div className="flex items-center gap-2 bg-[#070A10] p-1.5 rounded border border-[#1E2638]">
           <input
             type="color"
@@ -147,13 +156,17 @@ export function InspectorCinematographyTab({
           <span className="text-xs font-mono text-cyan-300 font-bold">{scene.lightingRimColor || "#06B6D4"}</span>
           <span className="text-[9.5px] text-slate-400 ml-auto">Studio Contrast 4:1</span>
         </div>
+        {/* Phần giải thích đặt ở dưới cùng */}
+        <p className="text-[9.5px] text-cyan-300/80 font-mono mt-1.5">
+          ℹ️ Tôn cạnh phản chiếu kim loại, tách khối sản phẩm khỏi phông nền tối
+        </p>
       </div>
 
-      {/* 5. Cài đặt Thời lượng & Hiệu ứng chuyển cảnh (Searchable Select) */}
-      <div className="pt-2 border-t border-[#1C2436] flex flex-col gap-2">
+      {/* 5. Cài đặt Thời lượng & Hiệu ứng chuyển cảnh */}
+      <div className="pt-2 border-t border-[#1C2436] flex flex-col gap-3">
         {/* Duration */}
         <div>
-          <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+          <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">
             Thời lượng phân cảnh
           </label>
           <div className="grid grid-cols-4 gap-1">
@@ -161,7 +174,7 @@ export function InspectorCinematographyTab({
               <button
                 key={d}
                 type="button"
-                onClick={() => onChangeField("durationSeconds", d)}
+                onClick={() => scene.durationSeconds !== d && onChangeField("durationSeconds", d)}
                 className={`py-1 text-center rounded border font-mono transition-colors cursor-pointer ${
                   scene.durationSeconds === d
                     ? "bg-blue-600 border-blue-500 text-white font-bold"
@@ -172,11 +185,14 @@ export function InspectorCinematographyTab({
               </button>
             ))}
           </div>
+          <p className="text-[9.5px] text-slate-400 font-mono mt-1.5">
+            ℹ️ {scene.durationSeconds || 5}s · Khuyến nghị 3s (nhanh), 5s (chuẩn), 8s-10s (chi tiết)
+          </p>
         </div>
 
         {/* Searchable Transition Select with AI Suggestion */}
         <div className="relative">
-          <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center justify-between mb-1.5">
             <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
               Hiệu ứng chuyển cảnh (Transition)
             </label>
@@ -225,6 +241,10 @@ export function InspectorCinematographyTab({
               ))}
             </div>
           )}
+
+          <p className="text-[9.5px] text-slate-400 font-mono mt-1.5">
+            ℹ️ {currentTransitionObj.id}: {currentTransitionObj.desc}
+          </p>
         </div>
       </div>
     </div>

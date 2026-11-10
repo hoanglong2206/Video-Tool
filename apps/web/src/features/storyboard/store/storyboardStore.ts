@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import type { StoryboardScene, StoryboardViewMode } from "../types";
 
-interface StoryboardState {
+export interface StoryboardState {
   scenes: StoryboardScene[];
   selectedSceneId: string;
   isGenerating: boolean;

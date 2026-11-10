@@ -27,6 +27,7 @@ export function StoryboardStudio({
     totalDuration,
     isLoading,
     isAddingScene,
+    isSavingScene,
     isGenerating,
     viewMode,
     isPlayingAnimatics,
@@ -93,6 +94,7 @@ export function StoryboardStudio({
 
           <SceneInspector
             scene={selectedScene}
+            isSaving={isSavingScene}
             onChangeField={updateSelectedScene}
             onDuplicate={() => handleDuplicate(selectedScene.id)}
             onRemove={() => handleRemove(selectedScene.id)}

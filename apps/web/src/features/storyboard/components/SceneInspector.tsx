@@ -8,6 +8,7 @@ import { InspectorCinematographyTab } from "./inspector/InspectorCinematographyT
 
 interface SceneInspectorProps {
   scene: StoryboardScene;
+  isSaving?: boolean;
   onChangeField: (field: keyof StoryboardScene, value: any) => void;
   onDuplicate: () => void;
   onRemove: () => void;
@@ -16,6 +17,7 @@ interface SceneInspectorProps {
 
 export function SceneInspector({
   scene,
+  isSaving,
   onChangeField,
   onDuplicate,
   onRemove,
@@ -31,6 +33,15 @@ export function SceneInspector({
           <span className="font-mono text-[10px] font-bold bg-blue-950 text-blue-400 border border-blue-800/60 px-1.5 py-0.5 rounded shrink-0">
             CẢNH 0{scene.sceneNumber}
           </span>
+          {isSaving ? (
+            <span className="font-mono text-[9px] text-amber-400 bg-amber-950/60 border border-amber-800/60 px-1 py-0.2 rounded animate-pulse shrink-0">
+              ● Đang lưu
+            </span>
+          ) : (
+            <span className="font-mono text-[9px] text-emerald-400/80 bg-emerald-950/40 border border-emerald-900/40 px-1 py-0.2 rounded shrink-0">
+              ✓ Đã lưu
+            </span>
+          )}
           <h2 className="text-xs font-bold text-slate-100 truncate">
             {scene.title}
           </h2>
