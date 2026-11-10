@@ -74,7 +74,6 @@ export function useProjectCreation() {
     },
     onError: (err) => {
       console.error("Lỗi khi tạo dự án:", err);
-      router.push("/projects");
     },
     onSettled: () => {
       setIsSaving(false);

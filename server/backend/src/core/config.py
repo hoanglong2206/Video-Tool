@@ -23,7 +23,11 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     LOG_LEVEL: str = "INFO"
     SECRET_KEY: str = "dev-secret-change-in-production-32bytes-minimum"
-    ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:3001,http://localhost:8000"
+    ALLOWED_ORIGINS: str = (
+        "http://localhost:3000,http://localhost:3001,http://localhost:8000,"
+        "http://127.0.0.1:3000,http://127.0.0.1:3001,http://127.0.0.1:8000"
+    )
+    CORS_ORIGIN_REGEX: str = r"^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$"
 
     # API Server
     API_HOST: str = "0.0.0.0"
