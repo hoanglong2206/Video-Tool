@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev": "remotion preview src/index.ts",
+    "preview": "remotion preview src/index.ts",
     "build": "remotion bundle src/index.ts",
     "render": "remotion render src/index.ts MainTrailer out/trailer.mp4"
   },
