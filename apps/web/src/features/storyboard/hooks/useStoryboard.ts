@@ -8,14 +8,7 @@ import type { StoryboardScene } from "../types";
 import { useStoryboardMutations } from "./useStoryboardMutations";
 
 const FALLBACK_EMPTY_SCENE: StoryboardScene = {
-  id: "scene-empty",
-  sceneNumber: 1,
-  title: "Chưa có phân cảnh",
-  durationSeconds: 5,
-  cameraMovement: "Static",
-  transitionType: "Cut",
-  description: "",
-  creativeDirection: "",
+  id: "scene-empty", sceneNumber: 1, title: "Chưa có phân cảnh", durationSeconds: 5, cameraMovement: "Static", transitionType: "Cut", description: "",
 };
 
 export function useStoryboard(
@@ -117,16 +110,13 @@ export function useStoryboard(
 
     const dirtyInput: UpdateSceneInput = {};
     if (currentScene) {
-      if (currentScene.title !== lastSaved.title) dirtyInput.title = currentScene.title;
-      if (currentScene.durationSeconds !== lastSaved.durationSeconds) dirtyInput.durationSeconds = currentScene.durationSeconds;
-      if (currentScene.cameraMovement !== lastSaved.cameraMovement) dirtyInput.cameraMovement = currentScene.cameraMovement;
-      if (currentScene.transitionType !== lastSaved.transitionType) dirtyInput.transitionType = currentScene.transitionType;
-      if (currentScene.visualPrompt !== lastSaved.visualPrompt) dirtyInput.visualPrompt = currentScene.visualPrompt;
-      if (currentScene.voiceover !== lastSaved.voiceover) dirtyInput.voiceover = currentScene.voiceover;
-      if (currentScene.cameraLens !== lastSaved.cameraLens) dirtyInput.cameraLens = currentScene.cameraLens;
-      if (currentScene.cameraFov !== lastSaved.cameraFov) dirtyInput.cameraFov = currentScene.cameraFov;
-      if (currentScene.cameraDof !== lastSaved.cameraDof) dirtyInput.cameraDof = currentScene.cameraDof;
-      if (currentScene.lightingRimColor !== lastSaved.lightingRimColor) dirtyInput.lightingRimColor = currentScene.lightingRimColor;
+      const keys: (keyof UpdateSceneInput)[] = [
+        "title", "durationSeconds", "cameraMovement", "transitionType",
+        "visualPrompt", "voiceover", "cameraLens", "cameraFov", "cameraDof", "lightingRimColor",
+      ];
+      for (const k of keys) {
+        if ((currentScene as any)[k] !== lastSaved[k]) (dirtyInput as any)[k] = (currentScene as any)[k];
+      }
     }
     Object.assign(dirtyInput, rawInput);
 
@@ -254,11 +244,19 @@ export function useStoryboard(
 
   const handleRollbackVersion = (scene: StoryboardScene, version: any) => {
     if (!scene?.id) return;
-    if (version.title) updateSelectedScene("title", version.title);
-    if (version.visualPrompt) updateSelectedScene("visualPrompt", version.visualPrompt);
-    if (version.voiceover) updateSelectedScene("voiceover", version.voiceover);
-    if (version.cameraMovement) updateSelectedScene("cameraMovement", version.cameraMovement);
-    toast.success(`Đã khôi phục về phiên bản v${version.versionNumber}! Bấm Lưu để lưu vào máy chủ.`);
+    const cur = [scene.title, scene.visualPrompt || scene.description, scene.voiceover, scene.cameraMovement].map((s) => (s || "").trim());
+    const ver = [version.title, version.visualPrompt, version.voiceover, version.cameraMovement].map((s) => (s || "").trim());
+
+    if (cur[0] === ver[0] && cur[1] === ver[1] && cur[2] === ver[2] && (!ver[3] || cur[3] === ver[3])) {
+      toast.info(`Phân cảnh đang ở phiên bản v${version.versionNumber} (chưa có thay đổi nào để khôi phục).`);
+      return;
+    }
+
+    if (ver[0]) updateSelectedScene("title", ver[0]);
+    if (ver[1]) updateSelectedScene("visualPrompt", ver[1]);
+    if (ver[2]) updateSelectedScene("voiceover", ver[2]);
+    if (ver[3]) updateSelectedScene("cameraMovement", ver[3]);
+    toast.success(`Đã khôi phục về phiên bản v${version.versionNumber}! Bấm Lưu thay đổi để cập nhật.`);
   };
 
   return {

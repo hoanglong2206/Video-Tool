@@ -39,7 +39,7 @@ export function SceneCard({
       }}
       onDrop={(e) => onDrop && onDrop(e, index)}
       onClick={() => onSelect(scene.id)}
-      className={`bg-[#0D121F] border rounded-xl p-3 flex flex-col justify-between transition-all cursor-pointer select-none group relative h-[272px] overflow-hidden ${
+      className={`bg-[#0D121F] border rounded-xl p-3 flex flex-col justify-between transition-all cursor-pointer select-none group relative min-h-[310px] h-full overflow-hidden ${
         isSelected
           ? "border-cyan-400 shadow-xl shadow-cyan-500/20 ring-2 ring-cyan-400/50 bg-[#0D172A]"
           : "border-[#1C2436] hover:border-[#2C3852] hover:bg-[#101726]"
@@ -151,15 +151,18 @@ export function SceneCard({
       </div>
 
       {/* 3. Scene Title & Voiceover Preview */}
-      <div className="mt-2 flex flex-col gap-1 min-w-0">
-        <h3 className="text-xs font-bold text-slate-100 truncate tracking-tight group-hover:text-blue-300 transition-colors">
+      <div className="mt-2.5 flex flex-col gap-1 min-w-0">
+        <h3
+          className="text-xs font-bold text-slate-100 line-clamp-2 tracking-tight group-hover:text-blue-300 transition-colors leading-snug break-words"
+          title={scene.title}
+        >
           {scene.title}
         </h3>
 
         {/* Voiceover Summary Snippet (Clamped to 2 lines, prevents overflow) */}
         <div className="flex items-start gap-1 min-w-0">
           <Volume2 className="w-2.5 h-2.5 text-slate-500 shrink-0 mt-0.5" />
-          <p className="text-[10px] text-slate-400 line-clamp-2 italic leading-tight min-w-0 break-all break-words">
+          <p className="text-[10px] text-slate-400 line-clamp-2 italic leading-tight min-w-0 break-words">
             {scene.voiceover || scene.description || "Chưa có lời thoại"}
           </p>
         </div>
