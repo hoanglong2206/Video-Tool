@@ -46,12 +46,22 @@ export function PipelineStageView({
 
   const [projectName, setProjectName] = useState<string>(initialProjectName);
   const [projectStatus, setProjectStatus] = useState<string>("in_progress");
+  const syncedStageRef = React.useRef<string | null>(null);
 
-  // Sync active stage to client localStorage and backend database
+  // Sync active stage to client localStorage and backend database (deduplicated per stage)
   useEffect(() => {
-    if (typeof window !== "undefined" && projectId && stageId) {
+    if (!projectId || !stageId) return;
+
+    if (typeof window !== "undefined") {
       localStorage.setItem(`video_tool_project_stage_${projectId}`, stageId);
     }
+
+    const syncKey = `${projectId}:${stageId}`;
+    if (syncedStageRef.current === syncKey) {
+      return;
+    }
+    syncedStageRef.current = syncKey;
+
     const calculatedProgress = Math.min(100, Math.round(((stage.stepNumber - 1) / 9) * 100));
     projectService
       .updateProject(projectId, {
@@ -66,9 +76,15 @@ export function PipelineStageView({
         }
       })
       .catch(() => {
-        // silent fallback for offline / mock dev
+        syncedStageRef.current = null;
       });
   }, [projectId, stageId, stage.stepNumber, stage.fullName]);
+
+  useEffect(() => {
+    if (initialProjectName && initialProjectName !== "Aurora X1 Launch") {
+      setProjectName(initialProjectName);
+    }
+  }, [initialProjectName]);
 
   const { approvalMode, autoProceedDelaySeconds } = usePipelineSettingsStore();
 
