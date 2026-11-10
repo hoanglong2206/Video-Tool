@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "@/components/ui";
 import { workflowService } from "@/services/workflow";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { useWorkflowStore } from "../store";
@@ -46,6 +47,10 @@ export function useProductionWorkflow(
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.workflow.byProject(projectId),
       });
+      toast.success("Đã phê duyệt công đoạn sản xuất thành công!");
+    },
+    onError: () => {
+      toast.error("Không thể phê duyệt công đoạn. Vui lòng thử lại!");
     },
   });
 
@@ -58,6 +63,10 @@ export function useProductionWorkflow(
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.workflow.byProject(projectId),
       });
+      toast.success("Đã kích hoạt quy trình sản xuất (Workflow Pipeline)!");
+    },
+    onError: () => {
+      toast.error("Không thể kích hoạt quy trình sản xuất. Vui lòng thử lại!");
     },
     onSettled: () => {
       store.setIsAdvancing(false);

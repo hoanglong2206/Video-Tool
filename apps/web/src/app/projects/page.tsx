@@ -7,7 +7,7 @@ import { DashboardSidebar } from "@/features/dashboard/components/DashboardSideb
 import { dashboardService } from "@/services/dashboard";
 import { projectService } from "@/services/project";
 import { QUERY_KEYS } from "@/constants/query-keys";
-import { Button, Input } from "@/components/ui";
+import { Button, Input, toast } from "@/components/ui";
 import { Plus, Search, Film } from "lucide-react";
 import type { ProjectItem } from "@/services/dashboard";
 import { getProjectStageRoute } from "@/features/pipeline";
@@ -55,8 +55,10 @@ export default function ProjectsPage(): React.ReactElement {
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats() });
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.projects.all });
       setStopModalProject(null);
+      toast.info(`Đã tạm dừng dự án "${project.name}"`);
     } catch (err) {
       console.error("Failed to stop project:", err);
+      toast.error("Không thể tạm dừng dự án. Vui lòng thử lại!");
     } finally {
       setIsStopping(false);
     }
@@ -69,8 +71,10 @@ export default function ProjectsPage(): React.ReactElement {
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats() });
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.projects.all });
       setResumeModalProject(null);
+      toast.success(`Đã tiếp tục tiến trình dự án "${project.name}"`);
     } catch (err) {
       console.error("Failed to resume project:", err);
+      toast.error("Không thể tiếp tục dự án. Vui lòng thử lại!");
     } finally {
       setIsResuming(false);
     }
@@ -83,8 +87,10 @@ export default function ProjectsPage(): React.ReactElement {
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats() });
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.projects.all });
       setDeleteModalProject(null);
+      toast.success(`Đã xóa vĩnh viễn dự án "${project.name}"`);
     } catch (err) {
       console.error("Failed to delete project:", err);
+      toast.error("Không thể xóa dự án. Vui lòng thử lại!");
     } finally {
       setIsDeleting(false);
     }

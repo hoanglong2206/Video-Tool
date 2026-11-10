@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { toast } from "@/components/ui";
 import { DashboardSidebar } from "@/features/dashboard/components/DashboardSidebar";
 import { useAiAssistant } from "./hooks/useAiAssistant";
 import { AssistantHeader } from "./components/AssistantHeader";
@@ -39,7 +40,7 @@ export function AiAssistant({
         <AssistantHeader
           projectName={projectName}
           sceneName={sceneName}
-          onSaveVersion={() => alert("Version saved successfully")}
+          onSaveVersion={() => toast.success("Đã lưu phiên bản thành công!")}
         />
 
         {/* Pipeline Journey Breadcrumbs */}

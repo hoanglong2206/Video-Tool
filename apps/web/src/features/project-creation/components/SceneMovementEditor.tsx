@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Textarea } from "@/components/ui";
+import { Textarea, toast } from "@/components/ui";
 import { Volume2, Video, Sparkles } from "lucide-react";
 
 export interface CameraPreset {
@@ -114,7 +114,10 @@ export function SceneMovementEditor({
             <button
               key={preset.id}
               type="button"
-              onClick={() => onChangeCameraMovement(preset.movement)}
+              onClick={() => {
+                onChangeCameraMovement(preset.movement);
+                toast.info(`Đã áp dụng góc quay: ${preset.label}`);
+              }}
               className={`text-[9.5px] px-2 py-0.5 rounded-md border flex items-center gap-1 transition-all cursor-pointer font-mono ${
                 isCurrent
                   ? "bg-indigo-950/80 border-indigo-500 text-indigo-300 shadow-xs"

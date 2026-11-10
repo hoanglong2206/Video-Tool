@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "@/components/ui";
 import { storyboardService, type UpdateSceneInput } from "@/services/storyboard";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { useStoryboardStore } from "../store";
@@ -32,6 +33,10 @@ export function useStoryboard(
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.storyboard.byProject(projectId),
       });
+      toast.success("Đã cập nhật phân cảnh Storyboard thành công!");
+    },
+    onError: () => {
+      toast.error("Không thể cập nhật phân cảnh. Vui lòng thử lại!");
     },
   });
 
@@ -46,6 +51,10 @@ export function useStoryboard(
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.storyboard.byProject(projectId),
       });
+      toast.success("AI đã tạo lại Storyboard 6 phân cảnh thành công!");
+    },
+    onError: () => {
+      toast.error("Không thể tạo Storyboard AI. Vui lòng thử lại!");
     },
     onSettled: () => store.setIsGenerating(false),
   });

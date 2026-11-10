@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "@/components/ui";
 import { threedService, type ThreeDSceneResponse } from "@/services/threed";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { useThreeDStudioStore } from "../store";
@@ -55,6 +56,10 @@ export function useThreeDStudio(
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.threed.byProject(projectId),
       });
+      toast.success("Đã lưu thiết lập không gian 3D!");
+    },
+    onError: () => {
+      toast.error("Không thể lưu thiết lập 3D. Vui lòng thử lại!");
     },
   });
 
@@ -65,11 +70,13 @@ export function useThreeDStudio(
 
   const handleRenderPreview = (): void => {
     setIsRendering(true);
+    toast.info("Đang dựng thử nghiệm khung hình 3D...");
     setTimeout(() => setIsRendering(false), 1200);
   };
 
   const handleApproveScene = (): void => {
     setIsApproved(true);
+    toast.success("Đã phê duyệt phân cảnh 3D thành công!");
   };
 
   return {

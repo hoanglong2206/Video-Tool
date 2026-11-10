@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "@/components/ui";
 import { sceneService, type LayerProperties } from "@/services/scene";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { useSceneEditorStore } from "../store";
@@ -36,6 +37,10 @@ export function useSceneEditor(
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.scene.detail(projectId, sceneId),
       });
+      toast.success("Đã cập nhật thuộc tính layer thành công!");
+    },
+    onError: () => {
+      toast.error("Không thể cập nhật thuộc tính layer!");
     },
   });
 

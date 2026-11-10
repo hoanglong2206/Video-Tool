@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "@/components/ui";
 import { approvalService, type ApprovalDecisionInput } from "@/services/approval";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { useApprovalCenterStore } from "../store";
@@ -26,13 +27,21 @@ export function useApprovalCenter(
   const decisionMutation = useMutation({
     mutationFn: ({ approvalId, input }: { approvalId: string; input: ApprovalDecisionInput }) =>
       approvalService.decideApproval(projectId, approvalId, input),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.approvals.byProject(projectId),
       });
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.dashboard.all,
       });
+      toast.success(
+        variables.input.decision === "approve"
+          ? "Đã phê duyệt hạng mục thành công!"
+          : "Đã từ chối hạng mục và gửi phản hồi!"
+      );
+    },
+    onError: () => {
+      toast.error("Không thể xử lý phê duyệt. Vui lòng thử lại!");
     },
   });
 

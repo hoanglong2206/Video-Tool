@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "@/components/ui";
 import { libraryService } from "@/services/library";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { useAssetLibraryStore } from "../store";
@@ -71,11 +72,13 @@ export function useAssetLibrary() {
       }),
     onSuccess: () => {
       setIsApplied(true);
+      toast.success("Đã áp dụng bộ nhận diện thương hiệu (Brand Kit) thành công!");
       setTimeout(() => setIsApplied(false), 2500);
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.library.all });
     },
     onError: () => {
       setIsApplied(true);
+      toast.error("Không thể áp dụng Brand Kit. Vui lòng thử lại!");
       setTimeout(() => setIsApplied(false), 2500);
     },
   });

@@ -7,7 +7,7 @@ import { PipelineAutomationSection } from "@/features/settings/components/Pipeli
 import { AiInferenceSection } from "@/features/settings/components/AiInferenceSection";
 import { RenderEngineSection } from "@/features/settings/components/RenderEngineSection";
 import { StorageSchemaSection } from "@/features/settings/components/StorageSchemaSection";
-import { Button } from "@/components/ui";
+import { Button, toast } from "@/components/ui";
 import { CheckCircle2, RotateCcw, Sliders } from "lucide-react";
 
 export default function SettingsPage(): React.ReactElement {
@@ -16,12 +16,14 @@ export default function SettingsPage(): React.ReactElement {
 
   const handleSave = () => {
     setSaved(true);
+    toast.success("Đã lưu cấu hình cài đặt hệ thống!");
     setTimeout(() => setSaved(false), 2000);
   };
 
   const handleReset = () => {
     settings.resetToDefaults();
     setSaved(true);
+    toast.info("Đã đặt lại cấu hình hệ thống về mặc định!");
     setTimeout(() => setSaved(false), 1500);
   };
 

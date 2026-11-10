@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "@/components/ui";
 import { assetService } from "@/services/asset";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { useAssetStudioStore } from "../store";
@@ -43,6 +44,10 @@ export function useAssetStudio(
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.assets.byProject(projectId),
       });
+      toast.success("Đã tách nền AI (Remove Background) thành công!");
+    },
+    onError: () => {
+      toast.error("Tách nền AI thất bại. Vui lòng thử lại!");
     },
     onSettled: () => store.setIsProcessingBg(false),
   });

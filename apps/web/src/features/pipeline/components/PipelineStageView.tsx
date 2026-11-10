@@ -16,7 +16,7 @@ import { PipelineStagePlaceholderCard } from "./PipelineStagePlaceholderCard";
 import { usePipelineSettingsStore } from "../store/pipelineSettingsStore";
 import { projectService } from "@/services/project";
 import { DashboardSidebar } from "@/features/dashboard/components/DashboardSidebar";
-import { Button } from "@/components/ui";
+import { Button, toast } from "@/components/ui";
 import {
   ArrowLeft,
   ArrowRight,
@@ -118,8 +118,10 @@ export function PipelineStageView({
   const handleManualApproveAndProceed = () => {
     setIsApproved(true);
     if (nextStageId) {
+      toast.success(`Đã phê duyệt Bước 0${stage.stepNumber}: ${stage.shortName}!`);
       router.push(`/projects/${projectId}/${nextStageId}`);
     } else {
+      toast.success("Đã hoàn tất quy trình sản xuất video!");
       router.push(`/projects`);
     }
   };

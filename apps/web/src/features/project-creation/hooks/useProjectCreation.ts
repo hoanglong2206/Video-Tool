@@ -8,6 +8,7 @@ import { QUERY_KEYS } from "@/constants/query-keys";
 import { useProjectCreationStore } from "../store";
 import type { ProjectBriefFormData, SceneBreakdownItem } from "../types";
 import { generateDynamicAiAnalysis } from "../utils/dynamicAiGenerator";
+import { toast } from "@/components/ui";
 
 export function useProjectCreation() {
   const router = useRouter();
@@ -77,6 +78,7 @@ export function useProjectCreation() {
       clearDraft();
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.projects.all });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.all });
+      toast.success(`Đã khởi tạo dự án "${formData.projectName}" thành công!`);
       if (project?.id) {
         router.push(`/projects/${project.id}/storyboard`);
       } else {
@@ -85,6 +87,7 @@ export function useProjectCreation() {
     },
     onError: (err) => {
       console.error("Lỗi khi tạo dự án:", err);
+      toast.error("Không thể tạo dự án. Vui lòng thử lại!");
     },
     onSettled: () => {
       setIsSaving(false);
@@ -173,6 +176,27 @@ export function useProjectCreation() {
       status: "DRAFT",
       scenes: scenesPayload,
     });
+    toast.info("Đã lưu bản nháp dự án!");
+  };
+
+  const handleAddFile = (file: Parameters<typeof addFile>[0]) => {
+    addFile(file);
+    toast.success(`Đã thêm tài liệu: ${file.name}`);
+  };
+
+  const handleRemoveFile = (fileId: string) => {
+    removeFile(fileId);
+    toast.info("Đã gỡ bỏ tài liệu đính kèm");
+  };
+
+  const handleAddDemoFiles = () => {
+    addDemoFiles();
+    toast.success("Đã tải 4 tài liệu demo mẫu");
+  };
+
+  const handleClearDraft = () => {
+    clearDraft();
+    toast.info("Đã đặt lại dữ liệu biểu mẫu về mặc định");
   };
 
   return {
@@ -186,9 +210,9 @@ export function useProjectCreation() {
     isSaving,
     setStep,
     updateField,
-    addFile,
-    removeFile,
-    addDemoFiles,
+    addFile: handleAddFile,
+    removeFile: handleRemoveFile,
+    addDemoFiles: handleAddDemoFiles,
     setAiOutput,
     updateScene,
     createSceneVersionSnapshot,
@@ -201,6 +225,6 @@ export function useProjectCreation() {
     handleConfirmAndCreateProject,
     handleSaveDraft,
     resetForm,
-    clearDraft,
+    clearDraft: handleClearDraft,
   };
 }

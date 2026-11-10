@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "@/components/ui";
 import { renderService, type ExportSettings as ServiceExportSettings } from "@/services/render";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { useRenderExportStore } from "../store";
@@ -60,8 +61,12 @@ export function useRenderExport(
     onSuccess: (data) => {
       store.setActiveJobId(data.job_id);
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.render.progress() });
+      toast.success("Đã bắt đầu tiến trình kết xuất video (Render Engine)!");
     },
-    onError: () => store.setIsRendering(false),
+    onError: () => {
+      store.setIsRendering(false);
+      toast.error("Không thể khởi động render video. Vui lòng kiểm tra lại cấu hình!");
+    },
   });
 
   const progress: RenderProgress = progressData

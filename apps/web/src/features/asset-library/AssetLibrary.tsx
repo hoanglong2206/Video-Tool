@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { toast } from "@/components/ui";
 import { DashboardSidebar } from "@/features/dashboard/components/DashboardSidebar";
 import { useAssetLibrary } from "./hooks/useAssetLibrary";
 import { AssetLibraryHeader } from "./components/AssetLibraryHeader";
@@ -38,7 +39,7 @@ export function AssetLibrary(): React.ReactElement {
         <AssetLibraryHeader
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
-          onSaveTemplate={() => alert("Saved as template!")}
+          onSaveTemplate={() => toast.success("Đã lưu mẫu vào thư viện tài nguyên!")}
         />
 
         {/* 3-Column Studio Body Split */}

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import type { SceneBreakdownItem } from "../types";
-import { Input, Textarea } from "@/components/ui";
+import { Input, Textarea, toast } from "@/components/ui";
 import {
   Film,
   Clock,
@@ -47,17 +47,20 @@ export function SceneTimelineEditor({
     if (!activeScene) return;
     navigator.clipboard.writeText(activeScene.visualPrompt);
     setCopied(true);
+    toast.success("Đã sao chép prompt hình ảnh vào clipboard!");
     setTimeout(() => setCopied(false), 1500);
   };
 
   const handleSaveAsTemplate = () => {
     setTemplateSaved(true);
+    toast.success(`Đã lưu Cảnh 0${activeScene.sceneNumber} thành mẫu (Template)!`);
     setTimeout(() => setTemplateSaved(false), 2000);
   };
 
   const handleApplyRegen = (updated: Partial<SceneBreakdownItem>) => {
     if (onRegenerateScene) onRegenerateScene(activeIndex, updated);
     else onUpdateScene(activeIndex, updated);
+    toast.success(`Đã sinh lại Cảnh 0${activeScene.sceneNumber} thành công!`);
   };
 
   return (
