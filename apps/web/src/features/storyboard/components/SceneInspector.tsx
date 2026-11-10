@@ -42,9 +42,6 @@ export function SceneInspector({
               ✓ Đã lưu
             </span>
           )}
-          <h2 className="text-xs font-bold text-slate-100 truncate">
-            {scene.title}
-          </h2>
         </div>
 
         <div className="flex items-center gap-1 shrink-0">

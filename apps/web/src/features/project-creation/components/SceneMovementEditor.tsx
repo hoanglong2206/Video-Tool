@@ -97,7 +97,7 @@ export function SceneMovementEditor({
             rows={2}
             value={cameraMovement}
             onChange={(e) => onChangeCameraMovement(e.target.value)}
-            className="bg-[#070A10] border-[#1E2638] focus:border-indigo-500 h-14 text-xs resize-none leading-relaxed text-slate-200 font-mono"
+            className="bg-[#070A10] border-[#1E2638] focus:border-indigo-500 h-10 text-xs resize-none leading-relaxed text-slate-200 font-mono"
             placeholder="Góc máy, tiêu cự ống kính, tốc độ và chuyển động camera chi tiết (2 dòng)..."
           />
         </div>

@@ -4,6 +4,7 @@ from sqlalchemy import delete, select, func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from sqlalchemy.orm.attributes import flag_modified
 
 from server.ai_engine.src.llm.service import llm_service
 from server.backend.src.api.dtos.storyboard import (
@@ -20,78 +21,9 @@ from server.backend.src.infrastructure.database.models import (
     SceneVersionModel,
 )
 from server.backend.src.infrastructure.database.session import get_db_session
+from server.backend.src.api.routers.storyboard_helpers import build_scene_dto, DEMO_SCENE_THUMBNAILS
 
 router = APIRouter(prefix="/api/v1/projects", tags=["Storyboard"])
-
-DEMO_SCENE_THUMBNAILS = [
-    "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&auto=format&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=800&auto=format&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&auto=format&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=800&auto=format&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80",
-]
-
-
-def _build_scene_dto(s: SceneModel, idx: int = 0) -> StoryboardSceneDTO:
-    props = s.properties_data or {}
-    cam_params = s.camera_3d_params or {}
-    lighting = s.lighting_rig or {}
-
-    visual_prompt = props.get("visualPrompt") or s.description or ""
-    voiceover = s.voiceover_text or props.get("voiceover") or s.creative_direction or ""
-
-    versions_dto: list[SceneVersionItemDTO] = []
-    versions_raw = s.__dict__.get("versions")
-    if versions_raw and isinstance(versions_raw, (list, tuple)):
-        for v in versions_raw:
-            versions_dto.append(
-                SceneVersionItemDTO(
-                    versionNumber=v.version_number,
-                    title=v.title,
-                    visualPrompt=v.visual_prompt,
-                    voiceover=v.voiceover,
-                    cameraMovement=v.camera_movement,
-                    createdAt="Đã lưu",
-                    role=v.created_by_role or "ai_llm",
-                )
-            )
-    if not versions_dto:
-        versions_dto = [
-            SceneVersionItemDTO(
-                versionNumber=1,
-                title=s.title,
-                visualPrompt=visual_prompt,
-                voiceover=voiceover,
-                cameraMovement=s.camera_movement,
-                createdAt="Bản gốc",
-                role="ai_llm",
-            )
-        ]
-
-    fallback_thumb = DEMO_SCENE_THUMBNAILS[(s.scene_number - 1) % len(DEMO_SCENE_THUMBNAILS)]
-    thumb_url = props.get("thumbnailUrl") or fallback_thumb
-
-    return StoryboardSceneDTO(
-        id=s.id,
-        sceneNumber=s.scene_number,
-        title=s.title,
-        durationSeconds=s.duration_seconds,
-        cameraMovement=s.camera_movement,
-        transitionType=s.transition_type,
-        description=s.description or "",
-        creativeDirection=s.creative_direction or "",
-        hasVisualDraft=True,
-        visualPrompt=visual_prompt,
-        voiceover=voiceover,
-        thumbnailUrl=thumb_url,
-        cameraLens=cam_params.get("lens") or "85mm",
-        cameraFov=cam_params.get("fov") or 35,
-        cameraDof=float(cam_params.get("dof") or 1.8),
-        lightingRimColor=lighting.get("rimLight") or "#06B6D4",
-        activeVersion=len(versions_dto),
-        versions=versions_dto,
-    )
 
 
 @router.get("/{project_id}/storyboard", response_model=StoryboardResponseDTO)
@@ -113,7 +45,7 @@ async def get_project_storyboard(
     result = await session.scalars(stmt)
     scenes_db = result.all()
 
-    scenes = [_build_scene_dto(s, i) for i, s in enumerate(scenes_db)]
+    scenes = [build_scene_dto(s, i) for i, s in enumerate(scenes_db)]
     total_duration = sum(s.durationSeconds for s in scenes)
 
     return StoryboardResponseDTO(
@@ -166,7 +98,7 @@ async def create_storyboard_scene(
         await session.commit()
 
     await session.refresh(new_scene)
-    return _build_scene_dto(new_scene, new_scene.scene_number - 1)
+    return build_scene_dto(new_scene, new_scene.scene_number - 1)
 
 
 @router.put("/{project_id}/storyboard/scenes/{scene_id}", response_model=StoryboardSceneDTO)
@@ -194,7 +126,7 @@ async def update_storyboard_scene(
     if payload.voiceover is not None:
         scene.voiceover_text = payload.voiceover
 
-    props = scene.properties_data or {}
+    props = dict(scene.properties_data or {})
     if payload.visualPrompt is not None:
         props["visualPrompt"] = payload.visualPrompt
     if payload.voiceover is not None:
@@ -202,8 +134,9 @@ async def update_storyboard_scene(
     if payload.thumbnailUrl is not None:
         props["thumbnailUrl"] = payload.thumbnailUrl
     scene.properties_data = props
+    flag_modified(scene, "properties_data")
 
-    cam = scene.camera_3d_params or {}
+    cam = dict(scene.camera_3d_params or {})
     if payload.cameraLens is not None:
         cam["lens"] = payload.cameraLens
     if payload.cameraFov is not None:
@@ -211,15 +144,17 @@ async def update_storyboard_scene(
     if payload.cameraDof is not None:
         cam["dof"] = payload.cameraDof
     scene.camera_3d_params = cam
+    flag_modified(scene, "camera_3d_params")
 
+    rig = dict(scene.lighting_rig or {})
     if payload.lightingRimColor is not None:
-        rig = scene.lighting_rig or {}
         rig["rimLight"] = payload.lightingRimColor
-        scene.lighting_rig = rig
+    scene.lighting_rig = rig
+    flag_modified(scene, "lighting_rig")
 
     await session.commit()
     await session.refresh(scene)
-    return _build_scene_dto(scene)
+    return build_scene_dto(scene)
 
 
 @router.delete("/{project_id}/storyboard/scenes/{scene_id}")
