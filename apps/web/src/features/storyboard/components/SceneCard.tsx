@@ -41,7 +41,7 @@ export function SceneCard({
       onClick={() => onSelect(scene.id)}
       className={`bg-[#0D121F] border rounded-xl p-3 flex flex-col justify-between transition-all cursor-pointer select-none group relative ${
         isSelected
-          ? "border-blue-500 shadow-lg shadow-blue-500/20 ring-1 ring-blue-500/50 bg-[#0F1626]"
+          ? "border-cyan-400 shadow-xl shadow-cyan-500/20 ring-2 ring-cyan-400/50 bg-[#0D172A]"
           : "border-[#1C2436] hover:border-[#2C3852] hover:bg-[#101726]"
       }`}
     >
@@ -57,8 +57,8 @@ export function SceneCard({
           </span>
 
           <span
-            className={`font-mono text-[10px] font-bold px-1.5 py-0.5 rounded ${
-              isSelected ? "bg-blue-600 text-white" : "bg-[#182030] text-slate-300"
+            className={`font-mono text-[10px] font-bold px-1.5 py-0.5 rounded transition-colors ${
+              isSelected ? "bg-cyan-400 text-slate-950 font-black shadow-[0_0_8px_#22d3ee]" : "bg-[#182030] text-slate-300"
             }`}
           >
             0{scene.sceneNumber}

@@ -48,6 +48,18 @@ export function StoryboardStudio({
   const [lightboxImageUrl, setLightboxImageUrl] = useState<string | null>(null);
   const [showAnimaticsModal, setShowAnimaticsModal] = useState<boolean>(false);
 
+  // Dynamic playhead scene tracking during Animatics playback
+  let accumulatedTime = 0;
+  let playingActiveScene = selectedScene;
+  for (const s of scenes) {
+    if (playbackCurrentTime >= accumulatedTime && playbackCurrentTime < accumulatedTime + s.durationSeconds) {
+      playingActiveScene = s;
+      break;
+    }
+    accumulatedTime += s.durationSeconds;
+  }
+  const effectiveScene = isPlayingAnimatics ? playingActiveScene : selectedScene;
+
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#0B0F17] text-slate-100 antialiased select-none">
       {/* 1. Left Icon Navigation Rail */}
@@ -80,11 +92,14 @@ export function StoryboardStudio({
           <SceneGrid
             scenes={scenes}
             totalDuration={totalDuration}
-            selectedSceneId={selectedScene.id}
+            selectedSceneId={effectiveScene.id}
             viewMode={viewMode}
             isLoading={isLoading || isGenerating}
             isAddingScene={isAddingScene}
-            onSelectScene={setSelectedSceneId}
+            onSelectScene={(id) => {
+              if (isPlayingAnimatics) setIsPlayingAnimatics(false);
+              setSelectedSceneId(id);
+            }}
             onAddScene={handleAddScene}
             onDuplicateScene={(id) => handleDuplicate(id)}
             onRemoveScene={(id) => handleRemove(id)}
@@ -93,11 +108,11 @@ export function StoryboardStudio({
           />
 
           <SceneInspector
-            scene={selectedScene}
+            scene={effectiveScene}
             isSaving={isSavingScene}
             onChangeField={updateSelectedScene}
-            onDuplicate={() => handleDuplicate(selectedScene.id)}
-            onRemove={() => handleRemove(selectedScene.id)}
+            onDuplicate={() => handleDuplicate(effectiveScene.id)}
+            onRemove={() => handleRemove(effectiveScene.id)}
             onRegenerateFrame={handleGenerateWithAi}
           />
         </main>
@@ -105,13 +120,16 @@ export function StoryboardStudio({
         {/* Bottom Animatics Timeline Dock */}
         <AnimaticsTimelineDock
           scenes={scenes}
-          selectedSceneId={selectedScene.id}
+          selectedSceneId={effectiveScene.id}
           totalDuration={totalDuration}
           isPlaying={isPlayingAnimatics}
           currentTime={playbackCurrentTime}
           onTogglePlay={setIsPlayingAnimatics}
           onSeek={setPlaybackCurrentTime}
-          onSelectScene={setSelectedSceneId}
+          onSelectScene={(id) => {
+            if (isPlayingAnimatics) setIsPlayingAnimatics(false);
+            setSelectedSceneId(id);
+          }}
         />
       </div>
 
