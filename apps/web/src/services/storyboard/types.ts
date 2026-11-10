@@ -1,4 +1,5 @@
 export interface SceneVersionItem {
+  id?: string;
   versionNumber: number;
   title: string;
   visualPrompt?: string;

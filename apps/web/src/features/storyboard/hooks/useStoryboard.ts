@@ -41,6 +41,8 @@ export function useStoryboard(
     updateSceneMutation,
     addSceneMutation,
     deleteSceneMutation,
+    createVersionMutation,
+    deleteVersionMutation,
     reorderMutation,
     approveMutation,
     generateMutation,
@@ -225,6 +227,29 @@ export function useStoryboard(
     }, 400);
   };
 
+  const handleCreateVersion = (targetSceneId?: string, customTitle?: string) => {
+    const sceneId = targetSceneId || store.selectedSceneId;
+    if (!sceneId) return;
+    flushPendingUpdates(sceneId);
+    createVersionMutation.mutate({
+      sceneId,
+      payload: customTitle ? { title: customTitle } : undefined,
+    });
+  };
+
+  const handleDeleteVersion = (sceneId: string, versionId: string) => {
+    deleteVersionMutation.mutate({ sceneId, versionId });
+  };
+
+  const handleRollbackVersion = (scene: StoryboardScene, version: any) => {
+    if (!scene?.id) return;
+    if (version.title) updateSelectedScene("title", version.title);
+    if (version.visualPrompt) updateSelectedScene("visualPrompt", version.visualPrompt);
+    if (version.voiceover) updateSelectedScene("voiceover", version.voiceover);
+    if (version.cameraMovement) updateSelectedScene("cameraMovement", version.cameraMovement);
+    toast.success(`Đã khôi phục về phiên bản v${version.versionNumber}!`);
+  };
+
   return {
     projectName: data?.projectName || projectName,
     approvalStatus: data?.approvalStatus || store.approvalStatus,
@@ -235,6 +260,8 @@ export function useStoryboard(
     isAddingScene: addSceneMutation.isPending,
     isSavingScene: isUpdatingSceneRef.current || updateSceneMutation.isPending,
     isGenerating: store.isGenerating,
+    isCreatingVersion: createVersionMutation.isPending,
+    isDeletingVersion: deleteVersionMutation.isPending,
     viewMode: store.viewMode,
     isPlayingAnimatics: store.isPlayingAnimatics,
     playbackCurrentTime: store.playbackCurrentTime,
@@ -247,6 +274,9 @@ export function useStoryboard(
     handleDuplicate,
     handleRemove,
     handleMoveScene,
+    handleCreateVersion,
+    handleDeleteVersion,
+    handleRollbackVersion,
     handleGenerateWithAi: () => generateMutation.mutate(),
     handleApproveAndProceed: () => approveMutation.mutate(),
     refetch,

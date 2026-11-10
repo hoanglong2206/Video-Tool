@@ -9,6 +9,7 @@ from sqlalchemy.orm.attributes import flag_modified
 from server.ai_engine.src.llm.service import llm_service
 from server.backend.src.api.dtos.storyboard import (
     CreateSceneRequestDTO,
+    CreateSceneVersionRequestDTO,
     ReorderScenesRequestDTO,
     SceneVersionItemDTO,
     StoryboardResponseDTO,
@@ -21,7 +22,12 @@ from server.backend.src.infrastructure.database.models import (
     SceneVersionModel,
 )
 from server.backend.src.infrastructure.database.session import get_db_session
-from server.backend.src.api.routers.storyboard_helpers import build_scene_dto, DEMO_SCENE_THUMBNAILS
+from server.backend.src.api.routers.storyboard_helpers import (
+    build_scene_dto,
+    DEMO_SCENE_THUMBNAILS,
+    save_scene_version_snapshot,
+    delete_scene_version_snapshot,
+)
 
 router = APIRouter(prefix="/api/v1/projects", tags=["Storyboard"])
 
@@ -184,6 +190,33 @@ async def delete_storyboard_scene(
 
     await session.commit()
     return {"status": "deleted", "sceneId": scene_id, "remainingCount": len(remaining)}
+
+
+@router.post("/{project_id}/storyboard/scenes/{scene_id}/versions", response_model=StoryboardSceneDTO)
+async def create_scene_version(
+    project_id: str,
+    scene_id: str,
+    payload: CreateSceneVersionRequestDTO | None = None,
+    session: AsyncSession = Depends(get_db_session),
+) -> StoryboardSceneDTO:
+    """Create a historical snapshot version for a scene."""
+    scene = await session.get(SceneModel, scene_id)
+    if not scene:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Scene not found")
+    updated = await save_scene_version_snapshot(session, scene, payload or CreateSceneVersionRequestDTO())
+    return build_scene_dto(updated)
+
+
+@router.delete("/{project_id}/storyboard/scenes/{scene_id}/versions/{version_id}", response_model=StoryboardSceneDTO)
+async def delete_scene_version(
+    project_id: str,
+    scene_id: str,
+    version_id: str,
+    session: AsyncSession = Depends(get_db_session),
+) -> StoryboardSceneDTO:
+    """Delete a specific historical snapshot version."""
+    updated = await delete_scene_version_snapshot(session, scene_id, version_id)
+    return build_scene_dto(updated)
 
 
 @router.put("/{project_id}/storyboard/reorder")

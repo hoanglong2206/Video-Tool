@@ -1,20 +1,31 @@
 "use client";
 
 import React from "react";
-import type { StoryboardScene } from "../../types";
+import type { StoryboardScene, SceneVersionItem } from "../../types";
 import { Textarea } from "@/components/ui";
-import { Sparkles, Wand2, Volume2, History } from "lucide-react";
+import { Sparkles, Wand2, Volume2 } from "lucide-react";
+import { VersionHistorySection } from "./VersionHistorySection";
 
 interface InspectorScriptTabProps {
   scene: StoryboardScene;
   onChangeField: (field: keyof StoryboardScene, value: any) => void;
   onRegenerateFrame?: () => void;
+  onCreateSnapshot?: () => void;
+  onDeleteVersion?: (versionId: string) => void;
+  onRollbackVersion?: (version: SceneVersionItem) => void;
+  isCreatingVersion?: boolean;
+  isDeletingVersion?: boolean;
 }
 
 export function InspectorScriptTab({
   scene,
   onChangeField,
   onRegenerateFrame,
+  onCreateSnapshot,
+  onDeleteVersion,
+  onRollbackVersion,
+  isCreatingVersion,
+  isDeletingVersion,
 }: InspectorScriptTabProps): React.ReactElement {
   const STYLE_PRESETS = ["Photorealistic 8K", "Octane 3D", "Cyberpunk Neon", "Minimal Tech"];
   const estimatedSeconds = Math.round(((scene.voiceover || "").split(" ").filter(Boolean).length / 2.5));
@@ -98,34 +109,14 @@ export function InspectorScriptTab({
       </div>
 
       {/* 4. Lịch sử phiên bản (Version History) */}
-      {scene.versions && scene.versions.length > 0 && (
-        <div className="pt-2 border-t border-[#1C2436]">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[10px] text-slate-400 uppercase font-semibold flex items-center gap-1">
-              <History className="w-3 h-3 text-cyan-400" /> Lịch sử ({scene.versions.length} phiên bản)
-            </span>
-          </div>
-          <div className="flex flex-col gap-1 max-h-28 overflow-y-auto pr-0.5">
-            {scene.versions.map((ver, idx) => (
-              <div key={idx} className="flex items-center justify-between bg-[#070A10] p-1.5 rounded border border-[#1A2234] text-[10px]">
-                <span className="font-bold text-slate-200 font-mono">v{ver.versionNumber}</span>
-                <span className="text-slate-400 truncate max-w-[140px] text-[9px]">{ver.title}</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (ver.visualPrompt) onChangeField("visualPrompt", ver.visualPrompt);
-                    if (ver.title) onChangeField("title", ver.title);
-                    if (ver.voiceover) onChangeField("voiceover", ver.voiceover);
-                  }}
-                  className="text-[8.5px] bg-blue-600 text-white px-1.5 py-0.2 rounded font-mono cursor-pointer"
-                >
-                  Khôi phục
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <VersionHistorySection
+        scene={scene}
+        isCreatingVersion={isCreatingVersion}
+        isDeletingVersion={isDeletingVersion}
+        onCreateSnapshot={onCreateSnapshot || (() => {})}
+        onDeleteVersion={onDeleteVersion || (() => {})}
+        onRollbackVersion={onRollbackVersion || (() => {})}
+      />
     </div>
   );
 }

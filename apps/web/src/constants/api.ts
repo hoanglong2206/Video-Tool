@@ -33,6 +33,10 @@ export const API_ENDPOINTS = {
     `/api/v1/projects/${projectId}/storyboard/scenes`,
   STORYBOARD_SCENE: (projectId: string, sceneId: string) =>
     `/api/v1/projects/${projectId}/storyboard/scenes/${sceneId}`,
+  STORYBOARD_SCENE_VERSIONS: (projectId: string, sceneId: string) =>
+    `/api/v1/projects/${projectId}/storyboard/scenes/${sceneId}/versions`,
+  STORYBOARD_SCENE_VERSION: (projectId: string, sceneId: string, versionId: string) =>
+    `/api/v1/projects/${projectId}/storyboard/scenes/${sceneId}/versions/${versionId}`,
   STORYBOARD_REORDER: (projectId: string) =>
     `/api/v1/projects/${projectId}/storyboard/reorder`,
   STORYBOARD_APPROVE: (projectId: string) =>

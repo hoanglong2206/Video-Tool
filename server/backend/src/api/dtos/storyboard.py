@@ -2,6 +2,7 @@ from pydantic import BaseModel, ConfigDict
 
 
 class SceneVersionItemDTO(BaseModel):
+    id: str | None = None
     versionNumber: int
     title: str
     visualPrompt: str | None = None
@@ -11,6 +12,14 @@ class SceneVersionItemDTO(BaseModel):
     role: str = "ai_llm"
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class CreateSceneVersionRequestDTO(BaseModel):
+    title: str | None = None
+    visualPrompt: str | None = None
+    voiceover: str | None = None
+    cameraMovement: str | None = None
+    role: str = "user"
 
 
 class StoryboardSceneDTO(BaseModel):

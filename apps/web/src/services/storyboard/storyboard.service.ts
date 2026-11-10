@@ -54,6 +54,27 @@ export const storyboardService = {
     );
   },
 
+  createSceneVersion: async (
+    projectId: string,
+    sceneId: string,
+    payload?: { title?: string; visualPrompt?: string; voiceover?: string; cameraMovement?: string; role?: string }
+  ): Promise<StoryboardScene> => {
+    return apiPost<StoryboardScene, any>(
+      API_ENDPOINTS.STORYBOARD_SCENE_VERSIONS(projectId, sceneId),
+      payload || {}
+    );
+  },
+
+  deleteSceneVersion: async (
+    projectId: string,
+    sceneId: string,
+    versionId: string
+  ): Promise<StoryboardScene> => {
+    return apiDelete<StoryboardScene>(
+      API_ENDPOINTS.STORYBOARD_SCENE_VERSION(projectId, sceneId, versionId)
+    );
+  },
+
   reorderScenes: async (
     projectId: string,
     sceneIds: string[]

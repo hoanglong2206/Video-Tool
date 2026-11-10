@@ -75,6 +75,42 @@ export function useStoryboardMutations({
     onSuccess: () => toast.success("Đã xóa phân cảnh và đánh số lại thành công!"),
   });
 
+  const createVersionMutation = useMutation({
+    mutationFn: ({ sceneId, payload }: { sceneId: string; payload?: any }) =>
+      storyboardService.createSceneVersion(projectId, sceneId, payload),
+    onSuccess: (updated) => {
+      lastSavedRef.current[updated.id] = { ...(lastSavedRef.current[updated.id] || {}), ...updated };
+      store.updateSceneLocal(updated.id, updated);
+      queryClient.setQueryData(QUERY_KEYS.storyboard.byProject(projectId), (old: any) => {
+        if (!old?.scenes) return old;
+        return {
+          ...old,
+          scenes: old.scenes.map((s: StoryboardScene) => (s.id === updated.id ? { ...s, ...updated } : s)),
+        };
+      });
+      toast.success(`Đã lưu snapshot phiên bản v${updated.activeVersion || ""} thành công!`);
+    },
+    onError: () => toast.error("Không thể lưu phiên bản mới."),
+  });
+
+  const deleteVersionMutation = useMutation({
+    mutationFn: ({ sceneId, versionId }: { sceneId: string; versionId: string }) =>
+      storyboardService.deleteSceneVersion(projectId, sceneId, versionId),
+    onSuccess: (updated) => {
+      lastSavedRef.current[updated.id] = { ...(lastSavedRef.current[updated.id] || {}), ...updated };
+      store.updateSceneLocal(updated.id, updated);
+      queryClient.setQueryData(QUERY_KEYS.storyboard.byProject(projectId), (old: any) => {
+        if (!old?.scenes) return old;
+        return {
+          ...old,
+          scenes: old.scenes.map((s: StoryboardScene) => (s.id === updated.id ? { ...s, ...updated } : s)),
+        };
+      });
+      toast.success("Đã xóa phiên bản lịch sử thành công!");
+    },
+    onError: () => toast.error("Không thể xóa phiên bản lịch sử."),
+  });
+
   const reorderMutation = useMutation({
     mutationFn: (sceneIds: string[]) => storyboardService.reorderScenes(projectId, sceneIds),
     onError: () => toast.error("Không thể lưu thứ tự phân cảnh."),
@@ -111,6 +147,8 @@ export function useStoryboardMutations({
     updateSceneMutation,
     addSceneMutation,
     deleteSceneMutation,
+    createVersionMutation,
+    deleteVersionMutation,
     reorderMutation,
     approveMutation,
     generateMutation,

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import type { StoryboardScene } from "../types";
+import type { StoryboardScene, SceneVersionItem } from "../types";
 import { Sparkles, Camera, Copy, Trash2 } from "lucide-react";
 import { InspectorScriptTab } from "./inspector/InspectorScriptTab";
 import { InspectorCinematographyTab } from "./inspector/InspectorCinematographyTab";
@@ -13,6 +13,11 @@ interface SceneInspectorProps {
   onDuplicate: () => void;
   onRemove: () => void;
   onRegenerateFrame?: () => void;
+  onCreateSnapshot?: () => void;
+  onDeleteVersion?: (versionId: string) => void;
+  onRollbackVersion?: (version: SceneVersionItem) => void;
+  isCreatingVersion?: boolean;
+  isDeletingVersion?: boolean;
 }
 
 export function SceneInspector({
@@ -22,6 +27,11 @@ export function SceneInspector({
   onDuplicate,
   onRemove,
   onRegenerateFrame,
+  onCreateSnapshot,
+  onDeleteVersion,
+  onRollbackVersion,
+  isCreatingVersion,
+  isDeletingVersion,
 }: SceneInspectorProps): React.ReactElement {
   const [activeTab, setActiveTab] = useState<"script" | "cinematography">("script");
 
@@ -96,6 +106,11 @@ export function SceneInspector({
             scene={scene}
             onChangeField={onChangeField}
             onRegenerateFrame={onRegenerateFrame}
+            onCreateSnapshot={onCreateSnapshot}
+            onDeleteVersion={onDeleteVersion}
+            onRollbackVersion={onRollbackVersion}
+            isCreatingVersion={isCreatingVersion}
+            isDeletingVersion={isDeletingVersion}
           />
         )}
         {activeTab === "cinematography" && (

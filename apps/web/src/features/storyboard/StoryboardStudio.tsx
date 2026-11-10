@@ -41,6 +41,11 @@ export function StoryboardStudio({
     handleDuplicate,
     handleRemove,
     handleMoveScene,
+    handleCreateVersion,
+    handleDeleteVersion,
+    handleRollbackVersion,
+    isCreatingVersion,
+    isDeletingVersion,
     handleGenerateWithAi,
     handleApproveAndProceed,
   } = useStoryboard(projectName, projectId);
@@ -114,6 +119,11 @@ export function StoryboardStudio({
             onDuplicate={() => handleDuplicate(effectiveScene.id)}
             onRemove={() => handleRemove(effectiveScene.id)}
             onRegenerateFrame={handleGenerateWithAi}
+            onCreateSnapshot={() => handleCreateVersion(effectiveScene.id)}
+            onDeleteVersion={(verId) => handleDeleteVersion(effectiveScene.id, verId)}
+            onRollbackVersion={(ver) => handleRollbackVersion(effectiveScene, ver)}
+            isCreatingVersion={isCreatingVersion}
+            isDeletingVersion={isDeletingVersion}
           />
         </main>
 

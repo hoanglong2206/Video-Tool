@@ -1,8 +1,15 @@
+from uuid import uuid4
+from fastapi import HTTPException
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+
 from server.backend.src.api.dtos.storyboard import (
+    CreateSceneVersionRequestDTO,
     SceneVersionItemDTO,
     StoryboardSceneDTO,
 )
-from server.backend.src.infrastructure.database.models import SceneModel
+from server.backend.src.infrastructure.database.models import SceneModel, SceneVersionModel
 
 DEMO_SCENE_THUMBNAILS = [
     "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80",
@@ -26,20 +33,28 @@ def build_scene_dto(s: SceneModel, idx: int = 0) -> StoryboardSceneDTO:
     versions_raw = s.__dict__.get("versions")
     if versions_raw and isinstance(versions_raw, (list, tuple)):
         for v in versions_raw:
+            created_label = "Đã lưu"
+            if hasattr(v, "created_at") and v.created_at:
+                try:
+                    created_label = v.created_at.strftime("%H:%M %d/%m")
+                except Exception:
+                    created_label = str(v.created_at)[:16]
             versions_dto.append(
                 SceneVersionItemDTO(
+                    id=getattr(v, "id", None) or f"ver-{v.version_number}",
                     versionNumber=v.version_number,
                     title=v.title,
                     visualPrompt=v.visual_prompt,
                     voiceover=v.voiceover,
                     cameraMovement=v.camera_movement,
-                    createdAt="Đã lưu",
+                    createdAt=created_label,
                     role=v.created_by_role or "ai_llm",
                 )
             )
     if not versions_dto:
         versions_dto = [
             SceneVersionItemDTO(
+                id=f"ver-{s.id}-1",
                 versionNumber=1,
                 title=s.title,
                 visualPrompt=visual_prompt,
@@ -76,3 +91,85 @@ def build_scene_dto(s: SceneModel, idx: int = 0) -> StoryboardSceneDTO:
         activeVersion=len(versions_dto),
         versions=versions_dto,
     )
+
+
+async def save_scene_version_snapshot(
+    session: AsyncSession,
+    scene: SceneModel,
+    payload: CreateSceneVersionRequestDTO,
+) -> SceneModel:
+    stmt = (
+        select(SceneVersionModel)
+        .where(SceneVersionModel.scene_id == scene.id)
+        .order_by(SceneVersionModel.version_number.asc())
+    )
+    existing_versions = list((await session.scalars(stmt)).all())
+
+    props = scene.properties_data or {}
+    cur_prompt = props.get("visualPrompt") or scene.description or ""
+    cur_voiceover = scene.voiceover_text or props.get("voiceover") or scene.creative_direction or ""
+
+    if not existing_versions:
+        v1 = SceneVersionModel(
+            id=f"ver-{uuid4().hex[:8]}",
+            scene_id=scene.id,
+            version_number=1,
+            title=scene.title,
+            visual_prompt=cur_prompt,
+            voiceover=cur_voiceover,
+            camera_movement=scene.camera_movement,
+            created_by_role="ai_llm",
+        )
+        session.add(v1)
+        await session.flush()
+        existing_versions.append(v1)
+
+    next_num = max(v.version_number for v in existing_versions) + 1
+    new_v = SceneVersionModel(
+        id=f"ver-{uuid4().hex[:8]}",
+        scene_id=scene.id,
+        version_number=next_num,
+        title=payload.title or scene.title,
+        visual_prompt=payload.visualPrompt or cur_prompt,
+        voiceover=payload.voiceover or cur_voiceover,
+        camera_movement=payload.cameraMovement or scene.camera_movement,
+        created_by_role=payload.role or "user",
+    )
+    session.add(new_v)
+    await session.commit()
+
+    reload_stmt = (
+        select(SceneModel)
+        .options(selectinload(SceneModel.versions))
+        .where(SceneModel.id == scene.id)
+    )
+    return (await session.scalar(reload_stmt)) or scene
+
+
+async def delete_scene_version_snapshot(
+    session: AsyncSession,
+    scene_id: str,
+    version_id: str,
+) -> SceneModel:
+    version_condition = SceneVersionModel.id == version_id
+    if version_id.isdigit():
+        version_condition = version_condition | (SceneVersionModel.version_number == int(version_id))
+
+    stmt = select(SceneVersionModel).where(
+        SceneVersionModel.scene_id == scene_id,
+        version_condition,
+    )
+    ver = await session.scalar(stmt)
+    if ver:
+        await session.delete(ver)
+        await session.commit()
+
+    reload_stmt = (
+        select(SceneModel)
+        .options(selectinload(SceneModel.versions))
+        .where(SceneModel.id == scene_id)
+    )
+    res = await session.scalar(reload_stmt)
+    if not res:
+        raise HTTPException(status_code=404, detail="Scene not found")
+    return res
