@@ -48,7 +48,8 @@ export function RegenerateSceneModal({
       badge: "Cinematic",
       desc: "Ánh sáng viền studio 4:1, tương phản cao, phản chiếu kim loại phay xước sắc nét.",
       visualPrompt: `Extreme macro cinematic close-up of ${sceneTitle}, 4:1 low-key studio rim-lighting, subtle volumetric haze, 8K ultra-detailed photorealistic render.`,
-      cameraMovement: "Slow push-in with 24fps smooth orbit",
+      cameraMovement:
+        "Slow push-in 24fps với rotational orbit 15° arc, tiêu cự 85mm anamorphic prime, f/1.8 shallow DoF",
       voiceover: "Chiêm ngưỡng đỉnh cao của thiết kế cơ khí và âm học tinh xảo.",
     },
     {
@@ -58,7 +59,8 @@ export function RegenerateSceneModal({
       badge: "High Energy",
       desc: "Chuyển động hạt sóng âm vòm bùng nổ, rung cảm biến theo nhịp bass dồn dập.",
       visualPrompt: `Volumetric neon kinetic soundwaves and hyper-dynamic particles exploding outward in dark space, high contrast electric blue reflections.`,
-      cameraMovement: "Fast kinetic whip-pan zoom with motion blur tracking",
+      cameraMovement:
+        "Fast kinetic whip-pan zoom, 180° shutter angle, motion blur gia tốc chuyển cảnh dồn dập",
       voiceover: "Bứt phá mọi giới hạn âm thanh với sức mạnh công nghệ vượt trội.",
     },
     {
@@ -68,7 +70,8 @@ export function RegenerateSceneModal({
       badge: "Luxury Minimal",
       desc: "Phong cách tối giản tinh khiết, ánh sáng studio mềm dịu, chuyển động xoay chậm.",
       visualPrompt: `Ultra-clean minimal aesthetic, soft studio daylight reflections, pristine titanium texture, elegant turntable reveal.`,
-      cameraMovement: "Smooth horizontal tracking right with f/1.4 bokeh",
+      cameraMovement:
+        "Smooth horizontal tracking glide lướt cạnh viền titanium vát chamfer, f/1.4 bokeh mượt mà",
       voiceover: "Sự tinh giản tuyệt đối trong từng đường nét và vật liệu cao cấp.",
     },
     {
@@ -78,7 +81,8 @@ export function RegenerateSceneModal({
       badge: "3D Engineering",
       desc: "Phân rã linh kiện vi mạch trong không trọng lực kèm đường line sơ đồ kỹ thuật.",
       visualPrompt: `Seamless 3D exploded diagram of internal acoustic drivers and micro-circuitry floating in zero-gravity with glowing neon schematic lines.`,
-      cameraMovement: "Rotational slow-motion twist around driver core",
+      cameraMovement:
+        "Rotational slow-motion 360° twist quanh lõi driver bóc tách đa tầng, dynamic exploded parts expansion",
       voiceover: "Cấu trúc kỹ thuật phức tạp được tối ưu hóa cho độ chính xác âm học tối đa.",
     },
   ];

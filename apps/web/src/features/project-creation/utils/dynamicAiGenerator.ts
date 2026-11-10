@@ -62,7 +62,8 @@ export function generateDynamicAiAnalysis(
       durationSeconds: sceneDurations[0],
       visualPrompt: `Extreme macro cinematic shot of ${projectName} emerging from pitch-black infinity cove; 85mm anamorphic prime lens, f/1.8 shallow depth of field. 4:1 low-key dramatic studio rim-lighting in neon cyan (${accentCol}) and deep cobalt (${primaryCol}) tracing brushed titanium chamfers; subtle volumetric haze, optical anamorphic streak flare. ACEScc color graded, Octane Render 2024, Unreal Engine 5.4 Lumen ray-tracing, photorealistic PBR shaders, 8K ultra-detailed --ar ${aspect} --style raw.`,
       voiceover: `Khởi đầu với ${clientName} — nơi chuẩn mực âm học và cơ khí chính xác được tái định nghĩa.`,
-      cameraMovement: "Slow push-in with 24fps rotational orbit (15° arc)",
+      cameraMovement:
+        "Slow push-in 24fps với rotational orbit 15° arc, tiêu cự 85mm anamorphic prime, f/1.8 shallow DoF, studio rim-light",
     },
     {
       sceneNumber: 2,
@@ -70,7 +71,8 @@ export function generateDynamicAiAnalysis(
       durationSeconds: sceneDurations[1],
       visualPrompt: `Ultra-macro 100mm optical shot focusing on ${projectName} acoustic ear cushions and micro-perforated dual microphone grille; breathable memory foam weave, laser-etched debossed branding. Razor-sharp specular edge highlights, soft top diffusion lighting with high-contrast shadows. Subsurface scattering on premium composite polymer, microscopic dust particles suspended in light beam, 8K hyper-detailed photorealism --ar ${aspect}.`,
       voiceover: "Thiết kế công thái học hoàn hảo kết hợp vật liệu hàng không, mang đến sự tinh tế trong từng điểm chạm.",
-      cameraMovement: "Smooth horizontal tracking right with depth of field rack focus",
+      cameraMovement:
+        "Ultra-macro horizontal tracking glide lướt cạnh viền titanium vát chamfer, depth of field rack focus mượt mà",
     },
     {
       sceneNumber: 3,
@@ -78,7 +80,8 @@ export function generateDynamicAiAnalysis(
       durationSeconds: sceneDurations[2],
       visualPrompt: `Seamless 3D exploded engineering diagram of ${projectName}: custom 40mm Beryllium acoustic driver, acoustic resonance chamber, Bluetooth 5.4 chipset and neodymium motor assembly suspended in zero-gravity. Multi-point rim lighting with glowing neon telemetry lines (${accentCol}), ray-traced reflections on copper voice coil, Cinema 4D + Redshift render, crystal-clear schematic presentation, 8K broadcast quality --ar ${aspect}.`,
       voiceover: "Driver Beryllium 40mm tùy biến cùng công nghệ Hybrid ANC loại bỏ 99.8% tạp âm ngoại cảnh.",
-      cameraMovement: "Rotational slow-motion 360° twist around floating acoustic core",
+      cameraMovement:
+        "Rotational slow-motion 360° twist quanh lõi driver bóc tách đa tầng, dynamic exploded parts expansion",
     },
     {
       sceneNumber: 4,
@@ -86,7 +89,8 @@ export function generateDynamicAiAnalysis(
       durationSeconds: sceneDurations[3],
       visualPrompt: `Volumetric kinetic particle waves pulsing dynamically from ${projectName} acoustic drivers, pulsing synchronously to deep sub-bass frequencies. Shockwave ripples in glowing electric cyan (${accentCol}) and cobalt (${primaryCol}) distorting background reflections; high-speed 180° shutter angle, kinetic motion blur, Houdini particle simulation, Unreal Engine 5.4 Niagara VFX, ACEScc color science, 8K masterpiece --ar ${aspect}.`,
       voiceover: "Âm thanh vòm Spatial Audio định vị chuẩn xác từng nhịp điệu, đưa bạn vào tâm điểm của buổi hòa nhạc.",
-      cameraMovement: "Fast kinetic whip-pan zoom into acoustic cavity with camera shake",
+      cameraMovement:
+        "Fast kinetic whip-pan zoom vào buồng âm học, 180° shutter angle, motion blur dồn dập kèm rung camera nhẹ",
     },
     {
       sceneNumber: 5,
@@ -94,7 +98,8 @@ export function generateDynamicAiAnalysis(
       durationSeconds: sceneDurations[4],
       visualPrompt: `Full beauty turntable reveal of the assembled ${projectName} resting on an acrylic pedestal with subtle mirrored reflections; dramatic 3-point studio lighting, dual-tone edge glow highlighting aerospace titanium headband and obsidian earcups. Golden ratio composition, soft atmospheric backlighting, Octane Render photorealistic studio commercial look, 8K pristine finish --ar ${aspect}.`,
       voiceover: `${projectName} — Thời lượng pin 40 giờ, biểu tượng đỉnh cao của nghệ thuật cơ khí và âm học tương lai.`,
-      cameraMovement: "Sweeping crane down wide shot settling into 3/4 hero beauty angle",
+      cameraMovement:
+        "Sweeping crane down wide shot hạ xuống góc 3/4 hero beauty angle, khóa tiêu cự trung tâm tôn dáng sản phẩm",
     },
     {
       sceneNumber: 6,
@@ -102,7 +107,8 @@ export function generateDynamicAiAnalysis(
       durationSeconds: sceneDurations[5],
       visualPrompt: `Official vector logo of ${clientName} debossed into matte carbon texture with anamorphic specular light flare sweeping across bevels. Sleek typography subtitle '${projectName} Launch' with animated glowing CTA badge 'Order Now'. Minimalist obsidian background, high-contrast center symmetry, After Effects kinetic typography, 8K ultra-clean commercial lockup --ar ${aspect}.`,
       voiceover: `${clientName} — Đặt trước ngay hôm nay để nhận ưu đãi giới hạn.`,
-      cameraMovement: "Locked static hero shot with subtle light flare wash across frame",
+      cameraMovement:
+        "Locked static hero lockup chính diện đối xứng, specular light flare quét ngang logo kim loại hoàn thiện",
     },
   ];
 

@@ -18,7 +18,7 @@ export function ReferenceMediaBoard({
   const [selectedPreviewFile, setSelectedPreviewFile] = useState<UploadedMediaItem | null>(null);
 
   return (
-    <div className="w-[400px] xl:w-[440px] border-l border-[#1C2436] bg-[#0A0E17] p-3.5 flex flex-col gap-3 h-full min-h-0 overflow-hidden shrink-0 select-none">
+    <div className="w-[400px] xl:w-[440px] 2xl:w-[480px] border-l border-[#1C2436] bg-[#0A0E17] p-3.5 flex flex-col gap-3 h-full min-h-0 overflow-hidden shrink-0 select-none">
       {/* 1. Reference Media Gallery (Horizontal Scroll) & Color Palette */}
       <div className="bg-[#101520] border border-[#1C2436] rounded-xl p-3 flex flex-col gap-2 shrink-0">
         <div className="flex items-center justify-between pb-1 border-b border-[#1C2436]">

@@ -5,6 +5,7 @@ import type { SceneBreakdownItem } from "../types";
 import { Input, Textarea } from "@/components/ui";
 import { Film, Clock, ChevronLeft, ChevronRight, Copy, Check, Wand2 } from "lucide-react";
 import { RegenerateSceneModal } from "./RegenerateSceneModal";
+import { SceneMovementEditor } from "./SceneMovementEditor";
 
 interface SceneTimelineEditorProps {
   scenes: SceneBreakdownItem[];
@@ -96,9 +97,9 @@ export function SceneTimelineEditor({
         })}
       </div>
 
-      {/* 2. Active Scene Detail Editor (Natural tight layout without awkward justify-between void) */}
+      {/* 2. Active Scene Detail Editor */}
       {activeScene && (
-        <div className="flex-1 min-h-0 bg-[#0B0F17] border border-[#1E2638] rounded-xl p-3 flex flex-col gap-2.5 overflow-hidden">
+        <div className="flex-1 min-h-0 bg-[#0B0F17] border border-[#1E2638] rounded-xl p-3 flex flex-col gap-2.5 overflow-y-auto pr-1">
           {/* Header with Title and Switchers */}
           <div className="flex items-center justify-between shrink-0 gap-2">
             <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -135,8 +136,8 @@ export function SceneTimelineEditor({
             </div>
           </div>
 
-          {/* Visual Prompt Input - Naturally fills central vertical space */}
-          <div className="flex-1 min-h-0 flex flex-col gap-1">
+          {/* Visual Prompt Input - Comfortable fixed height on tall screens */}
+          <div className="flex flex-col gap-1 shrink-0">
             <div className="flex items-center justify-between shrink-0">
               <label className="text-[10px] font-semibold text-cyan-400 uppercase tracking-wider flex items-center gap-1">
                 Visual Prompt (Prompt tạo hình ảnh / Video AI)
@@ -161,38 +162,21 @@ export function SceneTimelineEditor({
               </div>
             </div>
             <Textarea
+              rows={4}
               value={activeScene.visualPrompt}
               onChange={(e) => onUpdateScene(activeIndex, { visualPrompt: e.target.value })}
-              className="bg-[#070A10] border-[#1E2638] focus:border-cyan-500 text-xs resize-none leading-relaxed flex-1 min-h-[60px]"
+              className="bg-[#070A10] border-[#1E2638] focus:border-cyan-500 text-xs resize-none leading-relaxed h-24 xl:h-28"
               placeholder="Visual prompt cho AI renderer..."
             />
           </div>
 
-          {/* Voiceover and Camera Movement */}
-          <div className="grid grid-cols-2 gap-2.5 shrink-0">
-            <div>
-              <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
-                Lời bình (Voiceover / Lời thoại)
-              </label>
-              <Input
-                value={activeScene.voiceover}
-                onChange={(e) => onUpdateScene(activeIndex, { voiceover: e.target.value })}
-                className="bg-[#070A10] border-[#1E2638] h-7 text-xs text-slate-300"
-                placeholder="Nội dung lời đọc..."
-              />
-            </div>
-            <div>
-              <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
-                Chuyển động Camera (Camera Movement)
-              </label>
-              <Input
-                value={activeScene.cameraMovement}
-                onChange={(e) => onUpdateScene(activeIndex, { cameraMovement: e.target.value })}
-                className="bg-[#070A10] border-[#1E2638] h-7 text-xs text-slate-300"
-                placeholder="Góc máy và chuyển động..."
-              />
-            </div>
-          </div>
+          {/* Voiceover and Detailed Camera Movement (2 rows each + presets) */}
+          <SceneMovementEditor
+            voiceover={activeScene.voiceover}
+            cameraMovement={activeScene.cameraMovement}
+            onChangeVoiceover={(voiceover) => onUpdateScene(activeIndex, { voiceover })}
+            onChangeCameraMovement={(cameraMovement) => onUpdateScene(activeIndex, { cameraMovement })}
+          />
         </div>
       )}
 
