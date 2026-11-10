@@ -5,7 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from server.backend.src.core.config import settings
-from server.backend.src.api.routers import health, dashboard, projects, workflow, storyboard, assets, scenes, threed, approvals, library, render, assistant, events
+from server.backend.src.api.routers import health, dashboard, projects, workflow, storyboard, assets, scenes, threed, approvals, library, render, assistant, events, asset_planning
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +53,7 @@ app.include_router(projects.router)
 app.include_router(workflow.router)
 app.include_router(storyboard.router)
 app.include_router(assets.router)
+app.include_router(asset_planning.router)
 app.include_router(scenes.router)
 app.include_router(threed.router)
 app.include_router(approvals.router)

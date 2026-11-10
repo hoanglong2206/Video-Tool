@@ -42,10 +42,16 @@ export const API_ENDPOINTS = {
   STORYBOARD_APPROVE: (projectId: string) =>
     `/api/v1/projects/${projectId}/storyboard/approve`,
 
-  // Asset Studio
+  // Asset Studio & Planning
   ASSETS: (projectId: string) => `/api/v1/projects/${projectId}/assets`,
   ASSET_REMOVE_BG: (projectId: string, assetId: string) =>
     `/api/v1/projects/${projectId}/assets/${assetId}/remove-bg`,
+  ASSET_PLANNING: (projectId: string) =>
+    `/api/v1/projects/${projectId}/asset-planning`,
+  ASSET_PLAN_GENERATE: (projectId: string, assetId: string) =>
+    `/api/v1/projects/${projectId}/assets/${assetId}/generate`,
+  ASSET_PLAN_APPROVE: (projectId: string) =>
+    `/api/v1/projects/${projectId}/asset-planning/approve`,
 
   // Global Library & Brand Kit
   LIBRARY_ASSETS: "/api/v1/library/assets",
@@ -75,4 +81,3 @@ export const API_ENDPOINTS = {
   // Real-time Server-Sent Events
   EVENTS_STREAM: (projectId: string) => `/api/v1/events/stream/${projectId}`,
 } as const;
-
