@@ -3,6 +3,7 @@ from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from sqlalchemy.orm.attributes import flag_modified
 
 from server.backend.src.api.dtos.storyboard import (
     CreateSceneVersionRequestDTO,
@@ -105,18 +106,22 @@ async def save_scene_version_snapshot(
     )
     existing_versions = list((await session.scalars(stmt)).all())
 
-    props = scene.properties_data or {}
-    cur_prompt = props.get("visualPrompt") or scene.description or ""
-    cur_voiceover = scene.voiceover_text or props.get("voiceover") or scene.creative_direction or ""
+    props = dict(scene.properties_data or {})
+    cur_title = payload.title or scene.title
+    cur_prompt = payload.visualPrompt if payload.visualPrompt is not None else (props.get("visualPrompt") or scene.description or "")
+    cur_voiceover = payload.voiceover if payload.voiceover is not None else (scene.voiceover_text or props.get("voiceover") or scene.creative_direction or "")
+    cur_camera = payload.cameraMovement or scene.camera_movement
 
     if not existing_versions:
+        orig_prompt = props.get("visualPrompt") or scene.description or ""
+        orig_voiceover = scene.voiceover_text or props.get("voiceover") or scene.creative_direction or ""
         v1 = SceneVersionModel(
             id=f"ver-{uuid4().hex[:8]}",
             scene_id=scene.id,
             version_number=1,
             title=scene.title,
-            visual_prompt=cur_prompt,
-            voiceover=cur_voiceover,
+            visual_prompt=orig_prompt,
+            voiceover=orig_voiceover,
             camera_movement=scene.camera_movement,
             created_by_role="ai_llm",
         )
@@ -129,13 +134,24 @@ async def save_scene_version_snapshot(
         id=f"ver-{uuid4().hex[:8]}",
         scene_id=scene.id,
         version_number=next_num,
-        title=payload.title or scene.title,
-        visual_prompt=payload.visualPrompt or cur_prompt,
-        voiceover=payload.voiceover or cur_voiceover,
-        camera_movement=payload.cameraMovement or scene.camera_movement,
+        title=cur_title,
+        visual_prompt=cur_prompt,
+        voiceover=cur_voiceover,
+        camera_movement=cur_camera,
         created_by_role=payload.role or "user",
     )
     session.add(new_v)
+
+    # Persist the current snapshot attributes onto the scene model in DB
+    scene.title = cur_title
+    scene.description = cur_prompt
+    scene.voiceover_text = cur_voiceover
+    scene.camera_movement = cur_camera
+    props["visualPrompt"] = cur_prompt
+    props["voiceover"] = cur_voiceover
+    scene.properties_data = props
+    flag_modified(scene, "properties_data")
+
     await session.commit()
 
     reload_stmt = (

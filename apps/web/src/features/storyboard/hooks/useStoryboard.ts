@@ -155,11 +155,8 @@ export function useStoryboard(
     const currentScenes = useStoryboardStore.getState().scenes;
     const nextNum = currentScenes.length + 1;
     addSceneMutation.mutate({
-      title: `Phân cảnh mới 0${nextNum}`,
-      durationSeconds: 5,
-      cameraMovement: "Slow push-in 24fps",
-      visualPrompt: "Cinematic product shot with rim-lighting...",
-      voiceover: "Mô tả nội dung lời thoại...",
+      title: `Phân cảnh mới 0${nextNum}`, durationSeconds: 5, cameraMovement: "Slow push-in 24fps",
+      visualPrompt: "Cinematic product shot with rim-lighting...", voiceover: "Mô tả nội dung lời thoại...",
     });
   };
 
@@ -169,12 +166,9 @@ export function useStoryboard(
     const target = targetSceneId ? currentScenes.find((s) => s.id === targetSceneId) : selectedScene;
     if (!target) return;
     addSceneMutation.mutate({
-      title: `${target.title} (Bản sao)`,
-      durationSeconds: target.durationSeconds,
-      cameraMovement: target.cameraMovement,
-      visualPrompt: target.visualPrompt,
-      voiceover: target.voiceover,
-      cameraLens: target.cameraLens,
+      title: `${target.title} (Bản sao)`, durationSeconds: target.durationSeconds,
+      cameraMovement: target.cameraMovement, visualPrompt: target.visualPrompt,
+      voiceover: target.voiceover, cameraLens: target.cameraLens,
     });
   };
 
@@ -232,10 +226,28 @@ export function useStoryboard(
   const handleCreateVersion = (targetSceneId?: string, customTitle?: string) => {
     const sceneId = targetSceneId || store.selectedSceneId;
     if (!sceneId) return;
-    createVersionMutation.mutate({
-      sceneId,
-      payload: customTitle ? { title: customTitle } : undefined,
-    });
+    const currentScene = useStoryboardStore.getState().scenes.find((s) => s.id === sceneId);
+    if (!currentScene) return;
+
+    createVersionMutation.mutate(
+      {
+        sceneId,
+        payload: {
+          title: customTitle || currentScene.title,
+          visualPrompt: currentScene.visualPrompt || currentScene.description || "",
+          voiceover: currentScene.voiceover || "",
+          cameraMovement: currentScene.cameraMovement || "",
+          role: "user",
+        },
+      },
+      {
+        onSuccess: (updated) => {
+          lastSavedRef.current[updated.id] = { ...(lastSavedRef.current[updated.id] || {}), ...updated };
+          delete pendingUpdatesRef.current[updated.id];
+          setDirtyScenes((prev) => ({ ...prev, [updated.id]: false }));
+        },
+      }
+    );
   };
 
   const handleDeleteVersion = (sceneId: string, versionId: string) => {
@@ -262,32 +274,19 @@ export function useStoryboard(
   return {
     projectName: data?.projectName || projectName,
     approvalStatus: data?.approvalStatus || store.approvalStatus,
-    scenes: store.scenes,
-    selectedScene,
-    totalDuration,
-    isLoading,
+    scenes: store.scenes, selectedScene, totalDuration, isLoading,
     isAddingScene: addSceneMutation.isPending,
     isSavingScene: isUpdatingSceneRef.current || updateSceneMutation.isPending,
-    hasUnsavedChanges,
-    isGenerating: store.isGenerating,
+    hasUnsavedChanges, isGenerating: store.isGenerating,
     isCreatingVersion: createVersionMutation.isPending,
     isDeletingVersion: deleteVersionMutation.isPending,
-    viewMode: store.viewMode,
-    isPlayingAnimatics: store.isPlayingAnimatics,
+    viewMode: store.viewMode, isPlayingAnimatics: store.isPlayingAnimatics,
     playbackCurrentTime: store.playbackCurrentTime,
-    setViewMode: store.setViewMode,
-    setIsPlayingAnimatics: store.setIsPlayingAnimatics,
+    setViewMode: store.setViewMode, setIsPlayingAnimatics: store.setIsPlayingAnimatics,
     setPlaybackCurrentTime: store.setPlaybackCurrentTime,
-    setSelectedSceneId,
-    updateSelectedScene,
-    handleSaveScene,
-    handleAddScene,
-    handleDuplicate,
-    handleRemove,
-    handleMoveScene,
-    handleCreateVersion,
-    handleDeleteVersion,
-    handleRollbackVersion,
+    setSelectedSceneId, updateSelectedScene, handleSaveScene,
+    handleAddScene, handleDuplicate, handleRemove, handleMoveScene,
+    handleCreateVersion, handleDeleteVersion, handleRollbackVersion,
     handleGenerateWithAi: () => generateMutation.mutate(),
     handleApproveAndProceed: () => approveMutation.mutate(),
     refetch,

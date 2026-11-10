@@ -8,6 +8,7 @@ import { VersionHistorySection } from "./VersionHistorySection";
 
 interface InspectorScriptTabProps {
   scene: StoryboardScene;
+  hasUnsavedChanges?: boolean;
   onChangeField: (field: keyof StoryboardScene, value: any) => void;
   onRegenerateFrame?: () => void;
   onCreateSnapshot?: () => void;
@@ -19,6 +20,7 @@ interface InspectorScriptTabProps {
 
 export function InspectorScriptTab({
   scene,
+  hasUnsavedChanges,
   onChangeField,
   onRegenerateFrame,
   onCreateSnapshot,
@@ -111,6 +113,7 @@ export function InspectorScriptTab({
       {/* 4. Lịch sử phiên bản (Version History) */}
       <VersionHistorySection
         scene={scene}
+        hasUnsavedChanges={hasUnsavedChanges}
         isCreatingVersion={isCreatingVersion}
         isDeletingVersion={isDeletingVersion}
         onCreateSnapshot={onCreateSnapshot || (() => {})}

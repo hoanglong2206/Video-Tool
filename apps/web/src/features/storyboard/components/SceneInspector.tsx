@@ -119,6 +119,7 @@ export function SceneInspector({
         {activeTab === "script" && (
           <InspectorScriptTab
             scene={scene}
+            hasUnsavedChanges={hasUnsavedChanges}
             onChangeField={onChangeField}
             onRegenerateFrame={onRegenerateFrame}
             onCreateSnapshot={onCreateSnapshot}
