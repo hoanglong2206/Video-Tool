@@ -12,6 +12,7 @@ interface SceneGridProps {
   selectedSceneId: string;
   viewMode: StoryboardViewMode;
   isLoading?: boolean;
+  isAddingScene?: boolean;
   onSelectScene: (sceneId: string) => void;
   onAddScene: () => void;
   onDuplicateScene: (sceneId: string) => void;
@@ -26,6 +27,7 @@ export function SceneGrid({
   selectedSceneId,
   viewMode,
   isLoading,
+  isAddingScene,
   onSelectScene,
   onAddScene,
   onDuplicateScene,
@@ -67,10 +69,11 @@ export function SceneGrid({
             type="button"
             size="sm"
             onClick={onAddScene}
-            className="h-7 text-xs bg-[#121A29] hover:bg-[#1A253A] border border-[#24324D] text-slate-200 hover:text-white flex items-center gap-1 cursor-pointer"
+            disabled={isAddingScene}
+            className="h-7 text-xs bg-[#121A29] hover:bg-[#1A253A] border border-[#24324D] text-slate-200 hover:text-white flex items-center gap-1 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <Plus className="w-3 h-3 text-cyan-400" />
-            <span>Thêm cảnh</span>
+            <Plus className={`w-3 h-3 text-cyan-400 ${isAddingScene ? "animate-spin" : ""}`} />
+            <span>{isAddingScene ? "Đang thêm..." : "Thêm cảnh"}</span>
           </Button>
         </div>
       </div>

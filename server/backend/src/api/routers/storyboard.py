@@ -1,6 +1,7 @@
 from uuid import uuid4
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, func
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -132,9 +133,9 @@ async def create_storyboard_scene(
 ) -> StoryboardSceneDTO:
     """Add a new scene to project storyboard."""
     target_id = "proj-1" if project_id in ["proj-1", "default"] else project_id
-    stmt = select(SceneModel).where(SceneModel.project_id == target_id).order_by(SceneModel.scene_number.desc()).limit(1)
-    last_scene = await session.scalar(stmt)
-    next_num = (last_scene.scene_number + 1) if last_scene else 1
+    stmt = select(func.coalesce(func.max(SceneModel.scene_number), 0)).where(SceneModel.project_id == target_id)
+    current_max = (await session.scalar(stmt)) or 0
+    next_num = current_max + 1
 
     new_scene = SceneModel(
         id=f"scene-{uuid4().hex[:8]}",
@@ -155,9 +156,17 @@ async def create_storyboard_scene(
         lighting_rig={"rimLight": "#06B6D4", "style": "Studio Rim-light"},
     )
     session.add(new_scene)
-    await session.commit()
+    try:
+        await session.commit()
+    except IntegrityError:
+        await session.rollback()
+        current_max = (await session.scalar(stmt)) or 0
+        new_scene.scene_number = current_max + 1
+        session.add(new_scene)
+        await session.commit()
+
     await session.refresh(new_scene)
-    return _build_scene_dto(new_scene, next_num - 1)
+    return _build_scene_dto(new_scene, new_scene.scene_number - 1)
 
 
 @router.put("/{project_id}/storyboard/scenes/{scene_id}", response_model=StoryboardSceneDTO)
@@ -228,9 +237,13 @@ async def delete_storyboard_scene(
     await session.delete(scene)
     await session.flush()
 
-    # Re-sequence remaining
+    # Re-sequence remaining using negative temporary indices to prevent unique constraint conflict
     stmt = select(SceneModel).where(SceneModel.project_id == target_id).order_by(SceneModel.scene_number.asc())
     remaining = (await session.scalars(stmt)).all()
+    for idx, s in enumerate(remaining, 1):
+        s.scene_number = -idx
+    await session.flush()
+
     for idx, s in enumerate(remaining, 1):
         s.scene_number = idx
 

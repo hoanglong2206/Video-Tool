@@ -2,7 +2,7 @@
 
 import React from "react";
 import type { StoryboardScene } from "../../types";
-import { Input, Textarea } from "@/components/ui";
+import { Textarea } from "@/components/ui";
 import { Sparkles, Wand2, Volume2, History } from "lucide-react";
 
 interface InspectorScriptTabProps {
@@ -21,19 +21,21 @@ export function InspectorScriptTab({
 
   return (
     <div className="flex flex-col gap-3">
-      {/* 1. Tiêu đề phân cảnh */}
+      {/* 1. Tiêu đề phân cảnh (2 dòng) */}
       <div>
         <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
           Tiêu đề phân cảnh
         </label>
-        <Input
+        <Textarea
+          rows={2}
           value={scene.title}
           onChange={(e) => onChangeField("title", e.target.value)}
-          className="bg-[#070A10] border-[#1E2638] h-7 text-xs font-semibold text-slate-200"
+          className="bg-[#070A10] border-[#1E2638] text-xs font-semibold text-slate-200 resize-none h-[52px] leading-snug"
+          placeholder="Nhập tiêu đề phân cảnh..."
         />
       </div>
 
-      {/* 2. Visual Prompt (AI Renderer) */}
+      {/* 2. Visual Prompt (AI Renderer - 7 dòng) */}
       <div>
         <div className="flex items-center justify-between mb-1">
           <label className="text-[10px] font-semibold text-cyan-400 uppercase tracking-wider flex items-center gap-1">
@@ -50,10 +52,10 @@ export function InspectorScriptTab({
           )}
         </div>
         <Textarea
-          rows={3}
+          rows={7}
           value={scene.visualPrompt || scene.description || ""}
           onChange={(e) => onChangeField("visualPrompt", e.target.value)}
-          className="bg-[#070A10] border-[#1E2638] text-xs resize-none leading-relaxed h-20"
+          className="bg-[#070A10] border-[#1E2638] text-xs resize-none leading-relaxed h-[140px]"
           placeholder="Mô tả bối cảnh hình ảnh điện ảnh..."
         />
 
@@ -76,7 +78,7 @@ export function InspectorScriptTab({
         </div>
       </div>
 
-      {/* 3. Lời bình & Thoại (Voiceover) */}
+      {/* 3. Lời bình & Thoại (Voiceover - 6 dòng) */}
       <div className="pt-2 border-t border-[#1C2436]">
         <div className="flex items-center justify-between mb-1">
           <label className="text-[10px] font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1">
@@ -87,10 +89,10 @@ export function InspectorScriptTab({
           </span>
         </div>
         <Textarea
-          rows={3}
+          rows={6}
           value={scene.voiceover || scene.creativeDirection || ""}
           onChange={(e) => onChangeField("voiceover", e.target.value)}
-          className="bg-[#070A10] border-[#1E2638] text-xs resize-none leading-relaxed h-20 text-slate-200"
+          className="bg-[#070A10] border-[#1E2638] text-xs resize-none leading-relaxed h-[125px] text-slate-200"
           placeholder="Nhập nội dung lời thoại thuyết minh cho cảnh này..."
         />
       </div>

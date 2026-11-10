@@ -26,6 +26,7 @@ export function StoryboardStudio({
     selectedScene,
     totalDuration,
     isLoading,
+    isAddingScene,
     isGenerating,
     viewMode,
     isPlayingAnimatics,
@@ -81,6 +82,7 @@ export function StoryboardStudio({
             selectedSceneId={selectedScene.id}
             viewMode={viewMode}
             isLoading={isLoading || isGenerating}
+            isAddingScene={isAddingScene}
             onSelectScene={setSelectedSceneId}
             onAddScene={handleAddScene}
             onDuplicateScene={(id) => handleDuplicate(id)}
