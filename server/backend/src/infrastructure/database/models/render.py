@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
-from sqlalchemy import DateTime, ForeignKey, Integer, String
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from server.backend.src.infrastructure.database.base import Base, TimestampMixin
@@ -26,6 +26,12 @@ class RenderJobModel(Base, TimestampMixin):
     duration: Mapped[str] = mapped_column(String(64), default="0s", nullable=False)
     status: Mapped[str] = mapped_column(String(32), default="queued", nullable=False)
     progress_percent: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+
+    hardware_acceleration: Mapped[str] = mapped_column(String(32), default="nvenc", nullable=False)
+    bitrate_kbps: Mapped[int] = mapped_column(Integer, default=50000, nullable=False)
+    color_space: Mapped[str] = mapped_column(String(32), default="Rec.709", nullable=False)
+    audio_bitrate: Mapped[str] = mapped_column(String(32), default="320k", nullable=False)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     output_file_path: Mapped[str | None] = mapped_column(String(512), nullable=True)
     execution_logs: Mapped[list[str] | None] = mapped_column(JSONB, default=list)
